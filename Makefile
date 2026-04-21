@@ -1,4 +1,4 @@
-.PHONY: all test docs clean doctor
+.PHONY: all test docs clean doctor waves gtkwave
 
 all: test docs
 
@@ -8,6 +8,12 @@ test:
 
 docs:
 	$(MAKE) -C docs
+
+waves:
+	$(MAKE) -C test waves
+
+gtkwave:
+	$(MAKE) -C test gtkwave
 
 clean:
 	$(MAKE) -C test clean

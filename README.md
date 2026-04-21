@@ -10,12 +10,13 @@ From a fresh Ubuntu-like machine, run:
 
 ```bash
 sudo apt update
-sudo apt install -y iverilog pandoc python3 python3-pip make
+sudo apt install -y iverilog pandoc gtkwave python3 python3-pip make
 python3 -m pip install --user cocotb
 
 # from repo root
 make test
 make docs
+make waves
 ```
 
 ## Directory Layout
@@ -39,6 +40,10 @@ From the repository root:
   - `make test`
 - Build docs PDF:
   - `make docs`
+- Generate waveforms (`.fst` and, when available, `.vcd`):
+  - `make waves`
+- Open waveforms in GTKWave:
+  - `make gtkwave`
 - Check local toolchain/setup:
   - `make doctor`
 - Run everything:
@@ -56,6 +61,9 @@ From the repository root:
 ## Outputs
 
 - Cocotb regression output under `test/` (for example `results.xml`, `sim_build/`)
+- Waveforms under `test/sim_build/`:
+  - `chi_to_bow_bridge.fst` (always when running `make waves`)
+  - `chi_to_bow_bridge.vcd` (if `fst2vcd` is installed)
 - PDF design spec at `docs/design_spec.pdf`
 
 ## Notes
