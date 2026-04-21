@@ -12,10 +12,12 @@ traffic.
 ## 2. Scope and Assumptions
 
 - Protocol model is intentionally simplified for rapid prototyping.
-- Only one outstanding transaction is supported.
+- Multiple outstanding transactions are supported, keyed by `txnid`.
 - BoW packetization uses v2 multi-flit framing.
 - Full `DATA_WIDTH` payload is carried in data flits.
 - CHI channels are abstracted to one request and one response interface.
+- Small ingress FIFOs decouple CHI request acceptance and BoW RX capture from
+  downstream processing.
 
 ## 3. Module Interface
 
@@ -41,6 +43,24 @@ Module: `chi_to_bow_bridge`
 - BoW receive:
   - `bow_rx_valid`, `bow_rx_ready`
   - `bow_rx_data[127:0]`
+
+### 3.1 Error and debug observability
+
+The bridge exposes saturating error counters and a single-cycle `err_pulse`
+indicator (asserted in the same cycle as a counted error event) for
+testbench visibility:
+
+- `err_illegal_req_hdr`
+- `err_illegal_rsp_hdr`
+- `err_unknown_txn_rsp_hdr`
+- `err_unknown_txn_rsp_data`
+- `err_dup_rsp_hdr`
+- `err_orphan_rsp_data`
+
+Debug aids:
+
+- `dbg_chi_req_fifo_used`
+- `dbg_bow_rx_fifo_used`
 
 ## 4. BoW Packet Format
 
@@ -73,10 +93,11 @@ Module: `chi_to_bow_bridge`
 
 When `chi_req_valid && chi_req_ready`:
 
-- Bridge captures CHI request fields.
-- Emits a request header flit on TX.
+- Bridge enqueues CHI request fields into an ingress FIFO.
+- The TX formatter drains the FIFO and emits a request header flit on BoW TX.
 - For writes, emits a follow-on request data flit carrying full payload.
-- Sets internal `req_pending` until matching response is received.
+- Marks the `txnid` as outstanding when the request header is emitted on BoW
+  TX.
 
 ### 5.2 BoW RX to CHI Response
 
@@ -93,8 +114,10 @@ When `bow_rx_valid && bow_rx_ready` and packet type is response:
 
 - CHI request acceptance depends on:
   - free transaction table slot for incoming `txnid`
-  - BoW TX path available (`bow_tx_ready`)
-- BoW RX ready is gated by CHI response path availability.
+  - space in the CHI request ingress FIFO
+- BoW RX ready indicates space in the BoW RX ingress FIFO.
+- BoW TX emits flits only when `bow_tx_ready` is asserted (valid/ready
+  handshake).
 
 ## 6. Verification Plan (Implemented)
 
@@ -110,8 +133,13 @@ The Cocotb testbench validates:
 3. Out-of-order read completion:
    - Multiple outstanding reads with distinct `txnid` values can complete in any
      order, and responses are matched by `txnid`.
+4. Randomized stress:
+   - Randomized BoW TX and CHI response backpressure with scoreboard checking.
+5. Illegal traffic:
+   - Directed tests increment the appropriate error counters for malformed
+     stimulus.
 
 ## 7. Known Limitations and Next Steps
 
 - Expand model toward separate CHI REQ/RSP/DAT channels.
-- Add directed and randomized stress testing for backpressure and ordering.
+- Add richer randomized sequences (burst sizes, interleaved writes/reads).
