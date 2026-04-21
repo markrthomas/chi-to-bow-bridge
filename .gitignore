@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Cocotb/simulator outputs
+sim_build/
+results.xml
+*.vcd
+*.fst
+
+# Generated docs
+docs/design_spec.pdf
