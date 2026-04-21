@@ -1,4 +1,5 @@
 import cocotb
+import random
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
 
@@ -35,6 +36,30 @@ async def drive_req_until_accepted(dut, opcode, addr, data, txnid, max_cycles=16
             return
     dut.chi_req_valid.value = 0
     raise AssertionError("Timed out waiting for chi_req_ready")
+
+
+async def recv_chi_response(dut, max_cycles=32):
+    for _ in range(max_cycles):
+        await RisingEdge(dut.clk)
+        if int(dut.chi_rsp_valid.value) == 1:
+            return (
+                int(dut.chi_rsp_opcode.value),
+                int(dut.chi_rsp_txnid.value),
+                int(dut.chi_rsp_data.value),
+            )
+    raise AssertionError("Timed out waiting for chi_rsp_valid")
+
+
+async def send_bow_flit_until_accepted(dut, flit, max_cycles=32):
+    dut.bow_rx_data.value = flit
+    dut.bow_rx_valid.value = 1
+    for _ in range(max_cycles):
+        await RisingEdge(dut.clk)
+        if int(dut.bow_rx_ready.value) == 1:
+            dut.bow_rx_valid.value = 0
+            return
+    dut.bow_rx_valid.value = 0
+    raise AssertionError("Timed out waiting for bow_rx_ready")
 
 
 async def reset_dut(dut):
@@ -222,3 +247,75 @@ async def test_out_of_order_read_responses_by_txnid(dut):
     assert int(dut.chi_rsp_valid.value) == 1
     assert int(dut.chi_rsp_txnid.value) == 0x11
     assert int(dut.chi_rsp_data.value) == a_data
+
+
+@cocotb.test()
+async def test_randomized_backpressure_scoreboard(dut):
+    """Stress ready/valid stalls and verify txnid-matched completions with a scoreboard."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    rng = random.Random(0xC0C07B)
+    dut.chi_rsp_ready.value = 1
+    dut.bow_tx_ready.value = 1
+    dut.bow_rx_valid.value = 0
+    dut.bow_rx_data.value = 0
+
+    # Mix read and write requests with unique txnids.
+    requests = [
+        {"op": CHI_OP_READ, "txnid": 0x10, "addr": 0x1000, "data": 0},
+        {"op": CHI_OP_WRITE, "txnid": 0x11, "addr": 0x1010, "data": 0x1111_2222_3333_4444},
+        {"op": CHI_OP_READ, "txnid": 0x12, "addr": 0x1020, "data": 0},
+        {"op": CHI_OP_WRITE, "txnid": 0x13, "addr": 0x1030, "data": 0xAAAA_BBBB_CCCC_DDDD},
+    ]
+
+    expected_rsp = {}
+    for req in requests:
+        await drive_req_until_accepted(dut, req["op"], req["addr"], req["data"], req["txnid"], max_cycles=64)
+        # Randomized TX backpressure while requests are being emitted.
+        dut.bow_tx_ready.value = 1 if rng.randrange(100) < 70 else 0
+        if req["op"] == CHI_OP_READ:
+            expected_rsp[req["txnid"]] = (CHI_OP_READ_RESP, 0x9000_0000_0000_0000 | req["txnid"])
+        else:
+            expected_rsp[req["txnid"]] = (CHI_OP_WRITE_ACK, 0)
+        await RisingEdge(dut.clk)
+
+    # Restore TX ready so pending request flits can drain.
+    dut.bow_tx_ready.value = 1
+
+    # Respond in randomized order and with randomized gaps/backpressure.
+    txnids = [req["txnid"] for req in requests]
+    rng.shuffle(txnids)
+    observed = {}
+
+    for txnid in txnids:
+        opcode, data = expected_rsp[txnid]
+        has_data = 1 if opcode == CHI_OP_READ_RESP else 0
+
+        # Random gap before each response.
+        for _ in range(rng.randrange(0, 4)):
+            dut.chi_rsp_ready.value = 1 if rng.randrange(100) < 75 else 0
+            await RisingEdge(dut.clk)
+
+        hdr = (PKT_TYPE_RSP_HDR << 124) | (opcode << 122) | (txnid << 114) | (has_data << 113)
+        await send_bow_flit_until_accepted(dut, hdr)
+
+        if has_data:
+            # Random delay before data flit.
+            for _ in range(rng.randrange(0, 3)):
+                dut.chi_rsp_ready.value = 1 if rng.randrange(100) < 75 else 0
+                await RisingEdge(dut.clk)
+            dat = (PKT_TYPE_RSP_DATA << 124) | (txnid << 116) | data
+            await send_bow_flit_until_accepted(dut, dat)
+
+        # Collect completion for this injected response transaction.
+        dut.chi_rsp_ready.value = 1
+        op, tid, dat = await recv_chi_response(dut, max_cycles=128)
+        observed[tid] = (op, dat)
+
+    # Check all txn completions are present and correct.
+    for tid, (exp_op, exp_dat) in expected_rsp.items():
+        assert tid in observed, f"Missing completion for txnid 0x{tid:02x}"
+        got_op, got_dat = observed[tid]
+        assert got_op == exp_op, f"Bad opcode for txnid 0x{tid:02x}"
+        assert got_dat == exp_dat, f"Bad data for txnid 0x{tid:02x}"
