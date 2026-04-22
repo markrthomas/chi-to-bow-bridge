@@ -31,6 +31,10 @@ Module: `chi_to_bow_bridge`
   - `chi_req_opcode` (`00` read, `01` write)
   - `chi_req_addr[63:0]`
   - `chi_req_data[63:0]`
+  - `chi_req_beats[7:0]` (must be non-zero)
+    - writes: number of BoW `REQ_DATA` flits emitted after `REQ_HDR`
+    - reads: number of BoW `RSP_DATA` flits expected after `RSP_HDR` when `has_data=1`
+    - prototype limitation: burst writes repeat the same `chi_req_data` payload on every beat
   - `chi_req_txnid[7:0]`
 - Simplified CHI response egress:
   - `chi_rsp_valid`, `chi_rsp_ready`
@@ -78,7 +82,12 @@ Debug aids:
 - `[121:114]` transaction ID
 - `[113]` has_data flag
 - `[112:49]` address (used for request headers)
-- `[48:0]` reserved
+- `[48:8]` reserved
+- `[7:0]` burst field: **`beats-1`** (number of follow-on data beats minus one)
+  - `REQ_HDR`: for writes, this is the number of `REQ_DATA` flits after the header, minus one
+  - `RSP_HDR`: for read responses with `has_data=1`, this is the number of `RSP_DATA` flits after the
+    header, minus one (write-ack headers must keep `has_data=0`; the low byte is still present in the
+    128-bit flit layout but is not interpreted for ack-only completions)
 
 ### 4.3 Data Flit Format (`REQ_DATA` / `RSP_DATA`)
 
@@ -95,7 +104,8 @@ When `chi_req_valid && chi_req_ready`:
 
 - Bridge enqueues CHI request fields into an ingress FIFO.
 - The TX formatter drains the FIFO and emits a request header flit on BoW TX.
-- For writes, emits a follow-on request data flit carrying full payload.
+- For writes, emits `chi_req_beats` follow-on `REQ_DATA` flits (each beat carries `DATA_WIDTH` payload
+  bits; the current RTL repeats `chi_req_data` for every beat in a burst write).
 - Marks the `txnid` as outstanding when the request header is emitted on BoW
   TX.
 
@@ -105,10 +115,11 @@ When `bow_rx_valid && bow_rx_ready` and packet type is response:
 
 - For header-only responses (for example write-ack), bridge emits CHI response
   immediately.
-- For data responses (for example read response), bridge waits for response data
-  flit and emits full-width CHI response data.
-- Asserts `chi_rsp_valid`.
-- Clears the corresponding outstanding bit for the completed `txnid`.
+- For data responses (for example read response), bridge waits for one or more `RSP_DATA` flits (per
+  `beats-1` encoded in the `RSP_HDR` low byte when `has_data=1`) and asserts `chi_rsp_valid` for each
+  data beat (opcode/txnid come from the accepted header; `chi_rsp_data` updates per `RSP_DATA` beat).
+- Clears the corresponding outstanding bit for the completed `txnid` on the final data beat (intermediate
+  beats keep the transaction outstanding).
 
 ### 5.3 Backpressure
 
@@ -130,18 +141,21 @@ The Cocotb testbench validates:
    - CHI read request creates expected BoW request header flit.
    - Injected BoW read response header plus data flit creates expected CHI read
      response.
-3. Out-of-order read completion:
+3. Burst paths:
+   - Burst writes emit multiple `REQ_DATA` beats and complete on write-ack.
+   - Burst reads accept multiple `RSP_DATA` beats and complete with last-beat data visible on CHI.
+4. Out-of-order read completion:
    - Multiple outstanding reads with distinct `txnid` values can complete in any
      order, and responses are matched by `txnid`.
-4. Randomized stress:
+5. Randomized stress:
    - Randomized BoW TX and CHI response backpressure with scoreboard checking.
    - Interleaved read/write streams with randomized out-of-order completion.
-5. Illegal traffic:
+6. Illegal traffic:
    - Directed tests increment the appropriate error counters for malformed
      stimulus.
 
 ## 7. Known Limitations and Next Steps
 
 - Expand model toward separate CHI REQ/RSP/DAT channels.
-- Add richer randomized sequences (for example burst-size-aware traffic once
-  burst fields are modeled).
+- Extend burst modeling beyond fixed per-beat payloads (separate write data beats, byte enables, and
+  richer CHI dat-channel mapping).
