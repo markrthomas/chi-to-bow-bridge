@@ -324,6 +324,92 @@ async def test_randomized_backpressure_scoreboard(dut):
 
 
 @cocotb.test()
+async def test_interleaved_mixed_read_write_responses(dut):
+    """Interleave mixed requests and randomized out-of-order responses."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    rng = random.Random(0xB01D5EED)
+    dut.chi_rsp_ready.value = 1
+    dut.bow_tx_ready.value = 1
+    dut.bow_rx_valid.value = 0
+    dut.bow_rx_data.value = 0
+
+    # Build a mixed read/write request stream with unique txnids.
+    requests = []
+    for i in range(10):
+        txnid = 0x20 + i
+        is_read = (i % 3) != 0
+        requests.append(
+            {
+                "op": CHI_OP_READ if is_read else CHI_OP_WRITE,
+                "txnid": txnid,
+                "addr": 0x4000 + (i * 0x10),
+                "data": 0xA5A5_0000_0000_0000 | txnid,
+            }
+        )
+
+    expected_rsp = {}
+    for req in requests:
+        await drive_req_until_accepted(
+            dut, req["op"], req["addr"], req["data"], req["txnid"], max_cycles=128
+        )
+        if req["op"] == CHI_OP_READ:
+            expected_rsp[req["txnid"]] = (
+                CHI_OP_READ_RESP,
+                0xD000_0000_0000_0000 | req["txnid"],
+            )
+        else:
+            expected_rsp[req["txnid"]] = (CHI_OP_WRITE_ACK, 0)
+
+        # Inject occasional CHI-side and BoW-side stalls while requests stream in.
+        for _ in range(rng.randrange(0, 3)):
+            dut.chi_rsp_ready.value = 1 if rng.randrange(100) < 85 else 0
+            dut.bow_tx_ready.value = 1 if rng.randrange(100) < 80 else 0
+            await RisingEdge(dut.clk)
+
+    dut.chi_rsp_ready.value = 1
+    dut.bow_tx_ready.value = 1
+
+    # Ensure all issued requests are visible as outstanding before responses start.
+    for req in requests:
+        await wait_until_txnid_pending(dut, req["txnid"], max_cycles=512)
+
+    txnids = [req["txnid"] for req in requests]
+    rng.shuffle(txnids)
+    observed = {}
+
+    for txnid in txnids:
+        opcode, data = expected_rsp[txnid]
+        has_data = 1 if opcode == CHI_OP_READ_RESP else 0
+
+        # Random idle/stall cycles before each response header.
+        for _ in range(rng.randrange(0, 5)):
+            dut.chi_rsp_ready.value = 1 if rng.randrange(100) < 75 else 0
+            await RisingEdge(dut.clk)
+
+        hdr = (PKT_TYPE_RSP_HDR << 124) | (opcode << 122) | (txnid << 114) | (has_data << 113)
+        await send_bow_flit_until_accepted(dut, hdr, rng=rng)
+
+        if has_data:
+            for _ in range(rng.randrange(0, 4)):
+                dut.chi_rsp_ready.value = 1 if rng.randrange(100) < 70 else 0
+                await RisingEdge(dut.clk)
+            dat = (PKT_TYPE_RSP_DATA << 124) | (txnid << 116) | data
+            await send_bow_flit_until_accepted(dut, dat, rng=rng)
+
+        dut.chi_rsp_ready.value = 1
+        got_op, got_tid, got_dat = await recv_chi_response(dut, max_cycles=256)
+        observed[got_tid] = (got_op, got_dat)
+
+    for tid, (exp_op, exp_dat) in expected_rsp.items():
+        assert tid in observed, f"Missing completion for txnid 0x{tid:02x}"
+        got_op, got_dat = observed[tid]
+        assert got_op == exp_op, f"Bad opcode for txnid 0x{tid:02x}"
+        assert got_dat == exp_dat, f"Bad data for txnid 0x{tid:02x}"
+
+
+@cocotb.test()
 async def test_illegal_sequences_increment_error_counters(dut):
     """Directed negative tests for illegal CHI/BoW sequences."""
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())

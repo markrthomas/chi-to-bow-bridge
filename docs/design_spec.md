@@ -108,7 +108,7 @@ When `bow_rx_valid && bow_rx_ready` and packet type is response:
 - For data responses (for example read response), bridge waits for response data
   flit and emits full-width CHI response data.
 - Asserts `chi_rsp_valid`.
-- Clears `req_pending`.
+- Clears the corresponding outstanding bit for the completed `txnid`.
 
 ### 5.3 Backpressure
 
@@ -135,6 +135,7 @@ The Cocotb testbench validates:
      order, and responses are matched by `txnid`.
 4. Randomized stress:
    - Randomized BoW TX and CHI response backpressure with scoreboard checking.
+   - Interleaved read/write streams with randomized out-of-order completion.
 5. Illegal traffic:
    - Directed tests increment the appropriate error counters for malformed
      stimulus.
@@ -142,4 +143,5 @@ The Cocotb testbench validates:
 ## 7. Known Limitations and Next Steps
 
 - Expand model toward separate CHI REQ/RSP/DAT channels.
-- Add richer randomized sequences (burst sizes, interleaved writes/reads).
+- Add richer randomized sequences (for example burst-size-aware traffic once
+  burst fields are modeled).
