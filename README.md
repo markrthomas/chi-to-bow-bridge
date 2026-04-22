@@ -69,8 +69,11 @@ From the repository root:
 ## Notes
 
 - Bridge supports multiple outstanding transactions, tracked by `chi_req_txnid`.
+- Burst sizing is controlled by `chi_req_beats` (non-zero). BoW `REQ_HDR` / `RSP_HDR` (when carrying
+  read data) encode **`beats-1`** in the header flit low byte.
 - BoW framing uses request/response header flits plus optional data flits.
 - Data flits carry full `DATA_WIDTH` payload (64 bits in the default config).
+- On the simplified CHI response channel, multi-beat reads retire on the **final** response-data beat, so the bridge preserves txnid ordering/association without exposing a separate beat counter on the CHI side.
 - RX-side protocol guardrails increment error counters for illegal, unknown,
   duplicate, and orphan response patterns.
 

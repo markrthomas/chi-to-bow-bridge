@@ -12,6 +12,11 @@ module chi_to_bow_bridge #(
     input  wire [1:0]               chi_req_opcode, // 2'b00=READ, 2'b01=WRITE
     input  wire [ADDR_WIDTH-1:0]    chi_req_addr,
     input  wire [DATA_WIDTH-1:0]    chi_req_data,
+    // Number of data beats for this transaction:
+    // - writes: number of BoW REQ_DATA flits emitted after REQ_HDR
+    // - reads: number of BoW RSP_DATA flits expected after RSP_HDR (has_data=1)
+    // Must be >= 1. For writes, all beats currently use the same `chi_req_data` payload.
+    input  wire [7:0]               chi_req_beats,
     input  wire [7:0]               chi_req_txnid,
 
     // Simplified CHI response channel (TX to CHI fabric)
@@ -67,7 +72,6 @@ module chi_to_bow_bridge #(
     reg [255:0] pending_txn = {256{1'b0}};
     reg [255:0] pending_txn_hold = {256{1'b0}};
 
-    wire [255:0] pending_next = (pending_txn_hold | pending_set_mask) & ~pending_clr_mask;
     // `txn_slot_free` must not depend on same-cycle `pending_set_mask` (TX commit), otherwise CHI
     // acceptance becomes self-referential and can wedge if a txnid is already outstanding.
     wire txn_slot_free = ~pending_txn_hold[chi_req_txnid];
@@ -81,7 +85,7 @@ module chi_to_bow_bridge #(
     // ---------------------------------------------------------------------
     // CHI request FIFO (packed fields)
     // ---------------------------------------------------------------------
-    localparam CHI_REQ_FIFO_W = 2 + ADDR_WIDTH + DATA_WIDTH + 8;
+    localparam CHI_REQ_FIFO_W = 2 + ADDR_WIDTH + DATA_WIDTH + 8 + 8;
 
     reg [CHI_REQ_FIFO_W-1:0] chi_mem [0:FIFO_DEPTH-1];
     reg [PTR_W-1:0] chi_wr_ptr = {PTR_W{1'b0}};
@@ -94,22 +98,19 @@ module chi_to_bow_bridge #(
     assign chi_req_ready = (!chi_full) & txn_slot_free;
 
     // Only enqueue legal CHI request opcodes. Illegal REQ-channel encodings are counted and dropped.
-    wire chi_push = chi_req_valid & chi_req_ready &
+    wire chi_req_beats_ok = (chi_req_beats != 8'd0);
+    wire chi_push = chi_req_valid & chi_req_ready & chi_req_beats_ok &
         ((chi_req_opcode == CHI_OP_READ) || (chi_req_opcode == CHI_OP_WRITE));
-    reg  chi_pop;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             chi_wr_ptr <= {PTR_W{1'b0}};
             chi_rd_ptr <= {PTR_W{1'b0}};
             chi_count  <= {CNT_W{1'b0}};
-            chi_pop <= 1'b0;
             for (i = 0; i < FIFO_DEPTH; i = i + 1) begin
                 chi_mem[i] <= {CHI_REQ_FIFO_W{1'b0}};
             end
         end else begin
-            chi_pop <= 1'b0;
-
             if (chi_push && chi_pop) begin
                 chi_count <= chi_count;
             end else if (chi_push) begin
@@ -123,6 +124,7 @@ module chi_to_bow_bridge #(
                     chi_req_opcode,
                     chi_req_addr,
                     chi_req_data,
+                    chi_req_beats,
                     chi_req_txnid
                 };
                 chi_wr_ptr <= chi_wr_ptr + 1'b1;
@@ -135,10 +137,12 @@ module chi_to_bow_bridge #(
     end
 
     wire [CHI_REQ_FIFO_W-1:0] chi_peek = chi_mem[chi_rd_ptr];
+    // FIFO packing (MSB -> LSB): {opcode, addr, data, beats, txnid}
     wire [1:0]              chi_peek_opcode = chi_peek[CHI_REQ_FIFO_W-1 -: 2];
     wire [ADDR_WIDTH-1:0]  chi_peek_addr   = chi_peek[CHI_REQ_FIFO_W-3 -: ADDR_WIDTH];
     wire [DATA_WIDTH-1:0]  chi_peek_data   = chi_peek[CHI_REQ_FIFO_W-3-ADDR_WIDTH -: DATA_WIDTH];
-    wire [7:0]              chi_peek_txnid  = chi_peek[7:0];
+    wire [7:0]              chi_peek_beats = chi_peek[15:8];
+    wire [7:0]              chi_peek_txnid = chi_peek[7:0];
 
     assign dbg_chi_req_fifo_used = {{(8 - CNT_W){1'b0}}, chi_count};
 
@@ -205,12 +209,14 @@ module chi_to_bow_bridge #(
     reg tx_need_data = 1'b0;
     reg [7:0] tx_data_txnid = 8'd0;
     reg [DATA_WIDTH-1:0] tx_data_payload = {DATA_WIDTH{1'b0}};
+    reg [7:0] tx_burst_rem = 8'd0;
 
     wire can_issue_data = (!bow_tx_valid) && tx_need_data && bow_tx_ready;
     wire can_issue_hdr  = (!bow_tx_valid) && (!tx_need_data) && bow_tx_ready && (!chi_empty);
-
-    reg issue_hdr_pulse = 1'b0;
-    wire [255:0] pending_set_mask = issue_hdr_pulse ? ({{255{1'b0}}, 1'b1} << chi_peek_txnid) : {256{1'b0}};
+    wire chi_pop = can_issue_hdr;
+    wire [255:0] pending_set_mask_now =
+        can_issue_hdr ? ({{255{1'b0}}, 1'b1} << chi_peek_txnid) : {256{1'b0}};
+    wire [255:0] pending_next = (pending_txn_hold | pending_set_mask_now) & ~pending_clr_mask;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -219,12 +225,8 @@ module chi_to_bow_bridge #(
             tx_need_data <= 1'b0;
             tx_data_txnid <= 8'd0;
             tx_data_payload <= {DATA_WIDTH{1'b0}};
-            chi_pop <= 1'b0;
-            issue_hdr_pulse <= 1'b0;
+            tx_burst_rem <= 8'd0;
         end else begin
-            chi_pop <= 1'b0;
-            issue_hdr_pulse <= 1'b0;
-
             if (bow_tx_valid && bow_tx_ready) begin
                 bow_tx_valid <= 1'b0;
             end
@@ -236,9 +238,14 @@ module chi_to_bow_bridge #(
                     tx_data_txnid,
                     {{(116-DATA_WIDTH){1'b0}}, tx_data_payload}
                 };
-                tx_need_data <= 1'b0;
+                if (tx_burst_rem > 8'd1) begin
+                    tx_burst_rem <= tx_burst_rem - 8'd1;
+                    tx_need_data <= 1'b1;
+                end else begin
+                    tx_burst_rem <= 8'd0;
+                    tx_need_data <= 1'b0;
+                end
             end else if (can_issue_hdr) begin
-                chi_pop <= 1'b1;
                 bow_tx_valid <= 1'b1;
                 bow_tx_data  <= {
                     PKT_TYPE_REQ_HDR,
@@ -246,14 +253,14 @@ module chi_to_bow_bridge #(
                     chi_peek_txnid,
                     (chi_peek_opcode == CHI_OP_WRITE),
                     chi_peek_addr[63:0],
-                    49'd0
+                    {{(49-8){1'b0}}, (chi_peek_beats - 8'd1)}
                 };
-                issue_hdr_pulse <= 1'b1;
 
                 if (chi_peek_opcode == CHI_OP_WRITE) begin
                     tx_need_data <= 1'b1;
                     tx_data_txnid <= chi_peek_txnid;
                     tx_data_payload <= chi_peek_data;
+                    tx_burst_rem <= chi_peek_beats;
                 end
             end
         end
@@ -264,6 +271,7 @@ module chi_to_bow_bridge #(
     // ---------------------------------------------------------------------
     reg [255:0] rsp_need_data;
     reg [1:0] rsp_opcode_table [0:255];
+    reg [7:0] rsp_rem_beats [0:255];
 
     reg rx_flit_valid = 1'b0;
     reg [127:0] rx_flit = 128'd0;
@@ -288,6 +296,7 @@ module chi_to_bow_bridge #(
             rsp_need_data <= {256{1'b0}};
             for (i = 0; i < 256; i = i + 1) begin
                 rsp_opcode_table[i] <= 2'b00;
+                rsp_rem_beats[i] <= 8'd0;
             end
 
             err_unknown_txn_rsp_hdr <= 32'd0;
@@ -342,10 +351,12 @@ module chi_to_bow_bridge #(
                             err_dup_rsp_hdr <= err_dup_rsp_hdr + 32'd1;
                             err_pulse <= 1'b1;
                             rsp_need_data[rx_flit[121:114]] <= 1'b0;
+                            rsp_rem_beats[rx_flit[121:114]] <= 8'd0;
                             pending_clr_mask[rx_flit[121:114]] <= 1'b1;
                         end else begin
                             rsp_need_data[rx_flit[121:114]] <= 1'b1;
                             rsp_opcode_table[rx_flit[121:114]] <= rx_flit[123:122];
+                            rsp_rem_beats[rx_flit[121:114]] <= rx_flit[7:0];
                         end
                     end else begin
                         chi_rsp_valid  <= 1'b1;
@@ -362,13 +373,18 @@ module chi_to_bow_bridge #(
                         err_unknown_txn_rsp_data <= err_unknown_txn_rsp_data + 32'd1;
                         err_pulse <= 1'b1;
                         rsp_need_data[rx_flit[123:116]] <= 1'b0;
+                        rsp_rem_beats[rx_flit[123:116]] <= 8'd0;
                     end else begin
-                        chi_rsp_valid  <= 1'b1;
-                        chi_rsp_opcode <= rsp_opcode_table[rx_flit[123:116]];
-                        chi_rsp_txnid  <= rx_flit[123:116];
-                        chi_rsp_data   <= rx_flit[DATA_WIDTH-1:0];
-                        rsp_need_data[rx_flit[123:116]] <= 1'b0;
-                        pending_clr_mask[rx_flit[123:116]] <= 1'b1;
+                        if (rsp_rem_beats[rx_flit[123:116]] != 8'd0) begin
+                            rsp_rem_beats[rx_flit[123:116]] <= rsp_rem_beats[rx_flit[123:116]] - 8'd1;
+                        end else begin
+                            chi_rsp_valid  <= 1'b1;
+                            chi_rsp_opcode <= rsp_opcode_table[rx_flit[123:116]];
+                            chi_rsp_txnid  <= rx_flit[123:116];
+                            chi_rsp_data   <= rx_flit[DATA_WIDTH-1:0];
+                            rsp_need_data[rx_flit[123:116]] <= 1'b0;
+                            pending_clr_mask[rx_flit[123:116]] <= 1'b1;
+                        end
                     end
                 end
 
