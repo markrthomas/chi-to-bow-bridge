@@ -68,9 +68,11 @@ From the repository root:
 
 ## Notes
 
-- Current bridge model supports one outstanding transaction.
-- BoW payload mapping in this starter encodes lower 50 data bits in a single
-  fixed 128-bit flit.
+- Bridge supports multiple outstanding transactions, tracked by `chi_req_txnid`.
+- BoW framing uses request/response header flits plus optional data flits.
+- Data flits carry full `DATA_WIDTH` payload (64 bits in the default config).
+- RX-side protocol guardrails increment error counters for illegal, unknown,
+  duplicate, and orphan response patterns.
 
 ## Troubleshooting
 
