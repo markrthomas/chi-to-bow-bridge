@@ -23,7 +23,8 @@ make waves
 
 - `src/` - RTL design source
 - `test/` - Cocotb testbench and simulation Makefile
-- `docs/` - Design specification and docs Makefile
+- `doc/` - Standardized documentation directory
+- `docs/` - Existing design specification and docs Makefile
 
 ## Prerequisites
 
