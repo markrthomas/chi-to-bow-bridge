@@ -23,10 +23,11 @@ async def wait_for_tx_flit(dut, max_cycles=8):
     raise AssertionError("Timed out waiting for bow_tx_valid")
 
 
-async def drive_req_until_accepted(dut, opcode, addr, data, txnid, max_cycles=16):
+async def drive_req_until_accepted(dut, opcode, addr, data, txnid, beats=1, max_cycles=16):
     dut.chi_req_opcode.value = opcode
     dut.chi_req_addr.value = addr
     dut.chi_req_data.value = data
+    dut.chi_req_beats.value = beats
     dut.chi_req_txnid.value = txnid
     dut.chi_req_valid.value = 1
     for _ in range(max_cycles):
@@ -88,6 +89,7 @@ async def reset_dut(dut):
     dut.chi_req_opcode.value = 0
     dut.chi_req_addr.value = 0
     dut.chi_req_data.value = 0
+    dut.chi_req_beats.value = 1
     dut.chi_req_txnid.value = 0
     dut.chi_rsp_ready.value = 0
     dut.bow_tx_ready.value = 0
@@ -98,6 +100,32 @@ async def reset_dut(dut):
     dut.rst_n.value = 1
     for _ in range(2):
         await RisingEdge(dut.clk)
+
+
+@cocotb.test()
+async def test_zero_beats_request_not_enqueued(dut):
+    """chi_req_beats=0 does not enqueue; CHI FIFO empty and no BoW TX for that stimulus."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    dut.bow_tx_ready.value = 1
+    dut.chi_rsp_ready.value = 1
+
+    dut.chi_req_opcode.value = CHI_OP_READ
+    dut.chi_req_addr.value = 0x1000
+    dut.chi_req_data.value = 0
+    dut.chi_req_beats.value = 0
+    dut.chi_req_txnid.value = 0x05
+    dut.chi_req_valid.value = 1
+
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+        assert int(dut.dbg_chi_req_fifo_used.value) == 0
+        assert int(dut.bow_tx_valid.value) == 0
+        assert (int(dut.dbg_pending_txn.value) & (1 << 0x05)) == 0
+
+    dut.chi_req_valid.value = 0
+    await RisingEdge(dut.clk)
 
 
 @cocotb.test()
@@ -130,6 +158,7 @@ async def test_write_request_and_ack(dut):
     assert hdr_txnid == txnid
     assert hdr_has_data == 1
     assert hdr_addr == addr
+    assert (hdr & 0xFF) == 0  # beats-1 encoded in REQ_HDR reserved low byte (1 beat => 0)
 
     # Request data flit should follow.
     data_flit = await wait_for_tx_flit(dut)
@@ -176,6 +205,7 @@ async def test_read_request_and_data_response(dut):
     assert ((hdr >> 122) & 0x3) == CHI_OP_READ
     assert ((hdr >> 114) & 0xFF) == txnid
     assert ((hdr >> 113) & 0x1) == 0
+    assert (hdr & 0xFF) == 0
 
     read_data = 0x0123_4567_89AB_CDEF
     resp_hdr = (
@@ -194,6 +224,95 @@ async def test_read_request_and_data_response(dut):
     assert op == CHI_OP_READ_RESP
     assert tid == txnid
     assert dat == read_data
+
+
+@cocotb.test()
+async def test_burst_write_request_and_ack(dut):
+    """CHI WRITE with beats>1 emits multiple BoW REQ_DATA flits, then completes on ACK."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    dut.bow_tx_ready.value = 1
+    dut.chi_rsp_ready.value = 1
+
+    addr = 0x1111_2222_3333_4444
+    data = 0xCAFE_BABE_DEAD_BEEF
+    txnid = 0x41
+    beats = 3
+
+    await drive_req_until_accepted(dut, CHI_OP_WRITE, addr, data, txnid, beats=beats)
+
+    hdr = await wait_for_tx_flit(dut)
+    assert ((hdr >> 124) & 0xF) == PKT_TYPE_REQ_HDR
+    assert ((hdr >> 122) & 0x3) == CHI_OP_WRITE
+    assert ((hdr >> 114) & 0xFF) == txnid
+    assert ((hdr >> 113) & 0x1) == 1
+    assert ((hdr >> 49) & ((1 << 64) - 1)) == addr
+    assert (hdr & 0xFF) == (beats - 1)
+
+    for _ in range(beats):
+        df = await wait_for_tx_flit(dut)
+        assert ((df >> 124) & 0xF) == PKT_TYPE_REQ_DATA
+        assert ((df >> 116) & 0xFF) == txnid
+        assert (df & ((1 << 64) - 1)) == data
+
+    resp_hdr = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_WRITE_ACK << 122)
+        | (txnid << 114)
+        | (0 << 113)
+        | ((beats - 1) & 0xFF)
+    )
+    await send_bow_flit_until_accepted(dut, resp_hdr)
+
+    dut.chi_rsp_ready.value = 1
+    op, tid, dat = await recv_chi_response(dut)
+    assert op == CHI_OP_WRITE_ACK
+    assert tid == txnid
+    assert dat == 0
+
+
+@cocotb.test()
+async def test_burst_read_request_and_data_response(dut):
+    """CHI READ with beats>1 expects multiple BoW RSP_DATA flits before completing."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    dut.bow_tx_ready.value = 1
+    dut.chi_rsp_ready.value = 1
+
+    addr = 0x5555_6666_7777_8888
+    txnid = 0x42
+    beats = 4
+
+    await drive_req_until_accepted(dut, CHI_OP_READ, addr, 0, txnid, beats=beats)
+
+    hdr = await wait_for_tx_flit(dut)
+    assert ((hdr >> 124) & 0xF) == PKT_TYPE_REQ_HDR
+    assert ((hdr >> 122) & 0x3) == CHI_OP_READ
+    assert ((hdr >> 114) & 0xFF) == txnid
+    assert ((hdr >> 113) & 0x1) == 0
+    assert (hdr & 0xFF) == (beats - 1)
+
+    datas = [0x1111_1111_1111_1111, 0x2222_2222_2222_2222, 0x3333_3333_3333_3333, 0x4444_4444_4444_4444]
+
+    resp_hdr = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_READ_RESP << 122)
+        | (txnid << 114)
+        | (1 << 113)
+        | ((beats - 1) & 0xFF)
+    )
+    await send_bow_flit_until_accepted(dut, resp_hdr)
+
+    for d in datas:
+        await send_bow_flit_until_accepted(dut, (PKT_TYPE_RSP_DATA << 124) | (txnid << 116) | d)
+
+    dut.chi_rsp_ready.value = 1
+    op, tid, dat = await recv_chi_response(dut, max_cycles=128)
+    assert op == CHI_OP_READ_RESP
+    assert tid == txnid
+    assert dat == datas[-1]
 
 
 @cocotb.test()
@@ -272,7 +391,9 @@ async def test_randomized_backpressure_scoreboard(dut):
 
     expected_rsp = {}
     for req in requests:
-        await drive_req_until_accepted(dut, req["op"], req["addr"], req["data"], req["txnid"], max_cycles=64)
+        await drive_req_until_accepted(
+            dut, req["op"], req["addr"], req["data"], req["txnid"], max_cycles=64
+        )
         if req["op"] == CHI_OP_READ:
             expected_rsp[req["txnid"]] = (CHI_OP_READ_RESP, 0x9000_0000_0000_0000 | req["txnid"])
         else:

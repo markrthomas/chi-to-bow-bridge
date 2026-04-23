@@ -1,0 +1,111 @@
+"""
+System integration smoke test: DUT = chi_to_bow_integration_top
+(BFM completes single-beat read/write; error counters must stay zero).
+"""
+
+import cocotb
+from cocotb.clock import Clock
+from cocotb.triggers import RisingEdge
+
+CHI_OP_READ = 0b00
+CHI_OP_WRITE = 0b01
+
+READ_RESP = 0b10
+WRITE_ACK = 0b11
+
+
+def bfm_read_data64(txnid: int) -> int:
+    # Must match {32'hA5A5_A5A5, 8'd0, latched_txn, 8'd0, latched_txn, 8'd0} in bow_link_partner_bfm.v
+    return (0xA5A5A5A5 << 32) | (txnid << 16) | txnid
+
+
+async def reset_dut(dut):
+    dut.rst_n.value = 0
+    dut.chi_req_valid.value = 0
+    dut.chi_req_opcode.value = 0
+    dut.chi_req_addr.value = 0
+    dut.chi_req_data.value = 0
+    dut.chi_req_beats.value = 1
+    dut.chi_req_txnid.value = 0
+    dut.chi_rsp_ready.value = 0
+    for _ in range(5):
+        await RisingEdge(dut.clk)
+    dut.rst_n.value = 1
+    for _ in range(2):
+        await RisingEdge(dut.clk)
+
+
+def assert_no_errors(dut, msg=""):
+    names = [
+        "err_unknown_txn_rsp_hdr",
+        "err_unknown_txn_rsp_data",
+        "err_dup_rsp_hdr",
+        "err_orphan_rsp_data",
+        "err_illegal_req_hdr",
+        "err_illegal_rsp_hdr",
+    ]
+    for n in names:
+        v = int(getattr(dut, n).value)
+        assert v == 0, f"{n}={v} {msg}"
+
+
+async def drive_req_accepted(
+    dut, opcode, addr, data, txnid, beats=1, max_cycles=64
+):
+    dut.chi_req_opcode.value = opcode
+    dut.chi_req_addr.value = addr
+    dut.chi_req_data.value = data
+    dut.chi_req_beats.value = beats
+    dut.chi_req_txnid.value = txnid
+    dut.chi_req_valid.value = 1
+    for _ in range(max_cycles):
+        await RisingEdge(dut.clk)
+        if int(dut.chi_req_ready.value) == 1:
+            dut.chi_req_valid.value = 0
+            return
+    dut.chi_req_valid.value = 0
+    raise AssertionError("Timed out waiting for chi_req_ready")
+
+
+async def recv_chi(dut, max_cycles=64):
+    for _ in range(max_cycles):
+        await RisingEdge(dut.clk)
+        if int(dut.chi_rsp_valid.value) == 1:
+            return (
+                int(dut.chi_rsp_opcode.value),
+                int(dut.chi_rsp_txnid.value),
+                int(dut.chi_rsp_data.value),
+            )
+    raise AssertionError("chi_rsp timeout")
+
+
+@cocotb.test()
+async def test_integration_bfm_completes_smoke(dut):
+    """Single-beat read and write through bridge + in-repo BoW BFM; err_* remain zero."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    dut.chi_rsp_ready.value = 1
+    assert_no_errors(dut, "after reset")
+
+    r_txn = 0x2A
+    w_txn = 0x2B
+    w_data = 0xDEADBEEF_0000_0000 | 0x99
+
+    await drive_req_accepted(
+        dut, CHI_OP_READ, 0x1000, 0, r_txn, beats=1
+    )
+    op, tid, rdat = await recv_chi(dut, max_cycles=128)
+    assert op == READ_RESP
+    assert tid == r_txn
+    assert rdat == bfm_read_data64(r_txn)
+    assert_no_errors(dut, "after read")
+
+    await drive_req_accepted(
+        dut, CHI_OP_WRITE, 0x2000, w_data, w_txn, beats=1
+    )
+    op, tid, wdat = await recv_chi(dut, max_cycles=128)
+    assert op == WRITE_ACK
+    assert tid == w_txn
+    assert wdat == 0
+    assert_no_errors(dut, "after write")
