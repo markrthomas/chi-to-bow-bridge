@@ -1,10 +1,14 @@
-.PHONY: all test docs clean doctor waves gtkwave
+.PHONY: all test integration-test docs clean doctor waves gtkwave
 
-all: test docs
+all: test integration-test docs
 
 test:
 	$(MAKE) -C test clean
 	$(MAKE) -C test
+
+integration-test:
+	$(MAKE) -C integration clean
+	$(MAKE) -C integration
 
 docs:
 	$(MAKE) -C docs
@@ -17,6 +21,7 @@ gtkwave:
 
 clean:
 	$(MAKE) -C test clean
+	$(MAKE) -C integration clean
 	$(MAKE) -C docs clean
 	rm -f results.xml
 
@@ -36,6 +41,7 @@ doctor:
 	@echo "cocotb-config:$$(command -v cocotb-config)"
 	@echo "== Python/cocotb checks =="
 	@python3 -c "import cocotb; print('cocotb import: OK (' + cocotb.__version__ + ')')" || (echo "ERROR: python3 cannot import cocotb"; exit 1)
+	@python3 -c "import pytest; print('pytest import: OK (' + pytest.__version__ + ')')" 2>/dev/null || echo "pytest not installed (optional; improves cocotb assertion messages)"
 	@echo "== Environment hints =="
 	@echo "VIRTUAL_ENV=$${VIRTUAL_ENV:-<unset>}"
 	@echo "PYTHONHOME=$${PYTHONHOME:-<unset>}"

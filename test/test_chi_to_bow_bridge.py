@@ -103,6 +103,32 @@ async def reset_dut(dut):
 
 
 @cocotb.test()
+async def test_zero_beats_request_not_enqueued(dut):
+    """chi_req_beats=0 does not enqueue; CHI FIFO empty and no BoW TX for that stimulus."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    dut.bow_tx_ready.value = 1
+    dut.chi_rsp_ready.value = 1
+
+    dut.chi_req_opcode.value = CHI_OP_READ
+    dut.chi_req_addr.value = 0x1000
+    dut.chi_req_data.value = 0
+    dut.chi_req_beats.value = 0
+    dut.chi_req_txnid.value = 0x05
+    dut.chi_req_valid.value = 1
+
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+        assert int(dut.dbg_chi_req_fifo_used.value) == 0
+        assert int(dut.bow_tx_valid.value) == 0
+        assert (int(dut.dbg_pending_txn.value) & (1 << 0x05)) == 0
+
+    dut.chi_req_valid.value = 0
+    await RisingEdge(dut.clk)
+
+
+@cocotb.test()
 async def test_write_request_and_ack(dut):
     """Drive CHI WRITE, observe header+data flits, inject ACK header, observe CHI response."""
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())

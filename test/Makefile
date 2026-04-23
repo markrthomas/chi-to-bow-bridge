@@ -12,7 +12,8 @@ WAVE_VCD = sim_build/$(TOPLEVEL).vcd
 ICARUS_BIN_DIR ?= /usr/bin
 SIM_CMD_PREFIX := env -u VIRTUAL_ENV -u PYTHONHOME
 export PYTHONPATH := $(PWD):$(PWD)/..:$(PYTHONPATH)
-export PYGPI_PYTHON_BIN := /usr/bin/python3
+# Match the interpreter that provides cocotb (falls back for minimal environments)
+export PYGPI_PYTHON_BIN := $(or $(shell command -v python3 2>/dev/null),/usr/bin/python3)
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
 

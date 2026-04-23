@@ -9,6 +9,9 @@ The bridge accepts a simplified CHI request stream, packetizes transactions into
 BoW header/data flits, and reconstructs simplified CHI responses from BoW RX
 traffic.
 
+**Integration** (file lists, clock/reset, `chi_to_bow_integration_top`, reference BoW BFM) is
+documented in [integration.md](integration.md).
+
 ## 2. Scope and Assumptions
 
 - Protocol model is intentionally simplified for rapid prototyping.
@@ -50,7 +53,7 @@ Module: `chi_to_bow_bridge`
 
 ### 3.1 Error and debug observability
 
-The bridge exposes saturating error counters and a single-cycle `err_pulse`
+The bridge exposes 32-bit error counters (unsigned increment; wrap on overflow) and a single-cycle `err_pulse`
 indicator (asserted in the same cycle as a counted error event) for
 testbench visibility:
 
@@ -100,9 +103,12 @@ Debug aids:
 
 ### 5.1 CHI Request to BoW TX
 
-When `chi_req_valid && chi_req_ready`:
+When `chi_req_valid && chi_req_ready` and the opcode is a legal read or write and `chi_req_beats` is
+non-zero:
 
 - Bridge enqueues CHI request fields into an ingress FIFO.
+- If `chi_req_beats` is zero, the request is not enqueued (no BoW activity and no `txnid` commitment)
+  even if `chi_req_ready` is asserted; the source must not rely on that cycle as a completed transfer.
 - The TX formatter drains the FIFO and emits a request header flit on BoW TX.
 - For writes, emits `chi_req_beats` follow-on `REQ_DATA` flits (each beat carries `DATA_WIDTH` payload
   bits; the current RTL repeats `chi_req_data` for every beat in a burst write).
@@ -116,10 +122,11 @@ When `bow_rx_valid && bow_rx_ready` and packet type is response:
 - For header-only responses (for example write-ack), bridge emits CHI response
   immediately.
 - For data responses (for example read response), bridge waits for one or more `RSP_DATA` flits (per
-  `beats-1` encoded in the `RSP_HDR` low byte when `has_data=1`) and asserts `chi_rsp_valid` for each
-  data beat (opcode/txnid come from the accepted header; `chi_rsp_data` updates per `RSP_DATA` beat).
-- Clears the corresponding outstanding bit for the completed `txnid` on the final data beat (intermediate
-  beats keep the transaction outstanding).
+  `beats-1` encoded in the `RSP_HDR` low byte when `has_data=1`). On the **final** `RSP_DATA` beat it
+  asserts `chi_rsp_valid` once with the opcode/txnid from the accepted header and that beat’s
+  `chi_rsp_data` (intermediate `RSP_DATA` beats are absorbed internally and do not assert `chi_rsp_valid`).
+- Clears the corresponding outstanding bit for the completed `txnid` on that same final data beat
+  (earlier `RSP_DATA` beats keep the transaction outstanding).
 
 ### 5.3 Backpressure
 
@@ -143,14 +150,17 @@ The Cocotb testbench validates:
      response.
 3. Burst paths:
    - Burst writes emit multiple `REQ_DATA` beats and complete on write-ack.
-   - Burst reads accept multiple `RSP_DATA` beats and complete with last-beat data visible on CHI.
-4. Out-of-order read completion:
+   - Burst reads accept multiple `RSP_DATA` beats and complete with last-beat data visible on CHI
+     (`chi_rsp_valid` only on the last beat).
+4. Zero-beat request:
+   - A read/write with `chi_req_beats=0` is not enqueued; FIFO and BoW TX stay idle for that stimulus.
+5. Out-of-order read completion:
    - Multiple outstanding reads with distinct `txnid` values can complete in any
      order, and responses are matched by `txnid`.
-5. Randomized stress:
+6. Randomized stress:
    - Randomized BoW TX and CHI response backpressure with scoreboard checking.
    - Interleaved read/write streams with randomized out-of-order completion.
-6. Illegal traffic:
+7. Illegal traffic:
    - Directed tests increment the appropriate error counters for malformed
      stimulus.
 
