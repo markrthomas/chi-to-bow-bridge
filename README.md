@@ -4,6 +4,8 @@ This repository contains a starter Verilog bridge that packetizes simplified CHI
 requests into BoW flits and reconstructs simplified CHI responses, plus a
 Cocotb testbench and design documentation.
 
+For a concise backlog and suggested priorities, see **`docs/PLAN.md`** (also built as **`docs/PLAN.pdf`** with `make docs`).
+
 ## Quick Start
 
 From a fresh Ubuntu-like machine, run:
@@ -28,7 +30,9 @@ make waves
 - `test/` - Cocotb testbench and simulation Makefile
 - `integration/` - Closed-loop top (`chi_to_bow_integration_top`) + reference BoW link BFM
 - `doc/` - Standardized documentation directory
-- `docs/` - Design specification, integration addendum, and docs Makefile
+- `docs/` - Design specification, integration addendum, **roadmap (PLAN)**, and docs Makefile (`design_spec.pdf`, `integration.pdf`, `PLAN.pdf`)
+- `uvm_bench/` - Synopsys VCS / UVM integration smoke TB (optional license)
+- `vlate_bench/` - Verilator + C++ parity smoke TB
 
 ## Prerequisites
 
@@ -58,7 +62,7 @@ From the repository root:
 - Clean generated artifacts:
   - `make clean`
 
-Continuous integration (GitHub Actions) runs the same as a full local check: `make doctor` then `make` (cocotb unit and integration sims, `design_spec.pdf` and `integration.pdf`).
+Continuous integration (GitHub Actions) runs the same as a full local check: `make doctor` then `make` (cocotb unit and integration sims, and `docs/design_spec.pdf`, `docs/integration.pdf`, and **`docs/PLAN.pdf`** via `make docs`).
 
 ## Direct Subdirectory Commands
 
@@ -75,7 +79,7 @@ Continuous integration (GitHub Actions) runs the same as a full local check: `ma
 - Waveforms under `test/sim_build/`:
   - `chi_to_bow_bridge.fst` (always when running `make waves`)
   - `chi_to_bow_bridge.vcd` (if `fst2vcd` is installed)
-- PDF design spec and integration addendum: `docs/design_spec.pdf`, `docs/integration.pdf` (from `make docs`)
+- PDF design spec, integration addendum, and roadmap: `docs/design_spec.pdf`, `docs/integration.pdf`, `docs/PLAN.pdf` (from `make docs`)
 
 ## Notes
 

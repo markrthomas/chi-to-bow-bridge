@@ -1,13 +1,15 @@
 MD_SPEC := design_spec.md
 MD_INT  := integration.md
+MD_PLAN := PLAN.md
 PDF_SPEC := design_spec.pdf
 PDF_INT  := integration.pdf
+PDF_PLAN := PLAN.pdf
 
 .PHONY: all pdf clean
 
 all: pdf
 
-pdf: $(PDF_SPEC) $(PDF_INT)
+pdf: $(PDF_SPEC) $(PDF_INT) $(PDF_PLAN)
 
 $(PDF_SPEC): $(MD_SPEC)
 	@command -v pandoc >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
@@ -17,5 +19,9 @@ $(PDF_INT): $(MD_INT)
 	@command -v pandoc >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
 	pandoc "$(MD_INT)" -o "$(PDF_INT)"
 
+$(PDF_PLAN): $(MD_PLAN)
+	@command -v pandoc >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
+	pandoc "$(MD_PLAN)" -o "$(PDF_PLAN)"
+
 clean:
-	rm -f "$(PDF_SPEC)" "$(PDF_INT)"
+	rm -f "$(PDF_SPEC)" "$(PDF_INT)" "$(PDF_PLAN)"
