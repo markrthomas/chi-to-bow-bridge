@@ -2,17 +2,16 @@ import cocotb
 import random
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
-
-
-CHI_OP_READ = 0b00
-CHI_OP_WRITE = 0b01
-CHI_OP_READ_RESP = 0b10
-CHI_OP_WRITE_ACK = 0b11
-
-PKT_TYPE_REQ_HDR = 0x1
-PKT_TYPE_REQ_DATA = 0x2
-PKT_TYPE_RSP_HDR = 0x3
-PKT_TYPE_RSP_DATA = 0x4
+from verification.golden_payloads import (
+    CHI_OP_READ,
+    CHI_OP_WRITE,
+    CHI_OP_READ_RESP,
+    CHI_OP_WRITE_ACK,
+    PKT_TYPE_REQ_DATA,
+    PKT_TYPE_REQ_HDR,
+    PKT_TYPE_RSP_DATA,
+    PKT_TYPE_RSP_HDR,
+)
 
 
 async def wait_for_tx_flit(dut, max_cycles=8):

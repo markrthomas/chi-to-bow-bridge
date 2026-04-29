@@ -19,7 +19,8 @@ enum class chi_op_ty : std::uint8_t { RD = OP_READ_U8, WR = OP_WRITE_U8 };
 constexpr std::uint8_t CHI_RSP_READ = 0x2;
 constexpr std::uint8_t CHI_RSP_WACK = 0x3;
 
-// bow_link_partner_bfm read_payload — must match DATA_WIDTH == 64 in RTL/BFM.
+// bow_link_partner_bfm read_payload (DATA_WIDTH==64).
+// Cocotb: verification/golden_payloads.bfm_read_data_u64 — keep bit layout aligned.
 inline std::uint64_t exp_read_data(std::uint8_t txnid) {
   return (static_cast<std::uint64_t>(0xA5A5A5A5) << 32) |
          (static_cast<std::uint64_t>(0) << 24) |

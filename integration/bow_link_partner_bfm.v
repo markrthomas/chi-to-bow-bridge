@@ -46,7 +46,7 @@ module bow_link_partner_bfm (
     // RSP_DATA beats remaining to transmit after HDR (beats_m1+1 total payloads).
     reg [8:0] rd_rsp_left = 9'd0;
 
-    // Deterministic read payload per txnid — must match Cocotb / UVM / Verilator benches.
+    // Deterministic read payload per txnid — mirror verification/golden_payloads.py (bfm_read_data_u64); keep SV/UVM/C++ layouts aligned.
     wire [63:0] read_payload = {32'hA5A5_A5A5, 8'd0, latched_txn, 8'd0, latched_txn};
 
     assign m_tx_ready = 1'b1;

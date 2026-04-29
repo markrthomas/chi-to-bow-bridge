@@ -13,7 +13,7 @@ package chi_tb_pkg;
   localparam logic [1:0] CHI_RSP_READ = 2'b10;
   localparam logic [1:0] CHI_RSP_WACK  = 2'b11;
 
-  // Mirror bow_link_partner_bfm deterministic read_payload (DATA_WIDTH == 64).
+  // Mirror bow_link_partner_bfm read_payload — keep numeric layout aligned with verification/golden_payloads.py (bfm_read_data_u64).
   function automatic logic [63:0] exp_read_data(input logic [7:0] txnid);
     return {32'hA5A5_A5A5, 8'd0, txnid[7:0], 8'd0, txnid[7:0]};
   endfunction

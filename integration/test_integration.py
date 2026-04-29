@@ -6,19 +6,16 @@ System integration smoke test: DUT = chi_to_bow_integration_top
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
+from verification.golden_payloads import (
+    CHI_OP_READ,
+    CHI_OP_WRITE,
+    CHI_OP_READ_RESP,
+    CHI_OP_WRITE_ACK,
+    bfm_read_data_u64 as bfm_read_data64,
+)
 
-CHI_OP_READ = 0b00
-CHI_OP_WRITE = 0b01
-
-READ_RESP = 0b10
-WRITE_ACK = 0b11
-CHI_OP_READ_RESP = READ_RESP
-CHI_OP_WRITE_ACK = WRITE_ACK
-
-
-def bfm_read_data64(txnid: int) -> int:
-    # Must match {32'hA5A5_A5A5, 8'd0, latched_txn, 8'd0, latched_txn, 8'd0} in bow_link_partner_bfm.v
-    return (0xA5A5A5A5 << 32) | (txnid << 16) | txnid
+READ_RESP = CHI_OP_READ_RESP
+WRITE_ACK = CHI_OP_WRITE_ACK
 
 
 async def reset_dut(dut):
