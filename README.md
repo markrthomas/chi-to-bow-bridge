@@ -2,9 +2,10 @@
 
 This repository contains a starter Verilog bridge that packetizes simplified CHI
 requests into BoW flits and reconstructs simplified CHI responses, plus a
-Cocotb testbench and design documentation.
+**Cocotb** testbench, design documentation, and **optional** integration testbenches:
+**UVM + Synopsys VCS** (`uvm_bench/`) and **Verilator + C++** (`vlate_bench/`).
 
-For a concise backlog and suggested priorities, see **`docs/PLAN.md`** (also built as **`docs/PLAN.pdf`** with `make docs`).
+For a concise backlog and suggested priorities, see **[`docs/PLAN.md`](docs/PLAN.md)** (also built as **`docs/PLAN.pdf`** when you run **`make docs`**).
 
 ## Quick Start
 
@@ -15,7 +16,7 @@ sudo apt update
 sudo apt install -y iverilog pandoc gtkwave python3 python3-pip make
 python3 -m pip install --user cocotb pytest
 
-# from repo root: unit tests, integration (bridge+BFM), and PDF docs
+# from repo root: unit tests, integration (bridge+BFM), spec PDFs, bench README PDFs, roadmap PDF
 make
 # or step-by-step:
 #   make test
@@ -39,7 +40,9 @@ make waves
 - `iverilog` and `vvp` available at `/usr/bin` (or adjust in `test/Makefile`)
 - Python 3 with Cocotb installed:
   - `python3 -m pip install --user cocotb pytest`
-- `pandoc` for PDF document generation
+- `pandoc` for Markdown → PDF conversion (design spec, roadmap, README PDFs)
+- **Optional — `vlate_bench/`**: [Verilator](https://www.veripool.org/verilator/) (`verilator`) and a C++17 toolchain (`make run` builds `obj_dir/Vtb_top`)
+- **Optional — `uvm_bench/`**: [Synopsys VCS](https://synopsys.com) with bundled UVM via `-ntb_opts uvm-1.2` (`make run` builds `./simv`)
 
 ## Common Commands
 
@@ -49,8 +52,9 @@ From the repository root:
   - `make test`
 - Run system integration sim (bridge + in-repo BFM, asserts `err_*` clean):
   - `make integration-test`
-- Build docs PDF:
+- Build PDFs (Markdown in `docs/` and both bench READMEs):
   - `make docs`
+  - This runs `make -C docs` (three spec/plan PDFs below), then **`make -C uvm_bench pdf`** and **`make -C vlate_bench pdf`** (environment README PDFs).
 - Generate waveforms (`.fst` and, when available, `.vcd`):
   - `make waves`
 - Open waveforms in GTKWave:
@@ -62,7 +66,19 @@ From the repository root:
 - Clean generated artifacts:
   - `make clean`
 
-Continuous integration (GitHub Actions) runs the same as a full local check: `make doctor` then `make` (cocotb unit and integration sims, and `docs/design_spec.pdf`, `docs/integration.pdf`, and **`docs/PLAN.pdf`** via `make docs`).
+Continuous integration (GitHub Actions) runs `make doctor` then `make` — the default **`make`** target does **not** invoke optional VCS/UVM or Verilator smoke sims (see `docs/PLAN.md`). It runs cocotb unit and integration sims plus **`make docs`** (spec, integration addendum, **`docs/PLAN.pdf`**, and **`uvm_bench/README.pdf`** / **`vlate_bench/README.pdf`** from Pandoc).
+
+## Verification environments (optional simulators)
+
+Quick reference:
+
+| Directory | Simulator | Typical command |
+|-----------|-----------|-----------------|
+| `test/`, `integration/` | Icarus Verilog | `make -C test`, `make -C integration` (also used by CI) |
+| `uvm_bench/` | Synopsys VCS + UVM | `make -C uvm_bench run` |
+| `vlate_bench/` | Verilator | `make -C vlate_bench run` |
+
+Each environment directory has its own **`README.md`** (and **`make pdf`** → **`README.pdf`**). See those files for flags, file lists, and troubleshooting.
 
 ## Direct Subdirectory Commands
 
@@ -70,8 +86,14 @@ Continuous integration (GitHub Actions) runs the same as a full local check: `ma
   - `make -C test`
 - Integration sim only:
   - `make -C integration`
-- Build docs only:
-  - `make -C docs`
+- Build spec/plan PDFs only (not bench README PDFs):
+  - `make -C docs pdf`
+- UVM environment (VCS installed):
+  - `make -C uvm_bench run`
+  - `make -C uvm_bench pdf` — **`uvm_bench/README.pdf`**
+- Verilator environment:
+  - `make -C vlate_bench run`
+  - `make -C vlate_bench pdf` — **`vlate_bench/README.pdf`**
 
 ## Outputs
 
@@ -79,7 +101,9 @@ Continuous integration (GitHub Actions) runs the same as a full local check: `ma
 - Waveforms under `test/sim_build/`:
   - `chi_to_bow_bridge.fst` (always when running `make waves`)
   - `chi_to_bow_bridge.vcd` (if `fst2vcd` is installed)
-- PDF design spec, integration addendum, and roadmap: `docs/design_spec.pdf`, `docs/integration.pdf`, `docs/PLAN.pdf` (from `make docs`)
+- PDFs produced by **`make docs`**:
+  - **Specs & roadmap**: `docs/design_spec.pdf`, `docs/integration.pdf`, **`docs/PLAN.pdf`** (Markdown sources in **`docs/`**)
+  - **Environment guides**: **`uvm_bench/README.pdf`**, **`vlate_bench/README.pdf`** (from each bench’s `README.md` via Pandoc; same run as above)
 
 ## Notes
 
