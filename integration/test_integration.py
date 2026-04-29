@@ -12,6 +12,8 @@ CHI_OP_WRITE = 0b01
 
 READ_RESP = 0b10
 WRITE_ACK = 0b11
+CHI_OP_READ_RESP = READ_RESP
+CHI_OP_WRITE_ACK = WRITE_ACK
 
 
 def bfm_read_data64(txnid: int) -> int:
@@ -144,3 +146,37 @@ async def test_integration_bfm_burst_through_top(dut):
     assert tid == r_txn
     assert rdat == bfm_read_data64(r_txn)
     assert_no_errors(dut, "after burst read")
+
+
+@cocotb.test()
+async def test_integration_illegal_chi_req_opcodes_increment_err_counter(dut):
+    """RESP opcodes on the CHI request channel increment err_illegal_req_hdr through integration_top."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    dut.chi_rsp_ready.value = 1
+
+    def rd32(sig):
+        return int(getattr(dut, sig).value)
+
+    base = rd32("err_illegal_req_hdr")
+
+    dut.chi_req_opcode.value = CHI_OP_READ_RESP
+    dut.chi_req_addr.value = 0
+    dut.chi_req_data.value = 0
+    dut.chi_req_beats.value = 1
+    dut.chi_req_txnid.value = 0x01
+    dut.chi_req_valid.value = 1
+    await RisingEdge(dut.clk)
+    dut.chi_req_valid.value = 0
+    await RisingEdge(dut.clk)
+    assert rd32("err_illegal_req_hdr") == base + 1
+
+    base = rd32("err_illegal_req_hdr")
+    dut.chi_req_opcode.value = CHI_OP_WRITE_ACK
+    dut.chi_req_txnid.value = 0x02
+    dut.chi_req_valid.value = 1
+    await RisingEdge(dut.clk)
+    dut.chi_req_valid.value = 0
+    await RisingEdge(dut.clk)
+    assert rd32("err_illegal_req_hdr") == base + 1
