@@ -66,7 +66,12 @@ From the repository root:
 - Clean generated artifacts:
   - `make clean`
 
-Continuous integration (GitHub Actions) runs `make doctor` then `make` — the default **`make`** target does **not** invoke optional VCS/UVM or Verilator smoke sims (see `docs/PLAN.md`). It runs cocotb unit and integration sims plus **`make docs`** (spec, integration addendum, **`docs/PLAN.pdf`**, and **`uvm_bench/README.pdf`** / **`vlate_bench/README.pdf`** from Pandoc).
+Continuous integration (GitHub Actions) runs two jobs:
+
+1. **`test`** — `make doctor && make`: cocotb unit/integration sims plus **`make docs`** (spec/integration/**`docs/PLAN.pdf`**, and **`uvm_bench/README.pdf`** / **`vlate_bench/README.pdf`**).
+2. **`vlate-bench`** — installs OSS **Verilator** and **`make -C vlate_bench run`** so the parity C++ TB stays green.
+
+Synopsys **VCS**/UVM is **not** run in CI; use **`make -C uvm_bench run`** locally. Details: **`docs/PLAN.md`**.
 
 ## Verification environments (optional simulators)
 

@@ -12,18 +12,18 @@ This document tracks **suggested directions** for the CHI-to-BoW bridge reposito
 | Documentation | `docs/design_spec.md`, `docs/integration.md`, **`docs/PLAN.md`**; PDFs via `docs/Makefile`; root **`make docs`** also builds **`uvm_bench/README.pdf`** and **`vlate_bench/README.pdf`** (see **[`README.md`](../README.md)** for the authoritative list and commands) |
 | UVM TB | `uvm_bench/`: VCS + UVM smoke path (single-beat smoke, scoreboard vs BFM read data) |
 | Verilator TB | `vlate_bench/`: C++ parity smoke vs same integration top |
-| CI (GitHub Actions) | `make doctor && make`: Icarus Cocotbs + Pandoc docs; **does not** run VCS/UVM |
+| CI (GitHub Actions) | **`test` job:** `make doctor && make` (Icarus cocotbs + Pandoc docs). **`vlate-bench` job:** Verilator + `make -C vlate_bench run`. **Does not** run VCS/UVM |
 
 ## Recently completed
 
 - **README versus tooling** — The root **[`README.md`](../README.md)** now documents `uvm_bench/` and `vlate_bench/`, the full **`make docs`** PDF outputs (spec/integration/plan PDFs under `docs/` plus **`uvm_bench/README.pdf`** and **`vlate_bench/README.pdf`**), optional prerequisites (VCS / Verilator), a verification-environment summary table, subdirectory commands, and links to this **`PLAN.md`** for backlog context.
+- **CI — Verilator bench** — [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) includes a parallel **`vlate-bench`** job (`verilator` + **`make -C vlate_bench run`**). VCS/UVM remains local-only.
 
 ## Recommended near-term actions
 
-1. **Optional CI expansion** — Add a parallel job that installs OSS Verilator and runs `make -C vlate_bench run` (no license). Keeps parity smoke from regressing on every push. Omit Synopsys VCS from CI unless a runner policy allows it.
-2. **Extend verification around bursts** — RTL supports multi-beat read/write (`chi_req_beats`, `beats-1` in headers). Extend `bow_link_partner_bfm` (or replace with a parametric responder) plus Cocotb + UVM/Verilator scoreboards so all three environments exercise the **same** multi-beat scenarios.
-3. **Error-path coverage** — Add directed Cocotb (or randomized) tests aligned with §6/§7 illegal-traffic bullets; assert counters and `err_pulse` with stable reference values.
-4. **Formalize “golden” payloads** — Centralize expected BoW flit layouts and BFM read data in one include or small package mirrored in C++/Python helpers to prevent drift among Cocotb, UVM, and Verilator.
+1. **Extend verification around bursts** — RTL supports multi-beat read/write (`chi_req_beats`, `beats-1` in headers). Extend `bow_link_partner_bfm` (or replace with a parametric responder) plus Cocotb + UVM/Verilator scoreboards so all three environments exercise the **same** multi-beat scenarios.
+2. **Error-path coverage** — Add directed Cocotb (or randomized) tests aligned with §6/§7 illegal-traffic bullets; assert counters and `err_pulse` with stable reference values.
+3. **Formalize “golden” payloads** — Centralize expected BoW flit layouts and BFM read data in one include or small package mirrored in C++/Python helpers to prevent drift among Cocotb, UVM, and Verilator.
 
 ## Medium-term directions
 
