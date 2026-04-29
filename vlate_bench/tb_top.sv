@@ -1,0 +1,63 @@
+// Pin shell for Verilator C++ stimulus (mirrors uvm_bench chi_integration_if hookup intent).
+//
+`timescale 1ns / 1ps
+
+module tb_top (
+    input wire clk,
+    input wire rst_n,
+    input wire chi_req_valid,
+    input wire [1:0] chi_req_opcode,
+    input wire [63:0] chi_req_addr,
+    input wire [63:0] chi_req_data,
+    input wire [7:0] chi_req_beats,
+    input wire [7:0] chi_req_txnid,
+    input wire chi_rsp_ready,
+    output wire chi_req_ready,
+    output wire chi_rsp_valid,
+    output wire [1:0] chi_rsp_opcode,
+    output wire [63:0] chi_rsp_data,
+    output wire [7:0] chi_rsp_txnid,
+    output wire [31:0] err_unknown_txn_rsp_hdr,
+    output wire [31:0] err_unknown_txn_rsp_data,
+    output wire [31:0] err_dup_rsp_hdr,
+    output wire [31:0] err_orphan_rsp_data,
+    output wire [31:0] err_illegal_req_hdr,
+    output wire [31:0] err_illegal_rsp_hdr,
+    output wire err_pulse,
+    output wire [7:0] dbg_chi_req_fifo_used,
+    output wire [7:0] dbg_bow_rx_fifo_used,
+    output wire [255:0] dbg_pending_txn,
+    output wire [255:0] dbg_rsp_need_data
+);
+  chi_to_bow_integration_top #(
+      .ADDR_WIDTH (64),
+      .DATA_WIDTH (64),
+      .FIFO_DEPTH (4)
+  ) dut (
+      .clk (clk),
+      .rst_n (rst_n),
+      .chi_req_valid (chi_req_valid),
+      .chi_req_ready (chi_req_ready),
+      .chi_req_opcode (chi_req_opcode),
+      .chi_req_addr (chi_req_addr),
+      .chi_req_data (chi_req_data),
+      .chi_req_beats (chi_req_beats),
+      .chi_req_txnid (chi_req_txnid),
+      .chi_rsp_valid (chi_rsp_valid),
+      .chi_rsp_ready (chi_rsp_ready),
+      .chi_rsp_opcode (chi_rsp_opcode),
+      .chi_rsp_data (chi_rsp_data),
+      .chi_rsp_txnid (chi_rsp_txnid),
+      .err_unknown_txn_rsp_hdr (err_unknown_txn_rsp_hdr),
+      .err_unknown_txn_rsp_data (err_unknown_txn_rsp_data),
+      .err_dup_rsp_hdr (err_dup_rsp_hdr),
+      .err_orphan_rsp_data (err_orphan_rsp_data),
+      .err_illegal_req_hdr (err_illegal_req_hdr),
+      .err_illegal_rsp_hdr (err_illegal_rsp_hdr),
+      .err_pulse (err_pulse),
+      .dbg_chi_req_fifo_used (dbg_chi_req_fifo_used),
+      .dbg_bow_rx_fifo_used (dbg_bow_rx_fifo_used),
+      .dbg_pending_txn (dbg_pending_txn),
+      .dbg_rsp_need_data (dbg_rsp_need_data)
+  );
+endmodule : tb_top

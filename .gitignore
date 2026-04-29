@@ -11,3 +11,16 @@ results.xml
 # Generated docs
 docs/design_spec.pdf
 docs/integration.pdf
+uvm_bench/README.pdf
+vlate_bench/README.pdf
+
+# Verilator TB build output
+vlate_bench/obj_dir/
+
+# Synopsys VCS outputs (when running uvm_bench)
+uvm_bench/simv
+uvm_bench/simv.daidir/
+uvm_bench/csrc/
+uvm_bench/ucli.key
+uvm_bench/*.log
+uvm_bench/*.vpd

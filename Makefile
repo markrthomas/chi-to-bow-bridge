@@ -12,6 +12,8 @@ integration-test:
 
 docs:
 	$(MAKE) -C docs
+	$(MAKE) -C uvm_bench pdf
+	$(MAKE) -C vlate_bench pdf
 
 waves:
 	$(MAKE) -C test waves
@@ -23,6 +25,8 @@ clean:
 	$(MAKE) -C test clean
 	$(MAKE) -C integration clean
 	$(MAKE) -C docs clean
+	$(MAKE) -C uvm_bench clean-pdf
+	$(MAKE) -C vlate_bench clean-pdf
 	rm -f results.xml
 
 doctor:
