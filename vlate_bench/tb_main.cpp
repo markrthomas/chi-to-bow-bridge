@@ -146,9 +146,10 @@ int main(int argc, char** argv) {
     (void)sampling_posedge_rsp(*top, sb, lg);
   }
 
-  // chi_smoke_seq::body()
+  // --- single-beat smoke (chi_smoke_seq / chi_smoke_test)
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::WR,
-          0x1234'5678'9ABC'DEF0ULL, 0xDEAD'BEEF'CAFE'BABEULL,
+          static_cast<std::uint64_t>(0x1234'5678'9ABC'DEF0),
+          static_cast<std::uint64_t>(0xDEAD'BEEF'CAFE'BABE),
           1, 0x3C, sb, lg)) {
     return 1;
   }
@@ -156,13 +157,31 @@ int main(int argc, char** argv) {
   run_clock_only(*top, sb, /*50 cycles ≈500 ns*/ 50, lg);
 
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::RD,
-          0x1000ULL, 0ULL,
+          static_cast<std::uint64_t>(0x1000), std::uint64_t{0},
           1, 0x2A, sb, lg)) {
     return 1;
   }
 
-  // chi_smoke_test::run_phase drain (#5 us ≈500 cycles @10 ns period)
-  run_clock_only(*top, sb, 500, lg);
+  run_clock_only(*top, sb, /*pacing between smoke and burst */ 200, lg);
+
+  // --- multi-beat (chi_burst_smoke_seq / integration/cocotb parity)
+  if (!drive_until_accept(*top, chi_tb::chi_op_ty::WR,
+          static_cast<std::uint64_t>(0x3000'4000'5000'6000),
+          static_cast<std::uint64_t>(0xBAD0C0DE11112222),
+          3, 0x71, sb, lg)) {
+    return 1;
+  }
+
+  run_clock_only(*top, sb, 150, lg);
+
+  if (!drive_until_accept(*top, chi_tb::chi_op_ty::RD,
+          static_cast<std::uint64_t>(0x5000), std::uint64_t{0},
+          4, 0x72, sb, lg)) {
+    return 1;
+  }
+
+  // Drain long enough for bursts + smoke tail (chi_burst_test objection scale)
+  run_clock_only(*top, sb, 2500, lg);
 
   if (sb.pending() != 0U) {
     lg << "[SB] ERROR: " << sb.pending() << " unmatched expected responses at end-of-test.\n";

@@ -21,7 +21,7 @@ constexpr std::uint8_t CHI_RSP_WACK = 0x3;
 
 // bow_link_partner_bfm read_payload — must match DATA_WIDTH == 64 in RTL/BFM.
 inline std::uint64_t exp_read_data(std::uint8_t txnid) {
-  return (static_cast<std::uint64_t>(0xA5A5A5A5ULL) << 32) |
+  return (static_cast<std::uint64_t>(0xA5A5A5A5) << 32) |
          (static_cast<std::uint64_t>(0) << 24) |
          (static_cast<std::uint64_t>(txnid) << 16) |
          (static_cast<std::uint64_t>(0) << 8) | static_cast<std::uint64_t>(txnid);

@@ -26,7 +26,7 @@ package chi_tb_pkg;
     rand logic [7:0]  txnid;
     rand logic [7:0]  beats;
 
-    constraint c_beats_integration {beats == 8'd1;}
+    constraint c_beats_integration {beats >= 8'd1 && beats <= 8'd16;}
 
     `uvm_object_utils_begin(chi_seq_item)
       `uvm_field_enum(chi_op_ty, op, UVM_ALL_ON)
@@ -331,6 +331,65 @@ package chi_tb_pkg;
       r.beats = 8'd1;
       start_item(r);
       finish_item(r);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  class chi_burst_smoke_seq extends uvm_sequence #(chi_seq_item);
+    `uvm_object_utils(chi_burst_smoke_seq)
+
+    function new(string name = "chi_burst_smoke_seq");
+      super.new(name);
+    endfunction
+
+    virtual task body();
+      chi_seq_item w;
+      chi_seq_item r;
+
+      w = chi_seq_item::type_id::create("bw");
+      w.op = CHI_WR;
+      w.addr = 64'h3000_4000_5000_6000;
+      w.data = 64'hBAD0_C0DE_1111_2222;
+      w.txnid = 8'h71;
+      w.beats = 8'd3;
+      start_item(w);
+      finish_item(w);
+
+      #(1us);
+
+      r = chi_seq_item::type_id::create("br");
+      r.op = CHI_RD;
+      r.addr = 64'h5000;
+      r.data = 64'h0;
+      r.txnid = 8'h72;
+      r.beats = 8'd4;
+      start_item(r);
+      finish_item(r);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  class chi_burst_test extends uvm_test;
+    `uvm_component_utils(chi_burst_test)
+
+    chi_env env;
+
+    function new(string name = "chi_burst_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction
+
+    virtual function void build_phase(uvm_phase phase);
+      super.build_phase(phase);
+      env = chi_env::type_id::create("env", this);
+    endfunction
+
+    virtual task run_phase(uvm_phase phase);
+      chi_burst_smoke_seq seq_h;
+      phase.raise_objection(this);
+      seq_h = chi_burst_smoke_seq::type_id::create("seq_h");
+      seq_h.start(env.agent.seqr);
+      #(8us);
+      phase.drop_objection(this);
     endtask
   endclass
 

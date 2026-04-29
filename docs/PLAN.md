@@ -8,22 +8,22 @@ This document tracks **suggested directions** for the CHI-to-BoW bridge reposito
 |------|--------|
 | RTL | `chi_to_bow_bridge` with simplified CHI REQ/RSP, BoW flit packeting, outstanding-txn table, error counters |
 | Cocotb | Unit tests (`test/`) and integration closed loop with `chi_to_bow_integration_top` + `bow_link_partner_bfm` (`integration/`) |
-| Reference BFM | Single-beat-centric; burst paths need explicit extension to match full RTL capabilities |
+| Reference BFM | `bow_link_partner_bfm`: deterministic single- and multi-beat read/write completions (REQ_DATA / RSP_HDR+RSP_DATA choreography); no reordering or error injection |
 | Documentation | `docs/design_spec.md`, `docs/integration.md`, **`docs/PLAN.md`**; PDFs via `docs/Makefile`; root **`make docs`** also builds **`uvm_bench/README.pdf`** and **`vlate_bench/README.pdf`** (see **[`README.md`](../README.md)** for the authoritative list and commands) |
-| UVM TB | `uvm_bench/`: VCS + UVM smoke path (single-beat smoke, scoreboard vs BFM read data) |
-| Verilator TB | `vlate_bench/`: C++ parity smoke vs same integration top |
+| UVM TB | `uvm_bench/`: `chi_smoke_test` + **`chi_burst_test`** (VCS + UVM) vs integration top + BFM |
+| Verilator TB | `vlate_bench/`: C++ smoke + **burst** parity vs same integration top |
 | CI (GitHub Actions) | **`test` job:** `make doctor && make` (Icarus cocotbs + Pandoc docs). **`vlate-bench` job:** Verilator + `make -C vlate_bench run`. **Does not** run VCS/UVM |
 
 ## Recently completed
 
 - **README versus tooling** — The root **[`README.md`](../README.md)** now documents `uvm_bench/` and `vlate_bench/`, the full **`make docs`** PDF outputs (spec/integration/plan PDFs under `docs/` plus **`uvm_bench/README.pdf`** and **`vlate_bench/README.pdf`**), optional prerequisites (VCS / Verilator), a verification-environment summary table, subdirectory commands, and links to this **`PLAN.md`** for backlog context.
 - **CI — Verilator bench** — [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) includes a parallel **`vlate-bench`** job (`verilator` + **`make -C vlate_bench run`**). VCS/UVM remains local-only.
+- **Bursts on integration path** — `bow_link_partner_bfm` absorbs multi-beat writes and emits multi-beat read responses; Cocotb (**`test_integration_bfm_burst_through_top`**), UVM (**`chi_burst_test`**), and **`vlate_bench`** run the same directed 3/4-beat scenario alongside single-beat smoke.
 
 ## Recommended near-term actions
 
-1. **Extend verification around bursts** — RTL supports multi-beat read/write (`chi_req_beats`, `beats-1` in headers). Extend `bow_link_partner_bfm` (or replace with a parametric responder) plus Cocotb + UVM/Verilator scoreboards so all three environments exercise the **same** multi-beat scenarios.
-2. **Error-path coverage** — Add directed Cocotb (or randomized) tests aligned with §6/§7 illegal-traffic bullets; assert counters and `err_pulse` with stable reference values.
-3. **Formalize “golden” payloads** — Centralize expected BoW flit layouts and BFM read data in one include or small package mirrored in C++/Python helpers to prevent drift among Cocotb, UVM, and Verilator.
+1. **Error-path coverage** — Add directed Cocotb (or randomized) tests aligned with §6/§7 illegal-traffic bullets; assert counters and `err_pulse` with stable reference values.
+2. **Formalize “golden” payloads** — Centralize expected BoW flit layouts and BFM read data in one include or small package mirrored in C++/Python helpers to prevent drift among Cocotb, UVM, and Verilator.
 
 ## Medium-term directions
 

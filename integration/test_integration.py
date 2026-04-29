@@ -109,3 +109,38 @@ async def test_integration_bfm_completes_smoke(dut):
     assert tid == w_txn
     assert wdat == 0
     assert_no_errors(dut, "after write")
+
+
+@cocotb.test()
+async def test_integration_bfm_burst_through_top(dut):
+    """Multi-beat write and read through integration top + burst-capable BFM; err_* remain zero."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    dut.chi_rsp_ready.value = 1
+    assert_no_errors(dut, "after reset")
+
+    w_txn = 0x71
+    r_txn = 0x72
+    w_beats = 3
+    r_beats = 4
+    w_addr = 0x3000_4000_5000_6000
+    w_data = 0xBAD0_C0DE_1111_2222
+
+    await drive_req_accepted(
+        dut, CHI_OP_WRITE, w_addr, w_data, w_txn, beats=w_beats
+    )
+    op, tid, wdat = await recv_chi(dut, max_cycles=256)
+    assert op == WRITE_ACK
+    assert tid == w_txn
+    assert wdat == 0
+    assert_no_errors(dut, "after burst write")
+
+    await drive_req_accepted(
+        dut, CHI_OP_READ, 0x5000, 0, r_txn, beats=r_beats
+    )
+    op, tid, rdat = await recv_chi(dut, max_cycles=256)
+    assert op == READ_RESP
+    assert tid == r_txn
+    assert rdat == bfm_read_data64(r_txn)
+    assert_no_errors(dut, "after burst read")

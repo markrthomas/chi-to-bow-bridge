@@ -56,10 +56,13 @@ iverilog -g2012 -f integration/files.f
 
 ### Reference BFM scope
 
-- Models **only single-beat** read and write (request `beats-1` / response burst field must be 0 in
-  the path this BFM handles).
-- Does **not** model reordering, errors, or protocol violations on the link.
-- Replace with your die-to-die or PHY partner model (or BFM) for system validation.
+- Implements **deterministic completions** for full-size CHI bursts on the REQ channel (multi-beat
+  writes absorb every `REQ_DATA` flit; multi-beat reads reply with matching `beats-1` on `RSP_HDR`
+  and the corresponding number of `RSP_DATA` beats). Payloads follow the deterministic `DATA_WIDTH`
+  layout in **`bow_link_partner_bfm`** (same canonical read pattern exercised by Cocotb, UVM, and Verilator benches).
+- Does **not** model reordering, errors, or protocol violations beyond happy-path completion per transaction.
+- Replace with your die-to-die / PHY partner (or fuller BFM) for system-scale validation.
+
 
 ## Running the integration sim
 
@@ -69,15 +72,14 @@ From the repository root:
 make integration-test
 ```
 
-This runs the Cocotb test in `integration/test_integration.py` against
-`chi_to_bow_integration_top`. The test:
+This runs the Cocotb tests in `integration/test_integration.py` against `chi_to_bow_integration_top`.
 
-1. Drives a single-beat read and a single-beat write on the CHI request interface.
-2. Asserts the expected CHI read data (matches the deterministic pattern in
-   `bow_link_partner_bfm.v`) and write-ack behavior.
-3. Fails if any of `err_illegal_req_hdr`, `err_illegal_rsp_hdr`, `err_unknown_txn_rsp_hdr`,
-   `err_unknown_txn_rsp_data`, `err_dup_rsp_hdr`, or `err_orphan_rsp_data` is non-zero (wrap-safe at
-  32 bits—see main design spec).
+1. **`test_integration_bfm_completes_smoke`** — single-beat read and write on CHI REQ; asserts read data (`bow_link_partner_bfm`) and write-ack.
+2. **`test_integration_bfm_burst_through_top`** — multi-beat write/read through the integration top matching the burst-capable reference BFM.
+
+Both fail if any of `err_illegal_req_hdr`, `err_illegal_rsp_hdr`, `err_unknown_txn_rsp_hdr`,
+`err_unknown_txn_rsp_data`, `err_dup_rsp_hdr`, or `err_orphan_rsp_data` is non-zero (wrap-safe at
+32 bits; see design spec).
 
 ## Replacing the BFM in silicon/FPGA
 

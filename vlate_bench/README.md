@@ -7,8 +7,8 @@ This directory mirrors the **intent** of `uvm_bench` using **Verilator**: the DU
 The same **integration** scenario as the UVM smoke flow:
 
 - **DUT hierarchy:** `chi_to_bow_integration_top` ( `chi_to_bow_bridge` + `bow_link_partner_bfm` ).
-- **Stimulus:** One **single-beat write** (`txnid = 0x3C`), **~500 ns idle** between transactions (50 clock cycles at the default 10 ns period used in this bench), then one **single-beat read** (`txnid = 0x2A`).
-- **Checks:** `chi_tb::scoreboard` compares CHI responses to the same rules as `uvm_bench/uvm/chi_tb_pkg.sv`, including **`exp_read_data(txnid)`** matching the reference BFM’s read payload.
+- **Stimulus:** **Single-beat** write/read (`txnid` 0x3C / 0x2A) with ~500 ns idle between; then **burst** write (3 beats, `txnid` 0x71) and read (4 beats, `txnid` 0x72), matching `integration/test_integration.py` and `uvm_bench` **`chi_burst_smoke_seq`** pacing.
+- **Checks:** `chi_tb::scoreboard` uses the same rules as `uvm_bench/uvm/chi_tb_pkg.sv`, including **`exp_read_data(txnid)`** for read completions.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ The same **integration** scenario as the UVM smoke flow:
 |------|------|
 | `sim.f` | Verilog file list (paths relative to **`vlate_bench/`**). |
 | `tb_top.sv` | Top module: all CHI and clock/reset pins are **ports** so C++ can drive/sample them; instantiates `chi_to_bow_integration_top`. |
-| `tb_main.cpp` | Clock generator, reset bring-up, **driver** (`drive_until_accept`), **monitor** (`sampling_posedge_rsp` on rising edges), **smoke sequence** and **drain** cycles, final scoreboard check, `TB: PASS` / exit code. |
+| `tb_main.cpp` | Clock generator, reset, **`drive_until_accept`**, **`sampling_posedge_rsp`**, single-beat smoke + **burst** choreography, long-drain **clock loop**, exit code. Address/data uses **`static_cast<std::uint64_t>(0x...)`** on hex literals (**no `ULL` suffix** on hex tokens; some toolchains reject it). |
 | `chi_tb.hpp` | Types (`chi_exp_item`, `chi_obs_item`), **`exp_read_data()`**, and **`scoreboard`** (expectation queue vs observed responses). |
 | `Makefile` | Verilator **`run`** / **`clean`** / **`pdf`** (README → PDF via Pandoc). |
 
@@ -83,8 +83,8 @@ verilator -Wall -Wno-fatal \
 | `chi_driver::drive_until_accept` | `drive_until_accept()` |
 | `chi_rsp_monitor` | `sampling_posedge_rsp()` each time the clock rises |
 | `chi_scoreboard` | `chi_tb::scoreboard` |
-| `chi_smoke_seq` | Explicit write / delay / read in `main()` |
-| `chi_smoke_test` objection drain | `run_clock_only(..., 500)` after the read |
+| `chi_smoke_seq` + `chi_burst_smoke_seq` | Two phases in `main()` (smoke then burst) with clock-only pacing between |
+| `chi_smoke_test` / `chi_burst_test` drain | `run_clock_only(..., 2500)` after the burst read (covers both smoke and burst responses) |
 
 Clocking is **two half-cycles per period** (toggle `clk` 0 → 1 → 0) with **10 ns** period, matching the UVM `tb_top` style (`always #5 clk = ~clk`).
 
