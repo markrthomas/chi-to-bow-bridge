@@ -277,6 +277,9 @@ module chi_to_bow_bridge #(
     reg [127:0] rx_flit = 128'd0;
 
     reg chi_req_seen = 1'b0;
+    // Blocking scratch (same always block) so err_pulse drives from exactly one NBA (avoids
+    // indeterminate multi-driver ordering across simulators for Icarus vs Verilator parity).
+    reg err_pulse_next;
 
     assign dbg_rsp_need_data = rsp_need_data;
 
@@ -307,11 +310,12 @@ module chi_to_bow_bridge #(
             err_illegal_req_hdr <= 32'd0;
             err_illegal_rsp_hdr <= 32'd0;
             err_pulse <= 1'b0;
+            err_pulse_next = 1'b0;
             pending_clr_mask <= {256{1'b0}};
             chi_req_seen <= 1'b0;
         end else begin
             bow_pop <= 1'b0;
-            err_pulse <= 1'b0;
+            err_pulse_next = 1'b0;
             pending_clr_mask <= {256{1'b0}};
 
             if (chi_rsp_valid && chi_rsp_ready) begin
@@ -324,7 +328,7 @@ module chi_to_bow_bridge #(
             if (chi_req_valid && !chi_req_seen &&
                 ((chi_req_opcode == CHI_OP_READ_RESP) || (chi_req_opcode == CHI_OP_WRITE_ACK))) begin
                 err_illegal_req_hdr <= err_illegal_req_hdr + 32'd1;
-                err_pulse <= 1'b1;
+                err_pulse_next = 1'b1;
                 chi_req_seen <= 1'b1;
             end else if (!chi_req_valid) begin
                 chi_req_seen <= 1'b0;
@@ -335,22 +339,22 @@ module chi_to_bow_bridge #(
                 if (rx_flit[127:124] == PKT_TYPE_RSP_HDR) begin
                     if ((rx_flit[123:122] == CHI_OP_WRITE_ACK) && rx_flit[113]) begin
                         err_illegal_rsp_hdr <= err_illegal_rsp_hdr + 32'd1;
-                        err_pulse <= 1'b1;
+                        err_pulse_next = 1'b1;
                     end else if ((rx_flit[123:122] == CHI_OP_READ_RESP) && !rx_flit[113]) begin
                         err_illegal_rsp_hdr <= err_illegal_rsp_hdr + 32'd1;
-                        err_pulse <= 1'b1;
+                        err_pulse_next = 1'b1;
                     end
 
                     if ((rx_flit[123:122] == CHI_OP_READ_RESP) && rx_flit[113] && !pending_txn_hold[rx_flit[121:114]]) begin
                         err_unknown_txn_rsp_hdr <= err_unknown_txn_rsp_hdr + 32'd1;
-                        err_pulse <= 1'b1;
+                        err_pulse_next = 1'b1;
                     end else if ((rx_flit[123:122] == CHI_OP_WRITE_ACK) && !pending_txn_hold[rx_flit[121:114]]) begin
                         err_unknown_txn_rsp_hdr <= err_unknown_txn_rsp_hdr + 32'd1;
-                        err_pulse <= 1'b1;
+                        err_pulse_next = 1'b1;
                     end else if (rx_flit[113]) begin
                         if (rsp_need_data[rx_flit[121:114]]) begin
                             err_dup_rsp_hdr <= err_dup_rsp_hdr + 32'd1;
-                            err_pulse <= 1'b1;
+                            err_pulse_next = 1'b1;
                             rsp_need_data[rx_flit[121:114]] <= 1'b0;
                             rsp_rem_beats[rx_flit[121:114]] <= 8'd0;
                             pending_clr_mask[rx_flit[121:114]] <= 1'b1;
@@ -369,10 +373,10 @@ module chi_to_bow_bridge #(
                 end else if (rx_flit[127:124] == PKT_TYPE_RSP_DATA) begin
                     if (!rsp_need_data[rx_flit[123:116]]) begin
                         err_orphan_rsp_data <= err_orphan_rsp_data + 32'd1;
-                        err_pulse <= 1'b1;
+                        err_pulse_next = 1'b1;
                     end else if (!pending_txn_hold[rx_flit[123:116]]) begin
                         err_unknown_txn_rsp_data <= err_unknown_txn_rsp_data + 32'd1;
-                        err_pulse <= 1'b1;
+                        err_pulse_next = 1'b1;
                         rsp_need_data[rx_flit[123:116]] <= 1'b0;
                         rsp_rem_beats[rx_flit[123:116]] <= 8'd0;
                     end else begin
@@ -395,6 +399,8 @@ module chi_to_bow_bridge #(
                 rx_flit_valid <= 1'b1;
                 bow_pop <= 1'b1;
             end
+
+            err_pulse <= err_pulse_next;
 
             pending_txn <= pending_next;
             pending_txn_hold <= pending_next;

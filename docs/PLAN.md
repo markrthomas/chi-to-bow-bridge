@@ -19,14 +19,16 @@ This document tracks **suggested directions** for the CHI-to-BoW bridge reposito
 - **README versus tooling** — The root **[`README.md`](../README.md)** now documents `uvm_bench/` and `vlate_bench/`, the full **`make docs`** PDF outputs (spec/integration/plan PDFs under `docs/` plus **`uvm_bench/README.pdf`** and **`vlate_bench/README.pdf`**), optional prerequisites (VCS / Verilator), a verification-environment summary table, subdirectory commands, and links to this **`PLAN.md`** for backlog context.
 - **CI — Verilator bench** — [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) includes a parallel **`vlate-bench`** job (`verilator` + **`make -C vlate_bench run`**). VCS/UVM remains local-only.
 - **Bursts on integration path** — `bow_link_partner_bfm` absorbs multi-beat writes and emits multi-beat read responses; Cocotb (**`test_integration_bfm_burst_through_top`**), UVM (**`chi_burst_test`**), and **`vlate_bench`** run the same directed 3/4-beat scenario alongside single-beat smoke.
-- **Error-path (integration)** — **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** drives illegal CHI request-channel opcodes through **`chi_to_bow_integration_top`** and checks **`err_illegal_req_hdr`** (unit **`test/`** still covers broader BoW-side illegals with direct **`bow_rx`** access).
+- **Error-path (integration)** — **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** drives illegal CHI request-channel opcodes through **`chi_to_bow_integration_top`**, asserts **`err_illegal_req_hdr`**, and checks **`err_pulse`** (sampled after the clock edge settles on each violation). Unit **`test/`** still covers broader BoW-side illegals with direct **`bow_rx`** access.
 - **Golden payloads (Python)** — **`verification/golden_payloads.py`** centralizes CHI opcode / BoW packet-type constants and **`bfm_read_data_u64`** for Cocotb; SV (**`bow_link_partner_bfm`**, **`chi_tb_pkg.sv`**) and C++ (**`chi_tb.hpp`**) carry cross-references to keep layouts aligned.
 
 ## Recommended near-term actions
 
-1. **Deeper error-path checks** — Assert **`err_pulse`** alongside counters where helpful; extend coverage for edge cases once **`bow_rx`** is exposed or via SV bind for integration-style BoW fault injection.
+1. **Deeper error-path checks** — Broader BoW ingress fault injection on the integration top ( **`bow_rx`** not exposed today) via SV bind or additional top-level tie-offs; optional randomized Cocotb beyond directed cases.
 
 2. **Optional: machine-readable export** — Generate a minimal header/constants file from **`golden_payloads.py`** (script) if drift becomes painful; manual comments remain the baseline.
+
+## Medium-term directions
 
 | Theme | Aim |
 |-------|-----|

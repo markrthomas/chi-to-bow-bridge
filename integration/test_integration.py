@@ -5,7 +5,7 @@ System integration smoke test: DUT = chi_to_bow_integration_top
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge
+from cocotb.triggers import FallingEdge, RisingEdge
 from verification.golden_payloads import (
     CHI_OP_READ,
     CHI_OP_WRITE,
@@ -165,6 +165,11 @@ async def test_integration_illegal_chi_req_opcodes_increment_err_counter(dut):
     dut.chi_req_txnid.value = 0x01
     dut.chi_req_valid.value = 1
     await RisingEdge(dut.clk)
+    # Sample after the posedge has committed err_pulse (holds through the high phase).
+    await FallingEdge(dut.clk)
+    assert (
+        int(dut.err_pulse.value) == 1
+    ), "err_pulse expected with illegal REQ opcode (READ_RESP on REQ channel)"
     dut.chi_req_valid.value = 0
     await RisingEdge(dut.clk)
     assert rd32("err_illegal_req_hdr") == base + 1
@@ -174,6 +179,10 @@ async def test_integration_illegal_chi_req_opcodes_increment_err_counter(dut):
     dut.chi_req_txnid.value = 0x02
     dut.chi_req_valid.value = 1
     await RisingEdge(dut.clk)
+    await FallingEdge(dut.clk)
+    assert (
+        int(dut.err_pulse.value) == 1
+    ), "err_pulse expected with illegal REQ opcode (WRITE_ACK on REQ channel)"
     dut.chi_req_valid.value = 0
     await RisingEdge(dut.clk)
     assert rd32("err_illegal_req_hdr") == base + 1
