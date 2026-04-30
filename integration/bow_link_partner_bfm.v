@@ -87,11 +87,11 @@ module bow_link_partner_bfm (
                 S_WACK: begin
                     if (!s_rx_valid) begin
                         s_rx_valid <= 1'b1;
-                        s_rx_data  <= (PKT_TYPE_RSP_HDR << 124)
-                            | (CHI_OP_WRITE_ACK << 122)
-                            | (latched_txn << 114)
-                            | (1'b0 << 113)
-                            | hdr_beats_m1[7:0];
+                        s_rx_data  <= (128'(PKT_TYPE_RSP_HDR) << 124)
+                            | (128'(CHI_OP_WRITE_ACK) << 122)
+                            | (128'(latched_txn) << 114)
+                            | (128'(1'b0) << 113)
+                            | 128'(hdr_beats_m1);
                     end else if (s_rx_valid && s_rx_ready) begin
                         s_rx_valid <= 1'b0;
                         st         <= S_IDLE;
@@ -100,11 +100,11 @@ module bow_link_partner_bfm (
                 S_RD_HDR: begin
                     if (!s_rx_valid) begin
                         s_rx_valid <= 1'b1;
-                        s_rx_data  <= (PKT_TYPE_RSP_HDR << 124)
-                            | (CHI_OP_READ_RESP << 122)
-                            | (latched_txn << 114)
-                            | (1'b1 << 113)
-                            | hdr_beats_m1[7:0];
+                        s_rx_data  <= (128'(PKT_TYPE_RSP_HDR) << 124)
+                            | (128'(CHI_OP_READ_RESP) << 122)
+                            | (128'(latched_txn) << 114)
+                            | (128'(1'b1) << 113)
+                            | 128'(hdr_beats_m1);
                     end else if (s_rx_valid && s_rx_ready) begin
                         s_rx_valid  <= 1'b0;
                         rd_rsp_left <= {1'b0, hdr_beats_m1} + 9'd1;
@@ -114,8 +114,8 @@ module bow_link_partner_bfm (
                 S_RD_DATA: begin
                     if (!s_rx_valid) begin
                         s_rx_valid <= 1'b1;
-                        s_rx_data  <= (PKT_TYPE_RSP_DATA << 124)
-                            | (latched_txn << 116)
+                        s_rx_data  <= (128'(PKT_TYPE_RSP_DATA) << 124)
+                            | (128'(latched_txn) << 116)
                             | {64'd0, read_payload};
                     end else if (s_rx_valid && s_rx_ready) begin
                         s_rx_valid <= 1'b0;

@@ -294,9 +294,10 @@ module chi_to_bow_bridge #(
             chi_rsp_txnid  <= 8'd0;
 
             rsp_need_data <= {256{1'b0}};
+            // Blocking `=` avoids BLKLOOPINIT (NBAs indexed by loop var are unsupported in resets).
             for (i = 0; i < 256; i = i + 1) begin
-                rsp_opcode_table[i] <= 2'b00;
-                rsp_rem_beats[i] <= 8'd0;
+                rsp_opcode_table[i] = 2'b00;
+                rsp_rem_beats[i] = 8'd0;
             end
 
             err_unknown_txn_rsp_hdr <= 32'd0;
