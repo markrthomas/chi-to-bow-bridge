@@ -15,7 +15,9 @@ module bow_link_partner_bfm (
     // Bridge bow_tx (master-toward-link from bridge perspective)
     input  wire        m_tx_valid,
     output wire        m_tx_ready,
+    /* verilator lint_off UNUSEDSIGNAL */
     input  wire [127:0] m_tx_data,
+    /* verilator lint_on UNUSEDSIGNAL */
     // Bridge bow_rx (link toward bridge)
     output reg         s_rx_valid,
     input  wire        s_rx_ready,
@@ -36,15 +38,15 @@ module bow_link_partner_bfm (
     localparam S_RD_HDR       = 3'd3;
     localparam S_RD_DATA      = 3'd4;
 
-    reg [2:0] st = S_IDLE;
+    reg [2:0] st;
 
-    reg [7:0] latched_txn = 8'd0;
-    reg [7:0] hdr_beats_m1 = 8'd0;  // beats-1 from REQ_HDR (writes) or echoed on RSP_HDR (reads)
+    reg [7:0] latched_txn;
+    reg [7:0] hdr_beats_m1;  // beats-1 from REQ_HDR (writes) or echoed on RSP_HDR (reads)
 
     // REQ_DATA beats remaining including the next REQ_DATA handshake (beats_m1+1 initial).
-    reg [8:0] wr_req_left = 9'd0;
+    reg [8:0] wr_req_left;
     // RSP_DATA beats remaining to transmit after HDR (beats_m1+1 total payloads).
-    reg [8:0] rd_rsp_left = 9'd0;
+    reg [8:0] rd_rsp_left;
 
     // Deterministic read payload per txnid — mirror verification/golden_payloads.py (bfm_read_data_u64); keep SV/UVM/C++ layouts aligned.
     wire [63:0] read_payload = {32'hA5A5_A5A5, 8'd0, latched_txn, 8'd0, latched_txn};
