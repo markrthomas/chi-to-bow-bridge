@@ -270,8 +270,9 @@ module chi_to_bow_bridge #(
     // RX: BoW RX FIFO -> CHI RSP (+ guardrails)
     // ---------------------------------------------------------------------
     reg [255:0] rsp_need_data;
-    reg [1:0] rsp_opcode_table [0:255];
-    reg [7:0] rsp_rem_beats [0:255];
+    // Packed per-txn tables (256 txnids); flat regs clear in one reset assign (no reset loop).
+    reg [511:0] rsp_opcode_flat;   // txnid i: bits [2*i +: 2]
+    reg [2047:0] rsp_rem_flat;     // txnid i: bits [8*i +: 8]
 
     reg rx_flit_valid;
     /* verilator lint_off UNUSEDSIGNAL */
@@ -296,10 +297,8 @@ module chi_to_bow_bridge #(
             chi_rsp_txnid  <= 8'd0;
 
             rsp_need_data <= {256{1'b0}};
-            for (i = 0; i < 256; i = i + 1) begin
-                rsp_opcode_table[i] = 2'b00;
-                rsp_rem_beats[i] = 8'd0;
-            end
+            rsp_opcode_flat <= {512{1'b0}};
+            rsp_rem_flat <= {2048{1'b0}};
 
             err_unknown_txn_rsp_hdr <= 32'd0;
             err_unknown_txn_rsp_data <= 32'd0;
@@ -353,12 +352,12 @@ module chi_to_bow_bridge #(
                             err_dup_rsp_hdr <= err_dup_rsp_hdr + 32'd1;
                             err_pulse <= 1'b1;
                             rsp_need_data[rx_flit[121:114]] <= 1'b0;
-                            rsp_rem_beats[rx_flit[121:114]] <= 8'd0;
+                            rsp_rem_flat[rx_flit[121:114]*8 +: 8] <= 8'd0;
                             pending_clr_mask[rx_flit[121:114]] <= 1'b1;
                         end else begin
                             rsp_need_data[rx_flit[121:114]] <= 1'b1;
-                            rsp_opcode_table[rx_flit[121:114]] <= rx_flit[123:122];
-                            rsp_rem_beats[rx_flit[121:114]] <= rx_flit[7:0];
+                            rsp_opcode_flat[rx_flit[121:114]*2 +: 2] <= rx_flit[123:122];
+                            rsp_rem_flat[rx_flit[121:114]*8 +: 8] <= rx_flit[7:0];
                         end
                     end else begin
                         chi_rsp_valid  <= 1'b1;
@@ -375,13 +374,14 @@ module chi_to_bow_bridge #(
                         err_unknown_txn_rsp_data <= err_unknown_txn_rsp_data + 32'd1;
                         err_pulse <= 1'b1;
                         rsp_need_data[rx_flit[123:116]] <= 1'b0;
-                        rsp_rem_beats[rx_flit[123:116]] <= 8'd0;
+                        rsp_rem_flat[rx_flit[123:116]*8 +: 8] <= 8'd0;
                     end else begin
-                        if (rsp_rem_beats[rx_flit[123:116]] != 8'd0) begin
-                            rsp_rem_beats[rx_flit[123:116]] <= rsp_rem_beats[rx_flit[123:116]] - 8'd1;
+                        if (rsp_rem_flat[rx_flit[123:116]*8 +: 8] != 8'd0) begin
+                            rsp_rem_flat[rx_flit[123:116]*8 +: 8] <=
+                                rsp_rem_flat[rx_flit[123:116]*8 +: 8] - 8'd1;
                         end else begin
                             chi_rsp_valid  <= 1'b1;
-                            chi_rsp_opcode <= rsp_opcode_table[rx_flit[123:116]];
+                            chi_rsp_opcode <= rsp_opcode_flat[rx_flit[123:116]*2 +: 2];
                             chi_rsp_txnid  <= rx_flit[123:116];
                             chi_rsp_data   <= rx_flit[DATA_WIDTH-1:0];
                             rsp_need_data[rx_flit[123:116]] <= 1'b0;
