@@ -69,7 +69,7 @@ From the repository root:
 Continuous integration (GitHub Actions) runs two jobs:
 
 1. **`test`** — `make doctor && make`: cocotb unit/integration sims plus **`make docs`** (spec/integration/**`docs/PLAN.pdf`**, and **`uvm_bench/README.pdf`** / **`vlate_bench/README.pdf`**).
-2. **`vlate-bench`** — installs OSS **Verilator** and **`make -C vlate_bench run`** so the parity C++ TB stays green.
+2. **`vlate-bench`** — installs OSS **Verilator**, runs **`make -C vlate_bench lint`** (RTL-only) then **`make -C vlate_bench run`** so lint + parity C++ TB stay green.
 
 Synopsys **VCS**/UVM is **not** run in CI; use **`make -C uvm_bench run`** locally. Details: **`docs/PLAN.md`**.
 
@@ -81,7 +81,7 @@ Quick reference:
 |-----------|-----------|-----------------|
 | `test/`, `integration/` | Icarus Verilog | `make -C test`, `make -C integration` (also used by CI) |
 | `uvm_bench/` | Synopsys VCS + UVM | `make -C uvm_bench run` |
-| `vlate_bench/` | Verilator | `make -C vlate_bench run` |
+| `vlate_bench/` | Verilator | `make -C vlate_bench lint`, `make -C vlate_bench run` |
 
 Each environment directory has its own **`README.md`** (and **`make pdf`** → **`README.pdf`**). See those files for flags, file lists, and troubleshooting.
 
@@ -97,6 +97,7 @@ Each environment directory has its own **`README.md`** (and **`make pdf`** → *
   - `make -C uvm_bench run`
   - `make -C uvm_bench pdf` — **`uvm_bench/README.pdf`**
 - Verilator environment:
+  - `make -C vlate_bench lint`
   - `make -C vlate_bench run`
   - `make -C vlate_bench pdf` — **`vlate_bench/README.pdf`**
 

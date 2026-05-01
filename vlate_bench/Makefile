@@ -1,5 +1,6 @@
 # Verilator TB — parallel to uvm_bench (C++ driver/mon/scoreboard).
-# From vlate_bench:  make run
+# From vlate_bench:  make lint — verilator --lint-only on sim.f (CI)
+#                     make run
 #                     make pdf  — README.md → README.pdf (requires pandoc)
 
 VERILATOR ?= verilator
@@ -17,7 +18,11 @@ VFLAGS     = -Wall -Wno-fatal \
 MD  := README.md
 PDF := README.pdf
 
-.PHONY: run clean clean-pdf pdf
+.PHONY: run lint clean clean-pdf pdf
+
+# OSS lint-only gate (CI): RTL + tb_top shell, no C++ link.
+lint:
+	$(VERILATOR) --lint-only -Wall -Wno-fatal -f sim.f
 
 $(SIM): tb_main.cpp tb_top.sv $(RTL) sim.f
 	$(VERILATOR) $(VFLAGS) \

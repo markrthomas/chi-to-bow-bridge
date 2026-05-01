@@ -142,6 +142,29 @@ package chi_tb_pkg;
         end
       end
     endtask
+
+    // Illegal CHI REQ opcodes (response encodings on REQ channel). No scoreboard expectation.
+    // Parity: integration/test_integration.py `test_integration_illegal_chi_req_opcodes_increment_err_counter`.
+    task automatic drive_illegal_req_phase(logic [1:0] opc, logic [7:0] txnid);
+      wait(vif.rst_n === 1'b1);
+      vif.chi_req_opcode <= opc;
+      vif.chi_req_addr   <= '0;
+      vif.chi_req_data   <= '0;
+      vif.chi_req_beats  <= 8'd1;
+      vif.chi_req_txnid  <= txnid;
+      vif.chi_req_valid  <= 1'b1;
+      forever @(posedge vif.clk) begin
+        if (vif.chi_req_valid && vif.chi_req_ready) begin
+          break;
+        end
+      end
+      @(negedge vif.clk);
+      if (vif.err_pulse !== 1'b1) begin
+        `uvm_error("CHK", "err_pulse expected for illegal CHI REQ opcode")
+      end
+      vif.chi_req_valid <= 1'b0;
+      @(posedge vif.clk);
+    endtask
   endclass
 
   //----------------------------------------------------------------------
@@ -300,6 +323,7 @@ package chi_tb_pkg;
   endclass
 
   //----------------------------------------------------------------------
+  // integration/test_integration.py smoke order: read @0x1000 txnid 0x2A, then write @0x2000 txnid 0x2B.
   class chi_smoke_seq extends uvm_sequence #(chi_seq_item);
     `uvm_object_utils(chi_smoke_seq)
 
@@ -308,20 +332,8 @@ package chi_tb_pkg;
     endfunction
 
     virtual task body();
-      chi_seq_item w;
       chi_seq_item r;
-
-      w = chi_seq_item::type_id::create("w");
-      w.op = CHI_WR;
-      w.addr = 64'h1234_5678_9ABC_DEF0;
-      w.data = 64'hDEAD_BEEF_CAFE_BABE;
-      w.txnid = 8'h3C;
-      w.beats = 8'd1;
-      start_item(w);
-      finish_item(w);
-
-      // Give bow_link_partner_bfm time to return to IDLE between transactions.
-      #(500ns);
+      chi_seq_item w;
 
       r = chi_seq_item::type_id::create("r");
       r.op = CHI_RD;
@@ -331,10 +343,22 @@ package chi_tb_pkg;
       r.beats = 8'd1;
       start_item(r);
       finish_item(r);
+
+      #(500ns);
+
+      w = chi_seq_item::type_id::create("w");
+      w.op = CHI_WR;
+      w.addr = 64'h2000;
+      w.data = 64'hDEAD_BEEF_0000_0099;
+      w.txnid = 8'h2B;
+      w.beats = 8'd1;
+      start_item(w);
+      finish_item(w);
     endtask
   endclass
 
   //----------------------------------------------------------------------
+  // Integration burst parity — override `burst_traffic()` in a subclass for directed variants.
   class chi_burst_smoke_seq extends uvm_sequence #(chi_seq_item);
     `uvm_object_utils(chi_burst_smoke_seq)
 
@@ -343,6 +367,10 @@ package chi_tb_pkg;
     endfunction
 
     virtual task body();
+      burst_traffic();
+    endtask
+
+    virtual task burst_traffic();
       chi_seq_item w;
       chi_seq_item r;
 
@@ -369,19 +397,31 @@ package chi_tb_pkg;
   endclass
 
   //----------------------------------------------------------------------
-  class chi_burst_test extends uvm_test;
-    `uvm_component_utils(chi_burst_test)
+  virtual class chi_base_test extends uvm_test;
 
-    chi_env env;
+    chi_env                env;
+    virtual chi_integration_if vif;
 
-    function new(string name = "chi_burst_test", uvm_component parent = null);
+    function new(string name, uvm_component parent);
       super.new(name, parent);
-    endfunction
+    endfunction : new
 
     virtual function void build_phase(uvm_phase phase);
       super.build_phase(phase);
+      if (!uvm_config_db#(virtual chi_integration_if)::get(this, "", "vif", vif)) begin
+        `uvm_fatal("CFG", "virtual chi_integration_if not set for chi_base_test subtree")
+      end
       env = chi_env::type_id::create("env", this);
     endfunction
+  endclass
+
+  //----------------------------------------------------------------------
+  class chi_burst_test extends chi_base_test;
+    `uvm_component_utils(chi_burst_test)
+
+    function new(string name = "chi_burst_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction : new
 
     virtual task run_phase(uvm_phase phase);
       chi_burst_smoke_seq seq_h;
@@ -394,26 +434,51 @@ package chi_tb_pkg;
   endclass
 
   //----------------------------------------------------------------------
-  class chi_smoke_test extends uvm_test;
-    `uvm_component_utils(chi_smoke_test)
+  class chi_illegal_req_test extends chi_base_test;
+    `uvm_component_utils(chi_illegal_req_test)
 
-    chi_env env;
+    function new(string name = "chi_illegal_req_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction : new
+
+    virtual task run_phase(uvm_phase phase);
+      logic [31:0] base_cnt;
+      phase.raise_objection(this);
+
+      repeat (10) @(posedge vif.clk);
+
+      base_cnt = vif.err_illegal_req_hdr;
+      env.agent.drv.drive_illegal_req_phase(CHI_RSP_READ, 8'h01);
+      if (vif.err_illegal_req_hdr !== (base_cnt + 32'd1)) begin
+        `uvm_error("CHK",
+          $sformatf("err_illegal_req_hdr exp=%0d obs=%0d", base_cnt + 32'd1, vif.err_illegal_req_hdr))
+      end
+
+      base_cnt = vif.err_illegal_req_hdr;
+      env.agent.drv.drive_illegal_req_phase(CHI_RSP_WACK, 8'h02);
+      if (vif.err_illegal_req_hdr !== (base_cnt + 32'd1)) begin
+        `uvm_error("CHK",
+          $sformatf("err_illegal_req_hdr exp=%0d obs=%0d", base_cnt + 32'd1, vif.err_illegal_req_hdr))
+      end
+
+      #(500ns);
+      phase.drop_objection(this);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  class chi_smoke_test extends chi_base_test;
+    `uvm_component_utils(chi_smoke_test)
 
     function new(string name = "chi_smoke_test", uvm_component parent = null);
       super.new(name, parent);
-    endfunction
-
-    virtual function void build_phase(uvm_phase phase);
-      super.build_phase(phase);
-      env = chi_env::type_id::create("env", this);
-    endfunction
+    endfunction : new
 
     virtual task run_phase(uvm_phase phase);
       chi_smoke_seq seq_h;
       phase.raise_objection(this);
       seq_h = chi_smoke_seq::type_id::create("seq_h");
       seq_h.start(env.agent.seqr);
-      // Req acceptance finishes before responses; allow BFM + bridge to drain.
       #(5us);
       phase.drop_objection(this);
     endtask

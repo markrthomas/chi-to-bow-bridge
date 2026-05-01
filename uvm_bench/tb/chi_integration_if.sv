@@ -7,6 +7,8 @@
 
 interface chi_integration_if (input logic clk);
   logic        rst_n;
+  logic [31:0] err_illegal_req_hdr;
+  logic        err_pulse;
   logic        chi_req_valid;
   logic        chi_req_ready;
   logic [1:0]  chi_req_opcode;
