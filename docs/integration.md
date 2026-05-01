@@ -54,9 +54,12 @@ iverilog -g2012 -f integration/files.f
 2. `bow_link_partner_bfm` — a **small behavioral model** of the far-side link that closes the BoW
    loop in simulation.
 
-**Port list** is the same as the bridge (CHI, clock, reset, and error / debug) except the BoW bus is
-**internal** to the top (not exposed). Integrators can copy this top as a template or use the bridge
-**without** the BFM and connect real BoW to `bow_tx` / `bow_rx`.
+**Port list:** CHI REQ/RSP, clocks, reset, **`err_*`**, and **`dbg_*`** mirror **`chi_to_bow_bridge`**. The **`bow_tx`/`bow_rx` link between **`chi_to_bow_bridge`** and **`bow_link_partner_bfm`** is internal (**not breakout pins**) so Cocotb can close-loop deterministically without binding.
+
+Five optional injector pins (**`bow_inj_en`**, **`bow_inj_valid`**, **`bow_inj_ready`**, **`bow_inj_data_hi`**, **`bow_inj_data_lo`**) multiplex a TB-driven **128-bit** flit (two **64-bit** halves) onto the bridge **`bow_rx` input when **`bow_inj_en`** is asserted; the partner BFM **`s_rx` port is stalled while injecting. With **`bow_inj_en`** held low (default normal path), keep **`bow_inj_valid`** low and ignore the data halves.
+
+Tape-out hierarchies without fault injection should tie **`bow_inj_en`** low permanently (or regenerate a thinner top exporting raw **`bow_tx`/`bow_rx`** without inject hooks).
+
 
 ### Reference BFM scope
 
@@ -80,7 +83,8 @@ This runs the Cocotb tests in `integration/test_integration.py` against `chi_to_
 
 1. **`test_integration_bfm_completes_smoke`** — single-beat read and write on CHI REQ; asserts read data (`bow_link_partner_bfm`) and write-ack.
 2. **`test_integration_bfm_burst_through_top`** — multi-beat write/read through the integration top matching the burst-capable reference BFM.
-3. **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** — driven illegal CHI request-channel opcodes; **`err_pulse`** / **`err_illegal_req_hdr`**.
+3. **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** - driven illegal CHI request-channel opcodes; **`err_pulse`** / **`err_illegal_req_hdr`**.
+4. **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`** - unknown-txnid **`RSP_HDR`** on **`bow_inj_*`** asserts **`err_unknown_txn_rsp_hdr`** (see block-level illegal BoW sequence parity in **`test/test_chi_to_bow_bridge.py`**).
 
 Smoke **(1)** and burst **(2)** fail if any of `err_illegal_req_hdr`, `err_illegal_rsp_hdr`, `err_unknown_txn_rsp_hdr`,
 `err_unknown_txn_rsp_data`, `err_dup_rsp_hdr`, or `err_orphan_rsp_data` is non-zero (wrap-safe at

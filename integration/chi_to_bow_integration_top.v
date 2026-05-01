@@ -1,5 +1,6 @@
-// Integration top: CHI to BoW bridge with in-repo BoW link partner (reference BFM).
-// Exposes the same CHI, clock, and observability as `chi_to_bow_bridge` for system tie-in.
+// Integration top: CHI to BoW bridge + in-repo BoW link partner (reference BFM).
+// Same CHI, clock, and observability ports as standalone bridge, plus optional bow_inj_* BoW RX mux hooks
+// for TB fault injection (bow_inj_en=0 selects partner BFM responses only).
 
 `timescale 1ns / 1ps
 
@@ -35,14 +36,33 @@ module chi_to_bow_integration_top #(
     output wire [7:0]              dbg_chi_req_fifo_used,
     output wire [7:0]              dbg_bow_rx_fifo_used,
     output wire [255:0]            dbg_pending_txn,
-    output wire [255:0]            dbg_rsp_need_data
+    output wire [255:0]            dbg_rsp_need_data,
+    // TB injection on the bridge BoW RX path (stalls partner BFM s_rx_* when asserted).
+    // When bow_inj_en=0, companion bow_inj_* pins are ignored; tie bow_inj_valid=0 in normal sims.
+    input  wire                   bow_inj_en,
+    input  wire                   bow_inj_valid,
+    output wire                   bow_inj_ready,
+    input  wire [63:0]            bow_inj_data_hi,
+    input  wire [63:0]            bow_inj_data_lo
 );
     wire        bow_tx_valid;
     wire        bow_tx_ready;
     wire [127:0] bow_tx_data;
-    wire        bow_rx_valid;
-    wire        bow_rx_ready;
-    wire [127:0] bow_rx_data;
+
+    wire        bfm_rx_valid;
+    wire        bfm_rx_ready;
+    wire [127:0] bfm_rx_data;
+
+    wire [127:0] bow_inj_packed = {bow_inj_data_hi, bow_inj_data_lo};
+
+    wire        rx_mux_valid;
+    wire        rx_mux_ready;
+    wire [127:0] rx_mux_data;
+
+    assign rx_mux_valid = bow_inj_en ? bow_inj_valid : bfm_rx_valid;
+    assign rx_mux_data  = bow_inj_en ? bow_inj_packed : bfm_rx_data;
+    assign bfm_rx_ready = bow_inj_en ? 1'b0 : rx_mux_ready;
+    assign bow_inj_ready = bow_inj_en ? rx_mux_ready : 1'b0;
 
     chi_to_bow_bridge #(
         .ADDR_WIDTH (ADDR_WIDTH),
@@ -66,9 +86,9 @@ module chi_to_bow_integration_top #(
         .bow_tx_valid  (bow_tx_valid),
         .bow_tx_ready  (bow_tx_ready),
         .bow_tx_data   (bow_tx_data),
-        .bow_rx_valid  (bow_rx_valid),
-        .bow_rx_ready  (bow_rx_ready),
-        .bow_rx_data   (bow_rx_data),
+        .bow_rx_valid  (rx_mux_valid),
+        .bow_rx_ready  (rx_mux_ready),
+        .bow_rx_data   (rx_mux_data),
         .err_unknown_txn_rsp_hdr  (err_unknown_txn_rsp_hdr),
         .err_unknown_txn_rsp_data (err_unknown_txn_rsp_data),
         .err_dup_rsp_hdr     (err_dup_rsp_hdr),
@@ -88,8 +108,8 @@ module chi_to_bow_integration_top #(
         .m_tx_valid  (bow_tx_valid),
         .m_tx_ready  (bow_tx_ready),
         .m_tx_data   (bow_tx_data),
-        .s_rx_valid  (bow_rx_valid),
-        .s_rx_ready  (bow_rx_ready),
-        .s_rx_data   (bow_rx_data)
+        .s_rx_valid  (bfm_rx_valid),
+        .s_rx_ready  (bfm_rx_ready),
+        .s_rx_data   (bfm_rx_data)
     );
 endmodule

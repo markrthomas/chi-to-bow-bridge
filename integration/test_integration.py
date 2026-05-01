@@ -11,6 +11,7 @@ from verification.golden_payloads import (
     CHI_OP_WRITE,
     CHI_OP_READ_RESP,
     CHI_OP_WRITE_ACK,
+    PKT_TYPE_RSP_HDR,
     bfm_read_data_u64 as bfm_read_data64,
 )
 
@@ -27,6 +28,10 @@ async def reset_dut(dut):
     dut.chi_req_beats.value = 1
     dut.chi_req_txnid.value = 0
     dut.chi_rsp_ready.value = 0
+    dut.bow_inj_en.value = 0
+    dut.bow_inj_valid.value = 0
+    dut.bow_inj_data_hi.value = 0
+    dut.bow_inj_data_lo.value = 0
     for _ in range(5):
         await RisingEdge(dut.clk)
     dut.rst_n.value = 1
@@ -46,6 +51,21 @@ def assert_no_errors(dut, msg=""):
     for n in names:
         v = int(getattr(dut, n).value)
         assert v == 0, f"{n}={v} {msg}"
+
+
+def assert_fault_isolated_unknown_rsp_hdr_only(dut, exp_unknown_hdr, msg=""):
+    """Counters should be quiet except ``err_unknown_txn_rsp_hdr == exp_unknown_hdr``."""
+    expect = [
+        ("err_unknown_txn_rsp_hdr", exp_unknown_hdr),
+        ("err_unknown_txn_rsp_data", 0),
+        ("err_dup_rsp_hdr", 0),
+        ("err_orphan_rsp_data", 0),
+        ("err_illegal_req_hdr", 0),
+        ("err_illegal_rsp_hdr", 0),
+    ]
+    for n, v in expect:
+        ov = int(getattr(dut, n).value)
+        assert ov == v, f"{n}={ov} wanted {v} {msg}"
 
 
 async def drive_req_accepted(
@@ -76,6 +96,37 @@ async def recv_chi(dut, max_cycles=64):
                 int(dut.chi_rsp_data.value),
             )
     raise AssertionError("chi_rsp timeout")
+
+
+async def wait_until_counter_eq(dut, name, expected, max_cycles=48):
+    for _ in range(max_cycles):
+        await RisingEdge(dut.clk)
+        if int(getattr(dut, name).value) == expected:
+            return
+    raise AssertionError(
+        f"Timed out waiting for {name} == {expected} (last "
+        + str(int(getattr(dut, name).value))
+        + ")"
+    )
+
+
+async def send_bow_inj_flit(dut, flit128: int, max_cycles=64):
+    hi = (flit128 >> 64) & ((1 << 64) - 1)
+    lo = flit128 & ((1 << 64) - 1)
+    dut.bow_inj_en.value = 1
+    dut.bow_inj_data_hi.value = hi
+    dut.bow_inj_data_lo.value = lo
+    dut.bow_inj_valid.value = 1
+    for _ in range(max_cycles):
+        await RisingEdge(dut.clk)
+        if int(dut.bow_inj_valid.value) == 1 and int(dut.bow_inj_ready.value) == 1:
+            dut.bow_inj_valid.value = 0
+            await RisingEdge(dut.clk)
+            dut.bow_inj_en.value = 0
+            return
+    dut.bow_inj_valid.value = 0
+    dut.bow_inj_en.value = 0
+    raise AssertionError("Timed out waiting for BoW RX inject handshake")
 
 
 @cocotb.test()
@@ -186,3 +237,30 @@ async def test_integration_illegal_chi_req_opcodes_increment_err_counter(dut):
     dut.chi_req_valid.value = 0
     await RisingEdge(dut.clk)
     assert rd32("err_illegal_req_hdr") == base + 1
+
+
+@cocotb.test()
+async def test_integration_unknown_txnid_bow_rsp_hdr_via_inj(dut):
+    """Unknown-txnid BoW RSP_HDR on ``bow_inj_*`` increments ``err_unknown_txn_rsp_hdr``.
+
+    Mirrors the block Cocotb case in ``test_chi_to_bow_bridge``
+    ``test_illegal_sequences_increment_error_counters`` (unknown txn rsp hdr).
+    """
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+    dut.chi_rsp_ready.value = 1
+
+    def rd32(sig):
+        return int(getattr(dut, sig).value)
+
+    base_unknown_hdr = rd32("err_unknown_txn_rsp_hdr")
+
+    bad_hdr = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_WRITE_ACK << 122)
+        | (0xFE << 114)
+        | (0 << 113)
+    )
+    await send_bow_inj_flit(dut, bad_hdr)
+    await wait_until_counter_eq(dut, "err_unknown_txn_rsp_hdr", base_unknown_hdr + 1)
+    assert_fault_isolated_unknown_rsp_hdr_only(dut, base_unknown_hdr + 1)

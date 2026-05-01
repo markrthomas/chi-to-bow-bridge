@@ -38,6 +38,17 @@ module tb_top;
   wire [255:0] dbg_pending_txn;
   wire [255:0] dbg_rsp_need_data;
 
+  logic bow_inj_en;
+  logic bow_inj_valid;
+  logic bow_inj_ready;
+  logic [63:0] bow_inj_data_hi;
+  logic [63:0] bow_inj_data_lo;
+
+  assign bow_inj_en       = 1'b0;
+  assign bow_inj_valid    = 1'b0;
+  assign bow_inj_data_hi  = 64'd0;
+  assign bow_inj_data_lo  = 64'd0;
+
   assign chi_if.err_illegal_req_hdr = err_illegal_req_hdr;
   assign chi_if.err_pulse           = err_pulse;
 
@@ -70,7 +81,12 @@ module tb_top;
       .dbg_chi_req_fifo_used (dbg_chi_req_fifo_used),
       .dbg_bow_rx_fifo_used (dbg_bow_rx_fifo_used),
       .dbg_pending_txn (dbg_pending_txn),
-      .dbg_rsp_need_data (dbg_rsp_need_data)
+      .dbg_rsp_need_data (dbg_rsp_need_data),
+      .bow_inj_en (bow_inj_en),
+      .bow_inj_valid (bow_inj_valid),
+      .bow_inj_ready (bow_inj_ready),
+      .bow_inj_data_hi (bow_inj_data_hi),
+      .bow_inj_data_lo (bow_inj_data_lo)
   );
 
   initial begin

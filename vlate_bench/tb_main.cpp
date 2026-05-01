@@ -32,6 +32,10 @@ void apply_idle_chi_inputs(Vtb_top& t, bool rst_low) {
   t.chi_req_beats   = 1;
   t.chi_req_txnid   = 0;
   t.chi_rsp_ready   = 1;
+  t.bow_inj_en      = 0;
+  t.bow_inj_valid   = 0;
+  t.bow_inj_data_hi = 0;
+  t.bow_inj_data_lo = 0;
 }
 
 // Rising-edge hook — chi_rsp_monitor::run_phase (subset).
@@ -126,6 +130,95 @@ void run_clock_only(Vtb_top& t, chi_tb::scoreboard& sb, int cycles, std::ostream
   }
 }
 
+// Mirrors integration/test_integration unknown-txn rsp_hdr via bow_inj_*.
+bool inject_unknown_txn_rsp_hdr(Vtb_top& t, chi_tb::scoreboard& sb, std::ostream& lg) {
+  apply_idle_chi_inputs(t, /*rst_low=*/false);
+  auto const base_unknown =
+      static_cast<std::uint32_t>(t.err_unknown_txn_rsp_hdr);
+
+  t.chi_rsp_ready = 1;
+  // Same 128-bit flit as Cocotb (PKT_RSP_HDR<<124)|(CHI_WACK<<122)|(0xfe<<114).
+  t.bow_inj_en      = 1;
+  t.bow_inj_data_hi = UINT64_C(0x3ff8000000000000);
+  t.bow_inj_data_lo = 0;
+  t.bow_inj_valid   = 1;
+
+  bool accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if ((t.bow_inj_valid != 0U) && (t.bow_inj_ready != 0U)) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  t.bow_inj_valid = 0;
+  clk_set(t, 0);
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+  t.bow_inj_en = 0;
+
+  bool bumped = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    if (static_cast<std::uint32_t>(t.err_unknown_txn_rsp_hdr) ==
+        base_unknown + 1U) {
+      bumped = true;
+      break;
+    }
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    clk_set(t, 0);
+  }
+
+  if (!bumped) {
+    lg << "[CHK] ERROR: err_unknown_txn_rsp_hdr failed to bump after inject\n";
+    return false;
+  }
+
+  lg << "[CHK] unknown txn BoW RSP_HDR via bow_inj err_unknown_txn_rsp_hdr="
+     << (base_unknown + 1U) << '\n';
+
+  auto fail = [&](char const* n, std::uint32_t v, std::uint32_t e) -> bool {
+    lg << "[CHK] ERROR: " << n << " obs=" << v << " exp=" << e << '\n';
+    return false;
+  };
+  if (static_cast<std::uint32_t>(t.err_unknown_txn_rsp_hdr) !=
+      base_unknown + 1U) {
+    return fail("err_unknown_txn_rsp_hdr",
+        static_cast<std::uint32_t>(t.err_unknown_txn_rsp_hdr), base_unknown + 1U);
+  }
+  if (static_cast<std::uint32_t>(t.err_unknown_txn_rsp_data) != 0U) {
+    return fail(
+        "err_unknown_txn_rsp_data", static_cast<std::uint32_t>(t.err_unknown_txn_rsp_data), 0U);
+  }
+  if (static_cast<std::uint32_t>(t.err_dup_rsp_hdr) != 0U) {
+    return fail(
+        "err_dup_rsp_hdr", static_cast<std::uint32_t>(t.err_dup_rsp_hdr), 0U);
+  }
+  if (static_cast<std::uint32_t>(t.err_orphan_rsp_data) != 0U) {
+    return fail("err_orphan_rsp_data",
+        static_cast<std::uint32_t>(t.err_orphan_rsp_data), 0U);
+  }
+  if (static_cast<std::uint32_t>(t.err_illegal_req_hdr) != 0U) {
+    return fail(
+        "err_illegal_req_hdr", static_cast<std::uint32_t>(t.err_illegal_req_hdr), 0U);
+  }
+  if (static_cast<std::uint32_t>(t.err_illegal_rsp_hdr) != 0U) {
+    return fail(
+        "err_illegal_rsp_hdr", static_cast<std::uint32_t>(t.err_illegal_rsp_hdr), 0U);
+  }
+  return true;
+}
 // integration/test_integration.py + uvm chi_illegal_req_test / drive_illegal_req_phase
 bool drive_illegal_req_phase(Vtb_top& t, std::uint8_t opc2, std::uint8_t txnid,
     std::uint32_t ctr_exp, chi_tb::scoreboard& sb, std::ostream& lg) {
@@ -256,6 +349,13 @@ int main(int argc, char** argv) {
   }
 
   run_clock_only(*top, sb, 100, lg);
+
+  // integration/test_integration :: test_integration_unknown_txnid_bow_rsp_hdr_via_inj
+  // (runs before illegal-REQ bumps so isolation checks stay valid).
+  if (!inject_unknown_txn_rsp_hdr(*top, sb, lg)) {
+    rc = 1;
+    goto done;
+  }
 
   // Illegal READ_RESP then WRITE_ACK on CHI REQ (chi_illegal_req_test / integration Cocotb)
   {

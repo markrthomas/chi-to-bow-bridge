@@ -27,7 +27,12 @@ module tb_top (
     output wire [7:0] dbg_chi_req_fifo_used,
     output wire [7:0] dbg_bow_rx_fifo_used,
     output wire [255:0] dbg_pending_txn,
-    output wire [255:0] dbg_rsp_need_data
+    output wire [255:0] dbg_rsp_need_data,
+    input wire bow_inj_en,
+    input wire bow_inj_valid,
+    output wire bow_inj_ready,
+    input wire [63:0] bow_inj_data_hi,
+    input wire [63:0] bow_inj_data_lo
 );
   chi_to_bow_integration_top #(
       .ADDR_WIDTH (64),
@@ -58,6 +63,11 @@ module tb_top (
       .dbg_chi_req_fifo_used (dbg_chi_req_fifo_used),
       .dbg_bow_rx_fifo_used (dbg_bow_rx_fifo_used),
       .dbg_pending_txn (dbg_pending_txn),
-      .dbg_rsp_need_data (dbg_rsp_need_data)
+      .dbg_rsp_need_data (dbg_rsp_need_data),
+      .bow_inj_en (bow_inj_en),
+      .bow_inj_valid (bow_inj_valid),
+      .bow_inj_ready (bow_inj_ready),
+      .bow_inj_data_hi (bow_inj_data_hi),
+      .bow_inj_data_lo (bow_inj_data_lo)
   );
 endmodule : tb_top
