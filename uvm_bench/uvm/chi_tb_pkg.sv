@@ -1,5 +1,11 @@
 //----------------------------------------------------------------------
 // Minimal UVM testbench for chi_to_bow_integration_top (Synopsys VCS compatible).
+//
+// OSS parity: Integration scenarios MUST track:
+//   - integration/test_integration.py (authoritative Cocotb)
+//   - vlate_bench/tb_main.cpp (Verilator / C++)
+//   - verification/golden_payloads.py + chi_tb.hpp (constants / read payloads)
+// Mapping table: uvm_bench/README.md § "Stay synchronized with OSS"
 //----------------------------------------------------------------------
 package chi_tb_pkg;
   import uvm_pkg::*;

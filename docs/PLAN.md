@@ -42,11 +42,15 @@ verilator_coverage --write-info ../build/vlate-coverage.info obj_dir/*.dat
 # Optional: genhtml via lcov if you merge/normalize infos for HTML
 ```
 
-### UVM/VCS column
+### UVM/VCS column (parity with OSS — not a divergent thread)
 
-Maintain **`uvm_bench`** and matrix rows for contributors with VCS, but **do not block** OSS-only development on UVM runs. When VCS is absent, mark internal sign-off as **Cocotb + Verilator only**.
+**OSS defines the integration behavioral baseline** (directed scenarios in **`integration/test_integration.py`** and shared constants in **`verification/golden_payloads.py`**). **Verilator (`vlate_bench/tb_main.cpp`)** mirrors that baseline in C++.
 
-## Verification taxonomy and matrix
+**`uvm_bench` must track the same integration scenarios:** whenever the matrix row for an integration scenario gains or changes behavior under **Cocotb** or **Verilator**, **`uvm/chi_tb_pkg.sv`** (sequences, driver timings, **`chi_*_test`** expectations) **and** **`docs/PLAN.md`** UVM cells must be updated **in the same PR** whenever practical; if deferred, link a follow-up issue and set the PLAN matrix UVM cell to **Planned — issue #…** until UVM catches up.
+
+**Block-only Cocotb** (`test/` driving `chi_to_bow_bridge` with injected `bow_rx`) has **no UVM analogue** until a block-level SV TB exists; matrix marks **N/A**. UVM stays **integration-top only** unless the repo adds matching topology.
+
+Licenses aside, **`uvm_bench/README.md`** lists the authoritative **OSS ↔ Verilator ↔ UVM** mapping; keep it aligned when adding tests.
 
 Treat an **environment type** as topology × simulator × stimulus tier:
 
@@ -86,7 +90,9 @@ See also [design_spec.md](design_spec.md) §7 (“Known limitations”).
 |------|-------------|--------|
 | Icarus + Cocotb + docs (`make`) | Yes — `test` job | Principal functional regression. |
 | Verilator **`make -C vlate_bench lint`** + **`run`** | Yes — **`vlate-bench`** job | OSS lint-only on bridge + integration + `tb_top`; C++ parity smoke+burst+illegal. |
-| VCS + UVM | No (optional) | **OSS-first:** not required for sign-off. Run locally when a license exists: **`make -C uvm_bench run`**. |
+| VCS + UVM | No (runner) | Parity TB: must stay aligned with Cocotb + **Verilator** integration scenarios per § **UVM–OSS parity** below. **`make -C uvm_bench run`** locally when licensed. |
+
+**UVM–OSS parity (integration):** Rows in the scenario matrix whose **topology** is **Integration** shall list **consistent** behavior across **Integration Cocotb**, **Verilator `vlate_bench`**, and **UVM** (same txnids, beats, pacing intent, illegal-opcode choreography, and scoreboard rules where applicable). **Primary reference:** **`integration/test_integration.py`**; **second witness:** **`vlate_bench/tb_main.cpp`**; **UVM implementation:** **`uvm_bench/uvm/chi_tb_pkg.sv`** + tests in the same file. See **[`uvm_bench/README.md`](../uvm_bench/README.md)** (“Stay synchronized with OSS”) for the explicit mapping table.
 
 **Cocotb + Verilator (block topology):** plausible duplicate of `test/` for OSS confidence but duplicate compile/runtime cost; defer unless simulator diversity becomes a release requirement — keep **Icarus** as canonical block runner until then.
 
@@ -99,6 +105,7 @@ See also [design_spec.md](design_spec.md) §7 (“Known limitations”).
 - **Bursts on integration path** — `bow_link_partner_bfm` absorbs multi-beat writes and emits multi-beat read responses; Cocotb (**`test_integration_bfm_burst_through_top`**), UVM (**`chi_burst_test`**), and **`vlate_bench`** run the same directed 3/4-beat scenario alongside single-beat smoke.
 - **Error-path (integration)** — **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** drives illegal CHI request-channel opcodes through **`chi_to_bow_integration_top`**, asserts **`err_illegal_req_hdr`**, and checks **`err_pulse`** (sampled after the clock edge settles on each violation). Unit **`test/`** still covers broader BoW-side illegals with direct **`bow_rx`** access.
 - **Golden payloads (Python)** — **`verification/golden_payloads.py`** centralizes CHI opcode / BoW packet-type constants and **`bfm_read_data_u64`** for Cocotb; SV (**`bow_link_partner_bfm`**, **`chi_tb_pkg.sv`**) and C++ (**`chi_tb.hpp`**) carry cross-references to keep layouts aligned.
+- **UVM–OSS parity policy** — Integration **`uvm_bench`** must stay aligned with **Integration Cocotb** and **`vlate_bench`** (**`docs/PLAN.md`**, **`uvm_bench/README.md`** mapping table); [`.github/pull_request_template.md`](../.github/pull_request_template.md) reminds authors to update UVM when OSS integration scenarios drift.
 
 ## Recommended near-term actions
 

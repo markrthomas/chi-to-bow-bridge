@@ -2,6 +2,8 @@
 
 This directory mirrors the **intent** of `uvm_bench` using **Verilator**: the DUT hierarchy is modeled in Verilog as **`tb_top`**, and stimulus, monitoring, and checking are implemented in **C++** (`tb_main.cpp`, `chi_tb.hpp`). Verilator does **not** execute UVM; the UVM roles are recreated as ordinary C++ functions and a small scoreboard class.
 
+Keep **`tb_main.cpp`** aligned with **`integration/test_integration.py`** when either changes. **`uvm_bench`** must track the same OSS integration thread; see **`uvm_bench/README.md`** (*Stay synchronized with OSS*) and **`docs/PLAN.md`**.
+
 ## What it verifies
 
 The same **integration** directed suite as UVM + Cocotb **`integration/test_integration.py`**:

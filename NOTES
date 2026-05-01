@@ -29,11 +29,11 @@ VCS/UVM (optional): `make -C uvm_bench run` (see `uvm_bench/README.md`). **OSS-f
 
 ```
 Repo: chi-to-bow-bridge — CHI-to-BoW bridge RTL.
-Verification matrix + CI policy: docs/PLAN.md
-Block Cocotb: test/ ; integration Cocotb: integration/
-Verilator TB: vlate_bench/ (make lint ; make run) — or make oss-regress from repo root
-UVM TB: uvm_bench/ (Synopsys VCS, not in CI; optional)
-OSS-first verification: docs/PLAN.md (section "OSS-first verification")
+Verification matrix + CI policy + UVM–OSS parity: docs/PLAN.md
+OSS regression (CI-equivalent): make oss-regress
+Block Cocotb: test/ ; integration Cocotb: integration/test_integration.py
+Verilator TB: vlate_bench/tb_main.cpp — must stay aligned with Integration Cocotb
+UVM TB: uvm_bench/ — MUST track OSS integration trio (mapping: uvm_bench/README.md § Stay synchronized); VCS not in CI
 ```
 
 **Goal**: _fill in_: e.g. “Extend burst write datapath per PLAN RTL milestone #1.”
