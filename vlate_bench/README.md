@@ -4,11 +4,15 @@ This directory mirrors the **intent** of `uvm_bench` using **Verilator**: the DU
 
 ## What it verifies
 
-The same **integration** scenario as the UVM smoke flow:
+The same **integration** directed suite as UVM + Cocotb **`integration/test_integration.py`**:
 
 - **DUT hierarchy:** `chi_to_bow_integration_top` ( `chi_to_bow_bridge` + `bow_link_partner_bfm` ).
-- **Stimulus:** **Single-beat** write/read (`txnid` 0x3C / 0x2A) with ~500 ns idle between; then **burst** write (3 beats, `txnid` 0x71) and read (4 beats, `txnid` 0x72), matching `integration/test_integration.py` and `uvm_bench` **`chi_burst_smoke_seq`** pacing.
-- **Checks:** `chi_tb::scoreboard` uses the same rules as `uvm_bench/uvm/chi_tb_pkg.sv`, including **`exp_read_data(txnid)`** for read completions.
+- **Stimulus:** **Single-beat** read (`0x1000`, `txnid` **0x2A**) then write (`0x2000`, `txnid` **0x2B**, data `0xDEADBEEF00000099`) with ~500 ns idle between; then **burst** write (3 beats, `txnid` 0x71) and read (4 beats, `txnid` 0x72); then **illegal CHI REQ** cases (response opcodes **0x2** / **0x3** on the request channel, txnids **0x01** / **0x02**) asserting **`err_pulse`** and **`err_illegal_req_hdr`**, matching **`chi_illegal_req_test`** / Cocotb (**no** scoreboard expectation for illegal rows).
+- **Checks:** `chi_tb::scoreboard` for legal traffic (same rules as `uvm_bench/uvm/chi_tb_pkg.sv`, including **`exp_read_data(txnid)`** for read completions).
+
+## OSS lint-only
+
+**`make lint`** runs **`verilator --lint-only -Wall -Wno-fatal`** on `sim.f` (bridge + integration + `tb_top.sv`) so CI can gate RTL without compiling the C++ shim.
 
 ## Prerequisites
 
@@ -21,9 +25,9 @@ The same **integration** scenario as the UVM smoke flow:
 |------|------|
 | `sim.f` | Verilog file list (paths relative to **`vlate_bench/`**). |
 | `tb_top.sv` | Top module: all CHI and clock/reset pins are **ports** so C++ can drive/sample them; instantiates `chi_to_bow_integration_top`. |
-| `tb_main.cpp` | Clock generator, reset, **`drive_until_accept`**, **`sampling_posedge_rsp`**, single-beat smoke + **burst** choreography, long-drain **clock loop**, exit code. Address/data uses **`static_cast<std::uint64_t>(0x...)`** on hex literals (**no `ULL` suffix** on hex tokens; some toolchains reject it). |
+| `tb_main.cpp` | **`drive_until_accept`**, **`drive_illegal_req_phase`**, **`sampling_posedge_rsp`**, reset, read/write smoke, burst choreography, **`err_illegal_*`** checks, **`run_clock_only`**. Address/data literals use **`static_cast<std::uint64_t>(0x...)`** (avoid `ULL` on hex tokens for portability). |
 | `chi_tb.hpp` | Types (`chi_exp_item`, `chi_obs_item`), **`exp_read_data()`**, and **`scoreboard`** (expectation queue vs observed responses). |
-| `Makefile` | Verilator **`run`** / **`clean`** / **`pdf`** (README → PDF via Pandoc). |
+| `Makefile` | Verilator **`lint`** (RTL-only), **`run`** / **`clean`** / **`pdf`** (README → PDF via Pandoc). |
 
 ### PDF of this document
 
@@ -83,8 +87,9 @@ verilator -Wall -Wno-fatal \
 | `chi_driver::drive_until_accept` | `drive_until_accept()` |
 | `chi_rsp_monitor` | `sampling_posedge_rsp()` each time the clock rises |
 | `chi_scoreboard` | `chi_tb::scoreboard` |
-| `chi_smoke_seq` + `chi_burst_smoke_seq` | Two phases in `main()` (smoke then burst) with clock-only pacing between |
-| `chi_smoke_test` / `chi_burst_test` drain | `run_clock_only(..., 2500)` after the burst read (covers both smoke and burst responses) |
+| `chi_smoke_seq` + `chi_burst_smoke_seq` | Read-then-write smoke, then burst phases in `main()` with clock-only pacing between |
+| `chi_illegal_req_test` | `drive_illegal_req_phase()` (no scoreboard `write_exp`) |
+| `chi_smoke_test` / `chi_burst_test` drain | `run_clock_only(..., 2500)` after illegal checks (covers smoke, burst responses, drains) |
 
 Clocking is **two half-cycles per period** (toggle `clk` 0 → 1 → 0) with **10 ns** period, matching the UVM `tb_top` style (`always #5 clk = ~clk`).
 

@@ -38,6 +38,9 @@ module tb_top;
   wire [255:0] dbg_pending_txn;
   wire [255:0] dbg_rsp_need_data;
 
+  assign chi_if.err_illegal_req_hdr = err_illegal_req_hdr;
+  assign chi_if.err_pulse           = err_pulse;
+
   chi_to_bow_integration_top #(
       .ADDR_WIDTH (64),
       .DATA_WIDTH (64),

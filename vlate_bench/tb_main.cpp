@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
-// Parallel to uvm_bench chi_driver / chi_rsp_monitor / chi_smoke_seq / chi_smoke_test.
-// Verilator C++ TB drives tb_top and uses chi_tb::scoreboard like the UVM counterparts.
+// Parallel to uvm_bench chi_driver / chi_rsp_monitor / chi_smoke_seq /
+// chi_burst_smoke_seq / chi_illegal_req_test. Verilator C++ TB drives tb_top.
 //---------------------------------------------------------------------------
 #include <verilated.h>
 #include "Vtb_top.h"
@@ -121,6 +121,57 @@ void run_clock_only(Vtb_top& t, chi_tb::scoreboard& sb, int cycles, std::ostream
   }
 }
 
+// integration/test_integration.py + uvm chi_illegal_req_test / drive_illegal_req_phase
+bool drive_illegal_req_phase(Vtb_top& t, std::uint8_t opc2, std::uint8_t txnid,
+    std::uint32_t ctr_exp, chi_tb::scoreboard& sb, std::ostream& lg) {
+
+  apply_idle_chi_inputs(t, /*rst_low=*/false);
+  t.chi_rsp_ready   = 1;
+  t.chi_req_opcode  = opc2 & 3U;
+  t.chi_req_addr    = 0;
+  t.chi_req_data    = 0;
+  t.chi_req_beats   = 1;
+  t.chi_req_txnid   = txnid;
+  t.chi_req_valid   = 1;
+
+  bool accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if ((t.chi_req_valid != 0) && (t.chi_req_ready != 0)) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  // Handshake completes with CLK high — negedge Cocotb uses to sample err_pulse (valid still high).
+  clk_set(t, 0);
+  if ((t.err_pulse & 1U) == 0U) {
+    lg << "[CHK] ERROR: err_pulse expected for illegal CHI REQ opcode\n";
+    return false;
+  }
+
+  t.chi_req_valid = 0;
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+
+  auto const ctr = static_cast<std::uint32_t>(t.err_illegal_req_hdr);
+  if (ctr != ctr_exp) {
+    lg << "[CHK] ERROR: err_illegal_req_hdr exp=" << ctr_exp << " obs=" << ctr << '\n';
+    return false;
+  }
+  lg << "[CHK] illegal REQ opcode txn=" << int(txnid)
+     << " err_illegal_req_hdr=" << ctr << '\n';
+  return true;
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -146,19 +197,19 @@ int main(int argc, char** argv) {
     (void)sampling_posedge_rsp(*top, sb, lg);
   }
 
-  // --- single-beat smoke (chi_smoke_seq / chi_smoke_test)
-  if (!drive_until_accept(*top, chi_tb::chi_op_ty::WR,
-          static_cast<std::uint64_t>(0x1234'5678'9ABC'DEF0),
-          static_cast<std::uint64_t>(0xDEAD'BEEF'CAFE'BABE),
-          1, 0x3C, sb, lg)) {
+  // --- single-beat smoke (chi_smoke_seq / chi_smoke_test; integration Cocotb order)
+  if (!drive_until_accept(*top, chi_tb::chi_op_ty::RD,
+          static_cast<std::uint64_t>(0x1000), std::uint64_t{0},
+          1, 0x2A, sb, lg)) {
     return 1;
   }
 
   run_clock_only(*top, sb, /*50 cycles ≈500 ns*/ 50, lg);
 
-  if (!drive_until_accept(*top, chi_tb::chi_op_ty::RD,
-          static_cast<std::uint64_t>(0x1000), std::uint64_t{0},
-          1, 0x2A, sb, lg)) {
+  if (!drive_until_accept(*top, chi_tb::chi_op_ty::WR,
+          static_cast<std::uint64_t>(0x2000),
+          static_cast<std::uint64_t>(0xDEAD'BEEF'0000'0099ULL),
+          1, 0x2B, sb, lg)) {
     return 1;
   }
 
@@ -178,6 +229,20 @@ int main(int argc, char** argv) {
           static_cast<std::uint64_t>(0x5000), std::uint64_t{0},
           4, 0x72, sb, lg)) {
     return 1;
+  }
+
+  run_clock_only(*top, sb, 100, lg);
+
+  // Illegal READ_RESP then WRITE_ACK on CHI REQ (chi_illegal_req_test / integration Cocotb)
+  {
+    auto const base0 = static_cast<std::uint32_t>(top->err_illegal_req_hdr);
+    if (!drive_illegal_req_phase(*top, chi_tb::CHI_RSP_READ, 0x01, base0 + 1U, sb, lg)) {
+      return 1;
+    }
+    auto const base1 = static_cast<std::uint32_t>(top->err_illegal_req_hdr);
+    if (!drive_illegal_req_phase(*top, chi_tb::CHI_RSP_WACK, 0x02, base1 + 1U, sb, lg)) {
+      return 1;
+    }
   }
 
   // Drain long enough for bursts + smoke tail (chi_burst_test objection scale)

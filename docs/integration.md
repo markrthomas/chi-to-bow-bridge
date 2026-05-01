@@ -23,6 +23,10 @@ or FPGA image, and how to use the in-repo **reference** link partner.
 For a given tape-out or bitstream, **freeze** these (and document) so downstream timing constraints
 and verification match.
 
+## Verification environments
+
+Which simulators exercise which scenarios (taxonomy + matrix) lives in **`docs/PLAN.md`**. Use that file together with **`integration/README.md`** when extending integration tests so **Cocotb**, **Verilator**, and **UVM** stay aligned.
+
 ## File lists for EDA
 
 Run tools from the **repository root** (paths in the `.f` files are relative to the root).
@@ -76,8 +80,9 @@ This runs the Cocotb tests in `integration/test_integration.py` against `chi_to_
 
 1. **`test_integration_bfm_completes_smoke`** — single-beat read and write on CHI REQ; asserts read data (`bow_link_partner_bfm`) and write-ack.
 2. **`test_integration_bfm_burst_through_top`** — multi-beat write/read through the integration top matching the burst-capable reference BFM.
+3. **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** — driven illegal CHI request-channel opcodes; **`err_pulse`** / **`err_illegal_req_hdr`**.
 
-Both fail if any of `err_illegal_req_hdr`, `err_illegal_rsp_hdr`, `err_unknown_txn_rsp_hdr`,
+Smoke **(1)** and burst **(2)** fail if any of `err_illegal_req_hdr`, `err_illegal_rsp_hdr`, `err_unknown_txn_rsp_hdr`,
 `err_unknown_txn_rsp_data`, `err_dup_rsp_hdr`, or `err_orphan_rsp_data` is non-zero (wrap-safe at
 32 bits; see design spec).
 

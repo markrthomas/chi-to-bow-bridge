@@ -16,6 +16,7 @@ constexpr std::uint8_t OP_WRITE_U8  = 0x1;
 
 enum class chi_op_ty : std::uint8_t { RD = OP_READ_U8, WR = OP_WRITE_U8 };
 
+// REQ channel must never use READ_RESP / WRITE_ACK — integration illegal tests parity (UVM/Python).
 constexpr std::uint8_t CHI_RSP_READ = 0x2;
 constexpr std::uint8_t CHI_RSP_WACK = 0x3;
 
