@@ -14,6 +14,38 @@ This document tracks **suggested directions** for the CHI-to-BoW bridge reposito
 | Verilator TB | `vlate_bench/`: C++ smoke + **burst** + illegal-REQ **`err_*`** parity vs same integration top |
 | CI (GitHub Actions) | **`test` job:** `make doctor && make` (Icarus cocotbs + Pandoc docs). **`vlate-bench` job:** Verilator **`lint`** (`--lint-only` on RTL + `tb_top.sv`) plus `make run`. **Does not** run VCS/UVM |
 
+## OSS-first verification (no VCS)
+
+When **Synopsys VCS is unavailable**, treat the repository as signed off against **OSS simulators only**. The **`uvm_bench`** tree remains valuable for licensees and for porting tests later; the **scenario matrix below still lists UVM** for parity, but your **effective** sign-off columns are Cocotb + Verilator until a licensed flow returns.
+
+### Default stack
+
+| Lane | Role |
+|------|------|
+| **Icarus + Cocotb** | Broadest behavior: block `test/` (directed + random stress) and integration `integration/`. This is the **primary functional truth** without VCS. |
+| **Verilator** | **Lint** (`make -C vlate_bench lint`) + **C++ integration TB** (`make -C vlate_bench run`): fast closed-loop choreography and RTL compile sanity. Mirrors key integration scenarios coded in **`vlate_bench/tb_main.cpp`**. |
+| **`make oss-regress`** (repo root) | Single entry point: **`scripts/oss-regress.sh`** — **`make doctor`**, **`make`** (same as CI **`test`** job workloads), **`vlate_bench lint`** + **`run`** (needs **`verilator`** on `PATH`). |
+
+### Coverage without VCS (incremental roadmap)
+
+Structural coverage comes from **Verilator** (`--coverage`); functional completeness comes from the **scenario matrix +** Cocotb tests. Suggested progression:
+
+1. **Keep expanding** directed + random Cocotb cases (especially integration **BoW fault** injections). Track scenario IDs in issues or in test docstrings.
+2. **Add a Verilator coverage build** of `vlate_bench` (non-default target): enable `--coverage`, run `tb_main`, then **`verilator_coverage --write-info …`** and optional **`lcov` / `genhtml`** for HTML. Set a team bar (e.g. minimum line/toggle on `chi_to_bow_bridge` + partner BFM) once baselined.
+3. **Icarus** does not feed the same unified coverage database as Verilator; accept **dual metrics** early (Cocotb pass matrix + Verilator coverage), or consolidate later via external dashboards if needed.
+
+Concrete command sketch (run from **`vlate_bench/`** after adding `--coverage` to the Verilator build — not enabled in default **`make run`** yet):
+
+```bash
+# After a coverage-enabled build and ./obj_dir/Vtb_top run:
+verilator_coverage --write-info ../build/vlate-coverage.info obj_dir/*.dat
+# Optional: genhtml via lcov if you merge/normalize infos for HTML
+```
+
+### UVM/VCS column
+
+Maintain **`uvm_bench`** and matrix rows for contributors with VCS, but **do not block** OSS-only development on UVM runs. When VCS is absent, mark internal sign-off as **Cocotb + Verilator only**.
+
 ## Verification taxonomy and matrix
 
 Treat an **environment type** as topology × simulator × stimulus tier:
@@ -54,7 +86,7 @@ See also [design_spec.md](design_spec.md) §7 (“Known limitations”).
 |------|-------------|--------|
 | Icarus + Cocotb + docs (`make`) | Yes — `test` job | Principal functional regression. |
 | Verilator **`make -C vlate_bench lint`** + **`run`** | Yes — **`vlate-bench`** job | OSS lint-only on bridge + integration + `tb_top`; C++ parity smoke+burst+illegal. |
-| VCS + UVM | No | Requires license (local **`make -C uvm_bench run**`). |
+| VCS + UVM | No (optional) | **OSS-first:** not required for sign-off. Run locally when a license exists: **`make -C uvm_bench run`**. |
 
 **Cocotb + Verilator (block topology):** plausible duplicate of `test/` for OSS confidence but duplicate compile/runtime cost; defer unless simulator diversity becomes a release requirement — keep **Icarus** as canonical block runner until then.
 

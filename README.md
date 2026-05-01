@@ -32,6 +32,7 @@ make waves
 - `integration/` - Closed-loop top (`chi_to_bow_integration_top`) + reference BoW link BFM
 - `doc/` - Standardized documentation directory
 - `docs/` - Design specification, integration addendum, **roadmap (PLAN)**, and docs Makefile (`design_spec.pdf`, `integration.pdf`, `PLAN.pdf`)
+- `scripts/` - Helper scripts (see **`make oss-regress`**)
 - `uvm_bench/` - Synopsys VCS / UVM integration smoke TB (optional license)
 - `vlate_bench/` - Verilator + C++ parity smoke TB
 
@@ -61,17 +62,19 @@ From the repository root:
   - `make gtkwave`
 - Check local toolchain/setup:
   - `make doctor`
-- Run full default build (unit + integration + docs):
-  - `make`
+- **OSS-only full regression** (doctor + **`make`** + Verilator **`lint`** + **`vlate_bench run`** — needs `verilator` on `PATH`):
+  - `make oss-regress`
 - Clean generated artifacts:
   - `make clean`
 
-Continuous integration (GitHub Actions) runs two jobs:
+Continuous integration (GitHub Actions) runs two jobs combined locally by **`make oss-regress`** (when Verilator is installed):
 
 1. **`test`** — `make doctor && make`: cocotb unit/integration sims plus **`make docs`** (spec/integration/**`docs/PLAN.pdf`**, and **`uvm_bench/README.pdf`** / **`vlate_bench/README.pdf`**).
 2. **`vlate-bench`** — installs OSS **Verilator**, runs **`make -C vlate_bench lint`** (RTL-only) then **`make -C vlate_bench run`** so lint + parity C++ TB stay green.
 
-Synopsys **VCS**/UVM is **not** run in CI; use **`make -C uvm_bench run`** locally. Details: **`docs/PLAN.md`**.
+OSS-first verification (no VCS) is spelled out in **`docs/PLAN.md`**.
+
+Synopsys **VCS**/UVM is **not** run in CI; use **`make -C uvm_bench run`** when you have a license. Details: **`docs/PLAN.md`**.
 
 ## Verification environments (optional simulators)
 

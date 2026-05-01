@@ -11,11 +11,12 @@ Starter **CHI ↔ BoW** bridge RTL with **Cocotb** (Icarus), optional **Verilato
 ```bash
 cd /path/to/chi-to-bow-bridge
 git fetch && git status   # preferably on latest main before a long agent run
-make doctor && make       # Cocotb + integration + docs (matches CI job `test`)
-make -C vlate_bench lint && make -C vlate_bench run   # Verilator (+ CI parity)
+make oss-regress          # doctor + Cocotb + docs + Verilator lint + vlate_bench run (needs `verilator`)
+# without Verilator installed:
+make doctor && make
 ```
 
-VCS/UVM is local-only: `make -C uvm_bench run` (see `uvm_bench/README.md`).
+VCS/UVM (optional): `make -C uvm_bench run` (see `uvm_bench/README.md`). **OSS-first** policy: **`docs/PLAN.md`**.
 
 ## Cursor (IDE Agent / Chat)
 
@@ -30,8 +31,9 @@ VCS/UVM is local-only: `make -C uvm_bench run` (see `uvm_bench/README.md`).
 Repo: chi-to-bow-bridge — CHI-to-BoW bridge RTL.
 Verification matrix + CI policy: docs/PLAN.md
 Block Cocotb: test/ ; integration Cocotb: integration/
-Verilator TB: vlate_bench/ (make lint ; make run)
-UVM TB: uvm_bench/ (Synopsys VCS, not in CI)
+Verilator TB: vlate_bench/ (make lint ; make run) — or make oss-regress from repo root
+UVM TB: uvm_bench/ (Synopsys VCS, not in CI; optional)
+OSS-first verification: docs/PLAN.md (section "OSS-first verification")
 ```
 
 **Goal**: _fill in_: e.g. “Extend burst write datapath per PLAN RTL milestone #1.”

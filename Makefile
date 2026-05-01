@@ -1,4 +1,4 @@
-.PHONY: all test integration-test docs clean doctor waves gtkwave
+.PHONY: all test integration-test docs clean doctor waves gtkwave oss-regress
 
 all: test integration-test docs
 
@@ -28,6 +28,10 @@ clean:
 	$(MAKE) -C uvm_bench clean-pdf
 	$(MAKE) -C vlate_bench clean-pdf
 	rm -f results.xml
+
+# Full OSS regression (Icarus cocotb + docs + Verilator lint + vlate_bench run). Needs `verilator` on PATH.
+oss-regress:
+	./scripts/oss-regress.sh
 
 doctor:
 	@echo "== Tool checks =="
