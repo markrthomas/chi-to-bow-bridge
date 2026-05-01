@@ -4,7 +4,7 @@ Use this note when switching machines, restarting terminals, or moving between a
 
 ## Repo in one sentence
 
-Starter **CHI ↔ BoW** bridge RTL with **Cocotb** (Icarus), optional **Verilator + C++** (`vlate_bench/`), optional **Synopsys VCS + UVM** (`uvm_bench/`). Canonical verification map: **[docs/PLAN.md](docs/PLAN.md)**.
+Starter **CHI <-> BoW** bridge RTL with **Cocotb** (Icarus), optional **Verilator + C++** (`vlate_bench/`), optional **Synopsys VCS + UVM** (`uvm_bench/`). Canonical verification map: **[docs/PLAN.md](docs/PLAN.md)**.
 
 ## Sync and baseline
 
@@ -12,6 +12,7 @@ Starter **CHI ↔ BoW** bridge RTL with **Cocotb** (Icarus), optional **Verilato
 cd /path/to/chi-to-bow-bridge
 git fetch && git status   # preferably on latest main before a long agent run
 make oss-regress          # doctor + Cocotb + docs + Verilator lint + vlate_bench run (needs `verilator`)
+make oss-regress-coverage # same + `make -C vlate_bench coverage` (needs `verilator_coverage`)
 # without Verilator installed:
 make doctor && make
 ```
@@ -30,7 +31,7 @@ VCS/UVM (optional): `make -C uvm_bench run` (see `uvm_bench/README.md`). **OSS-f
 ```
 Repo: chi-to-bow-bridge — CHI-to-BoW bridge RTL.
 Verification matrix + CI policy + UVM–OSS parity: docs/PLAN.md
-OSS regression (CI-equivalent): make oss-regress
+OSS regression (CI-equivalent): make oss-regress (structural cov: make oss-regress-coverage)
 Block Cocotb: test/ ; integration Cocotb: integration/test_integration.py
 Verilator TB: vlate_bench/tb_main.cpp — must stay aligned with Integration Cocotb
 UVM TB: uvm_bench/ — MUST track OSS integration trio (mapping: uvm_bench/README.md § Stay synchronized); VCS not in CI

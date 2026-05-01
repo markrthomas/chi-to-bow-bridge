@@ -64,6 +64,8 @@ From the repository root:
   - `make doctor`
 - **OSS-only full regression** (doctor + **`make`** + Verilator **`lint`** + **`vlate_bench run`** — needs `verilator` on `PATH`):
   - `make oss-regress`
+- **OSS regression + Verilator structural coverage** (also runs **`make -C vlate_bench coverage`**, emits **`vlate_coverage.info`; needs **`verilator_coverage`**):
+  - `make oss-regress-coverage`
 - Clean generated artifacts:
   - `make clean`
 
@@ -84,7 +86,7 @@ Quick reference:
 |-----------|-----------|-----------------|
 | `test/`, `integration/` | Icarus Verilog | `make -C test`, `make -C integration` (also used by CI) |
 | `uvm_bench/` | Synopsys VCS + UVM | `make -C uvm_bench run` |
-| `vlate_bench/` | Verilator | `make -C vlate_bench lint`, `make -C vlate_bench run` |
+| `vlate_bench/` | Verilator | `make -C vlate_bench lint`, `make -C vlate_bench run`, `make -C vlate_bench coverage` |
 
 Each environment directory has its own **`README.md`** (and **`make pdf`** → **`README.pdf`**). See those files for flags, file lists, and troubleshooting.
 
@@ -102,6 +104,7 @@ Each environment directory has its own **`README.md`** (and **`make pdf`** → *
 - Verilator environment:
   - `make -C vlate_bench lint`
   - `make -C vlate_bench run`
+  - `make -C vlate_bench coverage` — structural coverage (needs `verilator_coverage`)
   - `make -C vlate_bench pdf` — **`vlate_bench/README.pdf`**
 
 ## Outputs

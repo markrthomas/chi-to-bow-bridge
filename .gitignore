@@ -17,6 +17,9 @@ vlate_bench/README.pdf
 
 # Verilator TB build output
 vlate_bench/obj_dir/
+vlate_bench/obj_dir_cov/
+vlate_bench/vlate_coverage.dat
+vlate_bench/vlate_coverage.info
 
 # Synopsys VCS outputs (when running uvm_bench)
 uvm_bench/simv

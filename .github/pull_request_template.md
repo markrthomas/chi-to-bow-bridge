@@ -8,7 +8,7 @@
 - [ ] `make doctor`
 - [ ] `make test`
 - [ ] `make docs`
-- [ ] **`make oss-regress`** (or equivalently **`make`** + **`vlate_bench` lint/run), if Integration / `vlate_bench` behavior changed
+- [ ] **`make oss-regress`** (or equivalently **`make`** + **`vlate_bench` lint/run), if Integration / `vlate_bench` behavior changed; use **`make oss-regress-coverage`** if Verilator coverage path or `tb_main` shutdown/cov dump changed
 
 ## Checklist
 

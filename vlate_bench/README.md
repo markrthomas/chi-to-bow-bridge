@@ -16,6 +16,12 @@ The same **integration** directed suite as UVM + Cocotb **`integration/test_inte
 
 **`make lint`** runs **`verilator --lint-only -Wall -Wno-fatal`** on `sim.f` (bridge + integration + `tb_top.sv`) so CI can gate RTL without compiling the C++ shim.
 
+## Structural coverage (OSS plan)
+
+**`make coverage`** rebuilds into **`obj_dir_cov/`** with **`--coverage`**, runs the same parity scenario as **`make run`**, dumps **`VerilatedCov`** data to **`vlate_coverage.dat`**, and runs **`verilator_coverage -write-info vlate_coverage.info`**. Artifacts are **gitignored**; see **`docs/PLAN.md`**.
+
+Set **`VL_COV_FILENAME=/path/file.dat`** to override the dump path (default under **`vlate_bench/`**).
+
 ## Prerequisites
 
 - **Verilator** (e.g. 5.x) on `PATH`.
@@ -29,7 +35,7 @@ The same **integration** directed suite as UVM + Cocotb **`integration/test_inte
 | `tb_top.sv` | Top module: all CHI and clock/reset pins are **ports** so C++ can drive/sample them; instantiates `chi_to_bow_integration_top`. |
 | `tb_main.cpp` | **`drive_until_accept`**, **`drive_illegal_req_phase`**, **`sampling_posedge_rsp`**, reset, read/write smoke, burst choreography, **`err_illegal_*`** checks, **`run_clock_only`**. Address/data literals use **`static_cast<std::uint64_t>(0x...)`** (avoid `ULL` on hex tokens for portability). |
 | `chi_tb.hpp` | Types (`chi_exp_item`, `chi_obs_item`), **`exp_read_data()`**, and **`scoreboard`** (expectation queue vs observed responses). |
-| `Makefile` | Verilator **`lint`** (RTL-only), **`run`** / **`clean`** / **`pdf`** (README → PDF via Pandoc). |
+| `Makefile` | Verilator **`lint`**, **`run`**, **`coverage`**, **`clean`**, **`pdf`**. |
 
 ### PDF of this document
 

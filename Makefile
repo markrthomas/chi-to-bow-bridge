@@ -1,4 +1,4 @@
-.PHONY: all test integration-test docs clean doctor waves gtkwave oss-regress
+.PHONY: all test integration-test docs clean doctor waves gtkwave oss-regress oss-regress-coverage
 
 all: test integration-test docs
 
@@ -32,6 +32,10 @@ clean:
 # Full OSS regression (Icarus cocotb + docs + Verilator lint + vlate_bench run). Needs `verilator` on PATH.
 oss-regress:
 	./scripts/oss-regress.sh
+
+# Same as oss-regress, plus structural coverage: builds `obj_dir_cov/`, emits `vlate_bench/vlate_coverage.info`.
+oss-regress-coverage:
+	OSS_COVERAGE=1 ./scripts/oss-regress.sh
 
 doctor:
 	@echo "== Tool checks =="

@@ -12,7 +12,7 @@ Policy: **`uvm_bench` is not independent of the OSS thread.** It stays **behavio
 | `test_integration_bfm_burst_through_top` — write **`0x71`** ×3 beats, read **`0x72`** ×4 beats | Burst **`drive_until_accept`** WR then RD | **`chi_burst_test`** ← **`chi_burst_smoke_seq::burst_traffic()`** (**`#1us`** pacing) |
 | `test_integration_illegal_chi_req_opcodes_increment_err_counter` — **`CHI_OP_READ_RESP` (2'b10)** and **`CHI_OP_WRITE_ACK` (2'b11)** on REQ, txn **`0x01`** / **`0x02`** | **`drive_illegal_req_phase`** (after burst section) | **`chi_illegal_req_test`** ← **`drive_illegal_req_phase`** |
 
-Constants / read payload layouts: **`verification/golden_payloads.py`** ⇄ **`chi_tb.hpp`** ⇄ **`exp_read_data()`** in **`chi_tb_pkg.sv`**.
+Constants / read payload layouts: **`verification/golden_payloads.py`** <-> **`chi_tb.hpp`** <-> **`exp_read_data()`** in **`chi_tb_pkg.sv`**.
 
 ### PR workflow (when touching integration verification)
 

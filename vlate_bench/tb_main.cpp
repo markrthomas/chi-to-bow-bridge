@@ -8,8 +8,13 @@
 #include "chi_tb.hpp"
 
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+
+#if VM_COVERAGE
+#include <verilated_cov.h>
+#endif
 
 namespace {
 
@@ -174,12 +179,27 @@ bool drive_illegal_req_phase(Vtb_top& t, std::uint8_t opc2, std::uint8_t txnid,
 
 }  // namespace
 
+static void sim_shutdown(Vtb_top& top, std::ostream& lg) {
+  top.final();
+#if VM_COVERAGE
+  const char* covpath = std::getenv("VL_COV_FILENAME");
+  if (covpath && covpath[0] != '\0') {
+    VerilatedCov::write(covpath);
+    lg << "[COV] wrote " << covpath << '\n';
+  } else {
+    VerilatedCov::write();
+    lg << "[COV] wrote " << VerilatedCov::defaultFilename() << '\n';
+  }
+#endif
+}
+
 int main(int argc, char** argv) {
   Verilated::commandArgs(argc, argv);
   auto top = std::make_unique<Vtb_top>();
 
   chi_tb::scoreboard sb;
   std::ostream&      lg = std::cout;
+  int                rc  = 0;
 
   apply_idle_chi_inputs(*top, /*rst_low=*/true);
   top->eval();
@@ -201,7 +221,8 @@ int main(int argc, char** argv) {
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::RD,
           static_cast<std::uint64_t>(0x1000), std::uint64_t{0},
           1, 0x2A, sb, lg)) {
-    return 1;
+    rc = 1;
+    goto done;
   }
 
   run_clock_only(*top, sb, /*50 cycles ≈500 ns*/ 50, lg);
@@ -210,7 +231,8 @@ int main(int argc, char** argv) {
           static_cast<std::uint64_t>(0x2000),
           static_cast<std::uint64_t>(0xDEAD'BEEF'0000'0099ULL),
           1, 0x2B, sb, lg)) {
-    return 1;
+    rc = 1;
+    goto done;
   }
 
   run_clock_only(*top, sb, /*pacing between smoke and burst */ 200, lg);
@@ -220,7 +242,8 @@ int main(int argc, char** argv) {
           static_cast<std::uint64_t>(0x3000'4000'5000'6000),
           static_cast<std::uint64_t>(0xBAD0C0DE11112222),
           3, 0x71, sb, lg)) {
-    return 1;
+    rc = 1;
+    goto done;
   }
 
   run_clock_only(*top, sb, 150, lg);
@@ -228,7 +251,8 @@ int main(int argc, char** argv) {
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::RD,
           static_cast<std::uint64_t>(0x5000), std::uint64_t{0},
           4, 0x72, sb, lg)) {
-    return 1;
+    rc = 1;
+    goto done;
   }
 
   run_clock_only(*top, sb, 100, lg);
@@ -237,11 +261,13 @@ int main(int argc, char** argv) {
   {
     auto const base0 = static_cast<std::uint32_t>(top->err_illegal_req_hdr);
     if (!drive_illegal_req_phase(*top, chi_tb::CHI_RSP_READ, 0x01, base0 + 1U, sb, lg)) {
-      return 1;
+      rc = 1;
+      goto done;
     }
     auto const base1 = static_cast<std::uint32_t>(top->err_illegal_req_hdr);
     if (!drive_illegal_req_phase(*top, chi_tb::CHI_RSP_WACK, 0x02, base1 + 1U, sb, lg)) {
-      return 1;
+      rc = 1;
+      goto done;
     }
   }
 
@@ -250,11 +276,13 @@ int main(int argc, char** argv) {
 
   if (sb.pending() != 0U) {
     lg << "[SB] ERROR: " << sb.pending() << " unmatched expected responses at end-of-test.\n";
-    top->final();
-    return 1;
+    rc = 1;
+    goto done;
   }
 
-  top->final();
   lg << "TB: PASS\n";
-  return 0;
+
+done:
+  sim_shutdown(*top, lg);
+  return rc;
 }
