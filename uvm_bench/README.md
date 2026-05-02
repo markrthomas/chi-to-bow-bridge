@@ -10,7 +10,8 @@ Policy: **`uvm_bench` is not independent of the OSS thread.** It stays **behavio
 | --- | --- | --- |
 | `test_integration_bfm_completes_smoke` — read `@0x1000` **`0x2A`**, write `@0x2000` **`0x2B`**, write data **`0xDEADBEEF00000099`** | First `drive_until_accept` **RD**, idle, **`WR`** block | **`chi_smoke_test`** ← **`chi_smoke_seq`** (read-first, **`#500ns`** between) |
 | `test_integration_bfm_burst_through_top` — write **`0x71`** ×3 beats, read **`0x72`** ×4 beats | Burst **`drive_until_accept`** WR then RD | **`chi_burst_test`** ← **`chi_burst_smoke_seq::burst_traffic()`** (**`#1us`** pacing) |
-| `test_integration_illegal_chi_req_opcodes_increment_err_counter` — **`CHI_OP_READ_RESP` (2'b10)** and **`CHI_OP_WRITE_ACK` (2'b11)** on REQ, txn **`0x01`** / **`0x02`** | **`drive_illegal_req_phase`** (after burst section) | **`chi_illegal_req_test`** ← **`drive_illegal_req_phase`** |
+| `test_integration_illegal_chi_req_opcodes_increment_err_counter` — **`CHI_OP_READ_RESP` (2'b10)** and **`CHI_OP_WRITE_ACK` (2'b11)** on REQ, txn **`0x01`** / **`0x02`** | **`drive_illegal_req_phase`** (after **`inject_unknown_txn_rsp_hdr`**) | **`chi_illegal_req_test`** <- **`drive_illegal_req_phase`** |
+| **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`** — malformed BoW **`RSP_HDR`** with txn **`0xFE`** on **`bow_inj_*`** | **`inject_unknown_txn_rsp_hdr`** | *not automated in SV yet* (**`tb_top`** ties **`bow_inj_*`** off) |
 
 Constants / read payload layouts: **`verification/golden_payloads.py`** <-> **`chi_tb.hpp`** <-> **`exp_read_data()`** in **`chi_tb_pkg.sv`**.
 
@@ -22,7 +23,7 @@ Constants / read payload layouts: **`verification/golden_payloads.py`** <-> **`c
 
 ## What it verifies
 
-**`chi_smoke_test`** (default) mirrors **`test_integration_bfm_completes_smoke`**; **`chi_burst_test`** mirrors **`test_integration_bfm_burst_through_top`**; **`chi_illegal_req_test`** mirrors **`test_integration_illegal_chi_req_opcodes_increment_err_counter`**.
+**`chi_smoke_test`** mirrors **`test_integration_bfm_completes_smoke`**; **`chi_burst_test`** mirrors **`test_integration_bfm_burst_through_top`**; **`chi_illegal_req_test`** mirrors **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** (after **`inject_unknown`** in Verilator sequencing). Cocotb **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`** + Verilator **`inject_unknown_txn_rsp_hdr`** use **`bow_inj_*`** (*UVM **`tb_top`** ties those mux pins off until an SV analogue lands*).
 
 Common structure:
 
@@ -30,7 +31,7 @@ Common structure:
 - **Stimulus:** Directed sequences with pacing so the BFM returns to idle (`chi_smoke_seq` / `chi_burst_smoke_seq` in `uvm/chi_tb_pkg.sv`).
 - **Checks:** Scoreboard compares CHI responses for legal ops, including **`exp_read_data()`** for read completions (same deterministic read payload as the BFM).
 
-Beyond the OSS-mapped trio above, extending sequences for **extra UVM-only** stimulus is discouraged unless **`docs/PLAN.md`** gains a matching matrix row describing expected parity (or intentionally labels UVM-only scope).
+Beyond the OSS-mapped smoke+burst+illegal-REQ+unknown-txn-inject matrix above, extending sequences for **extra UVM-only** stimulus is discouraged unless **`docs/PLAN.md`** gains a matching row describing expected parity (or intentionally labels UVM-only scope).
 
 ## Prerequisites
 

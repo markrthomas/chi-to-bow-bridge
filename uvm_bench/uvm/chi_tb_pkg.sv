@@ -5,6 +5,8 @@
 //   - integration/test_integration.py (authoritative Cocotb)
 //   - vlate_bench/tb_main.cpp (Verilator / C++)
 //   - verification/golden_payloads.py + chi_tb.hpp (constants / read payloads)
+// bow_inj_* (BoW RX inject mux on chi_to_bow_integration_top) is inactive in tb/tb_top.sv for UVM until
+// a matching chi_tb_pkg / test is added (Cocotb + Verilator cover unknown rsp_hdr inject first).
 // Mapping table: uvm_bench/README.md § "Stay synchronized with OSS"
 //----------------------------------------------------------------------
 package chi_tb_pkg;
