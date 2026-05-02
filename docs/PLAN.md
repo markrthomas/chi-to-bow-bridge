@@ -72,11 +72,11 @@ Rows are named scenarios (golden txnids/beats aligned with **`verification/golde
 
 ### Integration BoW inject mux scenarios
 
-| Scenario | Topology | Integration Cocotb `integration/` | Verilator `vlate_bench/` |
-|----------|----------|-----------------------------------|---------------------------|
-| Unknown txnid BoW `RSP_HDR` bumps `err_unknown_txn_rsp_hdr` | Integration | Implemented - `test_integration_unknown_txnid_bow_rsp_hdr_via_inj` | Implemented - `inject_unknown_txn_rsp_hdr` |
-
-| Write / read BoW choreography, bursts, FIFO, illegals (`bow_rx` inject) | Block | Implemented - `make test` | - | - (not applicable) | - |
+| Scenario | Topology | Block Cocotb `test/` | Integration Cocotb `integration/` | Verilator `vlate_bench/` |
+|----------|----------|----------------------|-----------------------------------|---------------------------|
+| Unknown txnid BoW `RSP_HDR` bumps `err_unknown_txn_rsp_hdr` | Integration | - | Implemented - `test_integration_unknown_txnid_bow_rsp_hdr_via_inj` | Implemented - `inject_unknown_txn_rsp_hdr` |
+| Illegal BoW `RSP_HDR` framing (`WRITE_ACK has_data=1`, `READ_RESP has_data=0`) increments `err_illegal_rsp_hdr` and is dropped without completing or mutating the txn | Block | Implemented - `test_illegal_rsp_headers_are_dropped_without_side_effects` | - | - |
+| Write / read BoW choreography, bursts, FIFO, broader illegals (`bow_rx` inject) | Block | Implemented - `make test` | - | - |
 
 **Stress / randomized** cases run only under **block** Cocotb (`test/test_chi_to_bow_bridge.py`); integration UVM and Verilator benches remain directed. **Formal / second simulator (Cocotb + Verilator)** for the block suite is intentionally **not** in default CI - see **CI and regression expansion** below.
 
@@ -115,10 +115,11 @@ See also [design_spec.md](design_spec.md) Section 7 ("Known limitations").
 - **UVM-OSS parity policy** - Integration **`uvm_bench`** must stay aligned with **Integration Cocotb** and **`vlate_bench`** (**`docs/PLAN.md`**, **`uvm_bench/README.md`** mapping table); [`.github/pull_request_template.md`](../.github/pull_request_template.md) reminds authors to update UVM when OSS integration scenarios drift.
 - **Verilator structural coverage** - **`make -C vlate_bench coverage`** / **`make oss-regress-coverage`**: **`VerilatedCov::write()`**, **`verilator_coverage -write-info`** -> **`vlate_coverage.info`**. **`scripts/oss-regress.sh`** supports **`OSS_COVERAGE=1`** / **`--coverage`**.
 - **Integration BoW inject mux** - **`chi_to_bow_integration_top`** **`bow_inj_*`** drives bridge **`bow_rx`** when asserted (BFM stalled); Cocotb **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`** and **`inject_unknown_txn_rsp_hdr`** in **`vlate_bench/tb_main.cpp`** parity block **`bow_rx`** unknown-txn hdr fault.
+- **Illegal BoW response-header quarantine (block)** - **`chi_to_bow_bridge`** now drops malformed response headers after incrementing **`err_illegal_rsp_hdr`**: **`WRITE_ACK has_data=1`** no longer creates **`rsp_need_data`**, and **`READ_RESP has_data=0`** no longer emits **`chi_rsp_valid`** or clears **`pending_txn`**. Cocotb **`test_illegal_rsp_headers_are_dropped_without_side_effects`** proves each affected txn can still complete from a later well-formed response.
 
 ## Recommended near-term actions
 
-1. **Deeper error-path checks** - More BoW ingress fault injection scenarios on **`chi_to_bow_integration_top`** alongside block **`bow_rx`** tests (dup/orphan payloads, etc.). The top now exposes a **`bow_inj_*`** mux; today only **unknown txn rsp hdr** targets it in Cocotb/Verilator; optional randomized Cocotb beyond directed cases.
+1. **Deeper integration error-path checks** - Promote more block-level BoW ingress fault scenarios onto **`chi_to_bow_integration_top`** via **`bow_inj_*`** (illegal response-header quarantine, dup/orphan payloads, etc.) and mirror the highest-value rows in **`vlate_bench`**. Today integration/Verilator cover unknown-txn **`RSP_HDR`** injection; optional randomized Cocotb can follow after directed parity is in place.
 
 2. **Optional: machine-readable export** - Generate a minimal header/constants file from **`golden_payloads.py`** (script) if drift becomes painful; manual comments remain the baseline.
 

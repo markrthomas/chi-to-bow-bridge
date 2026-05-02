@@ -574,3 +574,82 @@ async def test_illegal_sequences_increment_error_counters(dut):
     orphan = (PKT_TYPE_RSP_DATA << 124) | (0x33 << 116) | 0x1234
     await send_bow_flit_until_accepted(dut, orphan)
     await wait_until_counter_eq(dut, "err_orphan_rsp_data", base_orphan + 1, max_cycles=32)
+
+
+@cocotb.test()
+async def test_illegal_rsp_headers_are_dropped_without_side_effects(dut):
+    """Malformed BoW RSP_HDR flits are counted but do not complete or mutate txn state."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    dut.bow_tx_ready.value = 1
+    dut.chi_rsp_ready.value = 0
+
+    def bit_is_set(sig, idx):
+        return (int(sig.value) & (1 << idx)) != 0
+
+    base_illegal_rsp = int(dut.err_illegal_rsp_hdr.value)
+
+    # WRITE_ACK must be header-only. A WRITE_ACK that claims follow-on data should
+    # be dropped without setting rsp_need_data or completing the write.
+    w_txn = 0x61
+    await drive_req_until_accepted(
+        dut, CHI_OP_WRITE, 0x6100, 0xFEED_FACE_CAFE_BEEF, w_txn
+    )
+    await wait_until_txnid_pending(dut, w_txn)
+
+    illegal_wack = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_WRITE_ACK << 122)
+        | (w_txn << 114)
+        | (1 << 113)
+    )
+    await send_bow_flit_until_accepted(dut, illegal_wack)
+    await wait_until_counter_eq(dut, "err_illegal_rsp_hdr", base_illegal_rsp + 1)
+    assert bit_is_set(dut.dbg_pending_txn, w_txn)
+    assert not bit_is_set(dut.dbg_rsp_need_data, w_txn)
+    assert int(dut.chi_rsp_valid.value) == 0
+
+    dut.chi_rsp_ready.value = 1
+    valid_wack = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_WRITE_ACK << 122)
+        | (w_txn << 114)
+        | (0 << 113)
+    )
+    await send_bow_flit_until_accepted(dut, valid_wack)
+    op, tid, dat = await recv_chi_response(dut)
+    assert (op, tid, dat) == (CHI_OP_WRITE_ACK, w_txn, 0)
+
+    # READ_RESP must carry data. A header-only READ_RESP should not emit a CHI
+    # response or clear the read; the later well-formed response still completes.
+    dut.chi_rsp_ready.value = 0
+    r_txn = 0x62
+    read_data = 0x1234_ABCD_5678_EF00
+    await drive_req_until_accepted(dut, CHI_OP_READ, 0x6200, 0, r_txn)
+    await wait_until_txnid_pending(dut, r_txn)
+
+    illegal_read_hdr = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_READ_RESP << 122)
+        | (r_txn << 114)
+        | (0 << 113)
+    )
+    await send_bow_flit_until_accepted(dut, illegal_read_hdr)
+    await wait_until_counter_eq(dut, "err_illegal_rsp_hdr", base_illegal_rsp + 2)
+    assert bit_is_set(dut.dbg_pending_txn, r_txn)
+    assert not bit_is_set(dut.dbg_rsp_need_data, r_txn)
+    assert int(dut.chi_rsp_valid.value) == 0
+
+    dut.chi_rsp_ready.value = 1
+    valid_read_hdr = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_READ_RESP << 122)
+        | (r_txn << 114)
+        | (1 << 113)
+    )
+    valid_read_data = (PKT_TYPE_RSP_DATA << 124) | (r_txn << 116) | read_data
+    await send_bow_flit_until_accepted(dut, valid_read_hdr)
+    await send_bow_flit_until_accepted(dut, valid_read_data)
+    op, tid, dat = await recv_chi_response(dut)
+    assert (op, tid, dat) == (CHI_OP_READ_RESP, r_txn, read_data)
