@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
-// Parallel to uvm_bench chi_driver / chi_rsp_monitor / chi_smoke_seq /
-// chi_burst_smoke_seq / chi_illegal_req_test. Verilator C++ TB drives tb_top.
+// Parallel to uvm_bench chi_driver / chi_rsp_monitor / chi_sequence_base +
+// chi_smoke_seq / chi_burst_smoke_seq / chi_illegal_req_test and chi_tb_cfg
+// pacing defaults (see chi_tb.hpp timing::). Verilator C++ TB drives tb_top.
 //---------------------------------------------------------------------------
 #include <verilated.h>
 #include "Vtb_top.h"
@@ -318,7 +319,7 @@ int main(int argc, char** argv) {
     goto done;
   }
 
-  run_clock_only(*top, sb, /*50 cycles ≈500 ns*/ 50, lg);
+  run_clock_only(*top, sb, chi_tb::timing::cycles_for_ns(chi_tb::timing::SMOKE_GAP_RD_WR_NS), lg);
 
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::WR,
           static_cast<std::uint64_t>(0x2000),
@@ -328,7 +329,8 @@ int main(int argc, char** argv) {
     goto done;
   }
 
-  run_clock_only(*top, sb, /*pacing between smoke and burst */ 200, lg);
+  run_clock_only(*top, sb,
+      chi_tb::timing::cycles_for_ns(chi_tb::timing::SMOKE_DRAIN_NS), lg);
 
   // --- multi-beat (chi_burst_smoke_seq / integration/cocotb parity)
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::WR,
@@ -339,7 +341,8 @@ int main(int argc, char** argv) {
     goto done;
   }
 
-  run_clock_only(*top, sb, 150, lg);
+  run_clock_only(*top, sb,
+      chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_MID_NS), lg);
 
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::RD,
           static_cast<std::uint64_t>(0x5000), std::uint64_t{0},
@@ -348,7 +351,8 @@ int main(int argc, char** argv) {
     goto done;
   }
 
-  run_clock_only(*top, sb, 100, lg);
+  run_clock_only(*top, sb,
+      chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_MID_NS), lg);
 
   // integration/test_integration :: test_integration_unknown_txnid_bow_rsp_hdr_via_inj
   // (runs before illegal-REQ bumps so isolation checks stay valid).
@@ -358,6 +362,8 @@ int main(int argc, char** argv) {
   }
 
   // Illegal READ_RESP then WRITE_ACK on CHI REQ (chi_illegal_req_test / integration Cocotb)
+  run_clock_only(*top, sb, chi_tb::timing::ILLEGAL_SETTLE_CLKS, lg);
+
   {
     auto const base0 = static_cast<std::uint32_t>(top->err_illegal_req_hdr);
     if (!drive_illegal_req_phase(*top, chi_tb::CHI_RSP_READ, 0x01, base0 + 1U, sb, lg)) {
@@ -371,8 +377,14 @@ int main(int argc, char** argv) {
     }
   }
 
-  // Drain long enough for bursts + smoke tail (chi_burst_test objection scale)
-  run_clock_only(*top, sb, 2500, lg);
+  run_clock_only(*top, sb,
+      chi_tb::timing::cycles_for_ns(chi_tb::timing::ILLEGAL_TAIL_NS), lg);
+
+  // Long drain so stitched phases retire all responses (>= chi_tb_cfg::burst_drain_ns intent).
+  run_clock_only(*top, sb,
+      chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_DRAIN_NS)
+          + chi_tb::timing::COMBINED_FINAL_MARGIN_CYCLES,
+      lg);
 
   if (sb.pending() != 0U) {
     lg << "[SB] ERROR: " << sb.pending() << " unmatched expected responses at end-of-test.\n";

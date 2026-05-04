@@ -9,7 +9,7 @@ Keep **`tb_main.cpp`** aligned with **`integration/test_integration.py`** when e
 The same **integration** directed suite as UVM + Cocotb **`integration/test_integration.py`**:
 
 - **DUT hierarchy:** `chi_to_bow_integration_top` ( `chi_to_bow_bridge` + `bow_link_partner_bfm` ).
-- **Stimulus:** **Single-beat** read (`0x1000`, `txnid` **0x2A**) then write (`0x2000`, `txnid` **0x2B**, data `0xDEADBEEF00000099`) with ~500 ns idle between; then **burst** write (3 beats, `txnid` 0x71) and read (4 beats, `txnid` 0x72); then **illegal CHI REQ** cases (response opcodes **0x2** / **0x3** on the request channel, txnids **0x01** / **0x02**) asserting **`err_pulse`** and **`err_illegal_req_hdr`**, matching **`chi_illegal_req_test`** / Cocotb (**no** scoreboard expectation for illegal rows).
+- **Stimulus:** Same directed ordering as **`integration/test_integration.py`** / UVM (single-beat smoke, burst WR/RD, **`bow_inj`** unknown header, illegal REQ opcodes **0x2** / **0x3**). Pacing uses **`chi_tb::timing`** in **`chi_tb.hpp`**, whose defaults mirror **`chi_tb_pkg::chi_tb_cfg`** (smoke gap/drain, burst mid/drain, illegal settle/tail). The stitched C++ binary adds **`COMBINED_FINAL_MARGIN_CYCLES`** after **`BURST_DRAIN_NS`** so all phases still drain; illegal traffic matches **`chi_illegal_req_test`** / Cocotb (**no** scoreboard expectation for illegal rows).
 - **Checks:** `chi_tb::scoreboard` for legal traffic (same rules as `uvm_bench/uvm/chi_tb_pkg.sv`, including **`exp_read_data(txnid)`** for read completions).
 
 ## OSS lint-only
@@ -34,7 +34,7 @@ Set **`VL_COV_FILENAME=/path/file.dat`** to override the dump path (default unde
 | `sim.f` | Verilog file list (paths relative to **`vlate_bench/`**). |
 | `tb_top.sv` | Top module: all CHI and clock/reset pins are **ports** so C++ can drive/sample them; instantiates `chi_to_bow_integration_top`. |
 | `tb_main.cpp` | **`drive_until_accept`**, **`drive_illegal_req_phase`**, **`sampling_posedge_rsp`**, reset, read/write smoke, burst choreography, **`err_illegal_*`** checks, **`run_clock_only`**. Address/data literals use **`static_cast<std::uint64_t>(0x...)`** (avoid `ULL` on hex tokens for portability). |
-| `chi_tb.hpp` | Types (`chi_exp_item`, `chi_obs_item`), **`exp_read_data()`**, and **`scoreboard`** (expectation queue vs observed responses). |
+| `chi_tb.hpp` | Types (`chi_exp_item`, `chi_obs_item`), **`timing`** constants mirroring **`chi_tb_pkg::chi_tb_cfg`**, **`exp_read_data()`**, and **`scoreboard`**. |
 | `Makefile` | Verilator **`lint`**, **`run`**, **`coverage`**, **`clean`**, **`pdf`**. |
 
 ### PDF of this document

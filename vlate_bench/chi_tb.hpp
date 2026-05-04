@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------
 // chi_tb.hpp — parallels uvm_bench/uvm/chi_tb_pkg.sv (no UVM): types + scoreboard.
+// Default pacing matches chi_tb_pkg::chi_tb_cfg (see uvm_bench/uvm/chi_tb_pkg.sv).
 //---------------------------------------------------------------------------
 #ifndef VLATE_CHI_TB_HPP
 #define VLATE_CHI_TB_HPP
@@ -10,6 +11,31 @@
 #include <string>
 
 namespace chi_tb {
+
+//---------------------------------------------------------------------------
+// Nanosecond pacing bundle — keep defaults aligned with SystemVerilog chi_tb_cfg.
+// Cocotb integration clock: 10 ns period (integration/test_integration.py).
+//---------------------------------------------------------------------------
+namespace timing {
+
+inline constexpr unsigned CLK_PERIOD_NS = 10;
+
+inline constexpr unsigned SMOKE_GAP_RD_WR_NS = 500;
+inline constexpr unsigned SMOKE_DRAIN_NS     = 5000;
+inline constexpr unsigned BURST_MID_NS       = 1000;
+inline constexpr unsigned BURST_DRAIN_NS     = 8000;
+inline constexpr unsigned ILLEGAL_TAIL_NS    = 500;
+inline constexpr unsigned ILLEGAL_SETTLE_CLKS = 10;
+
+/// stitched TB only: margin beyond `BURST_DRAIN_NS` so inject + illegals still drain (legacy 2500-cycle tail − `cycles_for_ns(BURST_DRAIN_NS)`).
+inline constexpr int COMBINED_FINAL_MARGIN_CYCLES = 1700;
+
+/** Map stimulus pacing (ns) → clock cycles; TB assumes CLK_PERIOD_NS (see integration Cocotb). */
+inline constexpr int cycles_for_ns(unsigned ns) {
+  return static_cast<int>((ns + CLK_PERIOD_NS - 1) / CLK_PERIOD_NS);
+}
+
+}  // namespace timing
 
 constexpr std::uint8_t OP_READ_U8   = 0x0;
 constexpr std::uint8_t OP_WRITE_U8  = 0x1;

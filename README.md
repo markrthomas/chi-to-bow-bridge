@@ -85,7 +85,7 @@ Quick reference:
 | Directory | Simulator | Typical command |
 |-----------|-----------|-----------------|
 | `test/`, `integration/` | Icarus Verilog | `make -C test`, `make -C integration` (also used by CI) |
-| `uvm_bench/` | Synopsys VCS + UVM | `make -C uvm_bench run` |
+| `uvm_bench/` | Synopsys VCS + UVM | `make -C uvm_bench run`; optional `make -C uvm_bench coverage` / `cov-report` |
 | `vlate_bench/` | Verilator | `make -C vlate_bench lint`, `make -C vlate_bench run`, `make -C vlate_bench coverage` |
 
 Each environment directory has its own **`README.md`** (and **`make pdf`** → **`README.pdf`**). See those files for flags, file lists, and troubleshooting.
