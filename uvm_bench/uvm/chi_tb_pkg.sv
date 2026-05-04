@@ -5,8 +5,7 @@
 //   - integration/test_integration.py (authoritative Cocotb)
 //   - vlate_bench/tb_main.cpp (Verilator / C++)
 //   - verification/golden_payloads.py + chi_tb.hpp (constants / read payloads)
-// bow_inj_* (BoW RX inject mux on chi_to_bow_integration_top) is inactive in tb/tb_top.sv for UVM until
-// a matching chi_tb_pkg / test is added (Cocotb + Verilator cover unknown rsp_hdr inject first).
+// bow_inj_* BoW RX inject mux is wired through tb/chi_integration_if.sv (parity with Cocotb / vlate_bench).
 // Mapping table: uvm_bench/README.md § "Stay synchronized with OSS"
 // Coverage: uvm/chi_tb_cov.svh (chi_integration_cov), Makefile coverage / cov-report targets.
 //----------------------------------------------------------------------
@@ -27,6 +26,11 @@ package chi_tb_pkg;
   localparam logic [1:0] CHI_RSP_READ = 2'b10;
   localparam logic [1:0] CHI_RSP_WACK  = 2'b11;
 
+  // Unknown-txn RSP_HDR inject flit (128b hi/lo). Matches integration/test_integration.py `bad_hdr`
+  // construction and vlate_bench/tb_main.cpp `inject_unknown_txn_rsp_hdr` (golden_payloads.py).
+  localparam logic [63:0] BOW_INJ_UNKNOWN_HDR_HI = 64'h3FF8_0000_0000_0000;
+  localparam logic [63:0] BOW_INJ_UNKNOWN_HDR_LO = 64'h0;
+
   // Mirror bow_link_partner_bfm read_payload — keep numeric layout aligned with verification/golden_payloads.py (bfm_read_data_u64).
   function automatic logic [63:0] exp_read_data(input logic [7:0] txnid);
     return {32'hA5A5_A5A5, 8'd0, txnid[7:0], 8'd0, txnid[7:0]};
@@ -44,6 +48,7 @@ package chi_tb_pkg;
       `uvm_field_int(burst_drain_ns, UVM_DEFAULT)
       `uvm_field_int(illegal_tail_ns, UVM_DEFAULT)
       `uvm_field_int(illegal_settle_clks, UVM_DEFAULT)
+      `uvm_field_int(stitched_final_ns, UVM_DEFAULT)
     `uvm_object_utils_end
 
     int unsigned smoke_gap_rd_wr_ns = 500;
@@ -52,7 +57,8 @@ package chi_tb_pkg;
     int unsigned burst_drain_ns     = 8000;
     int unsigned illegal_tail_ns    = 500;
     int unsigned illegal_settle_clks = 10;
-
+    // Post-illegal idle for stitched smoke+burst+inject+illegal flow (vlate_bench tail scale).
+    int unsigned stitched_final_ns  = 25000;
     function new(string name = "chi_tb_cfg");
       super.new(name);
     endfunction
@@ -146,6 +152,10 @@ package chi_tb_pkg;
       vif.chi_req_beats <= 8'd1;
       vif.chi_req_txnid <= '0;
       vif.chi_rsp_ready <= 1'b1;
+      vif.bow_inj_en <= 1'b0;
+      vif.bow_inj_valid <= 1'b0;
+      vif.bow_inj_data_hi <= '0;
+      vif.bow_inj_data_lo <= '0;
       wait(vif.rst_n === 1'b1);
       repeat (2) @(posedge vif.clk);
       phase.drop_objection(this);
@@ -205,8 +215,77 @@ package chi_tb_pkg;
       vif.chi_req_valid <= 1'b0;
       @(posedge vif.clk);
     endtask
-  endclass
 
+    // Unknown-txnid BoW RSP_HDR on bow_inj_* — parity: integration `test_integration_unknown_txnid_bow_rsp_hdr_via_inj`,
+    // vlate_bench `inject_unknown_txn_rsp_hdr`. Leaves REQ idle; no scoreboard expectation.
+    task automatic inject_unknown_txn_rsp_hdr();
+      logic [31:0] base_unknown;
+      int cy;
+      bit bumped;
+      wait(vif.rst_n === 1'b1);
+
+      base_unknown = vif.err_unknown_txn_rsp_hdr;
+
+      vif.chi_req_valid <= 1'b0;
+      vif.chi_rsp_ready <= 1'b1;
+
+      vif.bow_inj_en <= 1'b1;
+      vif.bow_inj_data_hi <= BOW_INJ_UNKNOWN_HDR_HI;
+      vif.bow_inj_data_lo <= BOW_INJ_UNKNOWN_HDR_LO;
+      vif.bow_inj_valid <= 1'b1;
+
+      forever @(posedge vif.clk) begin
+        if (vif.bow_inj_valid && vif.bow_inj_ready) begin
+          break;
+        end
+      end
+
+      @(negedge vif.clk);
+      vif.bow_inj_valid <= 1'b0;
+      @(posedge vif.clk);
+      @(negedge vif.clk);
+      vif.bow_inj_en <= 1'b0;
+
+      bumped = 1'b0;
+      for (cy = 0; cy < 64; cy++) begin
+        @(posedge vif.clk);
+        if (vif.err_unknown_txn_rsp_hdr == base_unknown + 32'd1) begin
+          bumped = 1'b1;
+          break;
+        end
+      end
+
+      if (!bumped) begin
+        `uvm_error("CHK", "err_unknown_txn_rsp_hdr failed to bump after bow_inj RSP_HDR")
+      end
+
+      if (vif.err_unknown_txn_rsp_hdr !== base_unknown + 32'd1) begin
+        `uvm_error("CHK",
+          $sformatf("err_unknown_txn_rsp_hdr exp=%0d obs=%0d",
+                    base_unknown + 32'd1, vif.err_unknown_txn_rsp_hdr))
+      end
+      if (vif.err_unknown_txn_rsp_data !== 32'd0) begin
+        `uvm_error("CHK", "err_unknown_txn_rsp_data expected 0 after isolated unknown hdr inject")
+      end
+      if (vif.err_dup_rsp_hdr !== 32'd0) begin
+        `uvm_error("CHK", "err_dup_rsp_hdr expected 0")
+      end
+      if (vif.err_orphan_rsp_data !== 32'd0) begin
+        `uvm_error("CHK", "err_orphan_rsp_data expected 0")
+      end
+      if (vif.err_illegal_req_hdr !== 32'd0) begin
+        `uvm_error("CHK", "err_illegal_req_hdr expected 0 after isolated unknown hdr inject")
+      end
+      if (vif.err_illegal_rsp_hdr !== 32'd0) begin
+        `uvm_error("CHK", "err_illegal_rsp_hdr expected 0")
+      end
+
+      `uvm_info("CHK",
+        $sformatf("unknown txn BoW RSP_HDR via bow_inj err_unknown_txn_rsp_hdr=%0d",
+                  vif.err_unknown_txn_rsp_hdr),
+        UVM_MEDIUM)
+    endtask
+  endclass
   //----------------------------------------------------------------------
   class chi_rsp_monitor extends uvm_monitor;
     `uvm_component_utils(chi_rsp_monitor)
@@ -548,6 +627,59 @@ package chi_tb_pkg;
       seq_h = chi_smoke_seq::type_id::create("seq_h");
       seq_h.start(env.agent.seqr);
       #(cfg.smoke_drain_ns * 1ns);
+      phase.drop_objection(this);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  // integration/test_integration.py `test_integration_unknown_txnid_bow_rsp_hdr_via_inj`
+  class chi_unknown_txn_inj_test extends chi_base_test;
+    `uvm_component_utils(chi_unknown_txn_inj_test)
+
+    function new(string name = "chi_unknown_txn_inj_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction : new
+
+    virtual task run_phase(uvm_phase phase);
+      phase.raise_objection(this);
+      repeat (4) @(posedge vif.clk);
+      env.agent.drv.inject_unknown_txn_rsp_hdr();
+      #(cfg.illegal_tail_ns * 1ns);
+      phase.drop_objection(this);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  // Stitched ordering mirrors vlate_bench/tb_main.cpp `main()`: smoke → burst → inject → illegal REQ.
+  class chi_full_integration_test extends chi_base_test;
+    `uvm_component_utils(chi_full_integration_test)
+
+    function new(string name = "chi_full_integration_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction : new
+
+    virtual task run_phase(uvm_phase phase);
+      chi_smoke_seq smoke_h;
+      chi_burst_smoke_seq burst_h;
+      phase.raise_objection(this);
+
+      smoke_h = chi_smoke_seq::type_id::create("smoke_h");
+      smoke_h.start(env.agent.seqr);
+      #(cfg.smoke_drain_ns * 1ns);
+
+      burst_h = chi_burst_smoke_seq::type_id::create("burst_h");
+      burst_h.start(env.agent.seqr);
+      #(cfg.burst_mid_ns * 1ns);
+
+      env.agent.drv.inject_unknown_txn_rsp_hdr();
+
+      repeat (cfg.illegal_settle_clks) @(posedge vif.clk);
+
+      expect_illegal_req_inc(CHI_RSP_READ, 8'h01);
+      expect_illegal_req_inc(CHI_RSP_WACK, 8'h02);
+
+      #(cfg.illegal_tail_ns * 1ns);
+      #(cfg.stitched_final_ns * 1ns);
       phase.drop_objection(this);
     endtask
   endclass

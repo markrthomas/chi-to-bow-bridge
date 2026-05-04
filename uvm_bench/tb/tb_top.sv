@@ -44,13 +44,19 @@ module tb_top;
   logic [63:0] bow_inj_data_hi;
   logic [63:0] bow_inj_data_lo;
 
-  assign bow_inj_en       = 1'b0;
-  assign bow_inj_valid    = 1'b0;
-  assign bow_inj_data_hi  = 64'd0;
-  assign bow_inj_data_lo  = 64'd0;
+  assign chi_if.err_illegal_req_hdr      = err_illegal_req_hdr;
+  assign chi_if.err_pulse                = err_pulse;
+  assign chi_if.err_unknown_txn_rsp_hdr  = err_unknown_txn_rsp_hdr;
+  assign chi_if.err_unknown_txn_rsp_data = err_unknown_txn_rsp_data;
+  assign chi_if.err_dup_rsp_hdr          = err_dup_rsp_hdr;
+  assign chi_if.err_orphan_rsp_data      = err_orphan_rsp_data;
+  assign chi_if.err_illegal_rsp_hdr      = err_illegal_rsp_hdr;
 
-  assign chi_if.err_illegal_req_hdr = err_illegal_req_hdr;
-  assign chi_if.err_pulse           = err_pulse;
+  assign bow_inj_en       = chi_if.bow_inj_en;
+  assign bow_inj_valid    = chi_if.bow_inj_valid;
+  assign chi_if.bow_inj_ready   = bow_inj_ready;
+  assign bow_inj_data_hi  = chi_if.bow_inj_data_hi;
+  assign bow_inj_data_lo  = chi_if.bow_inj_data_lo;
 
   chi_to_bow_integration_top #(
       .ADDR_WIDTH (64),

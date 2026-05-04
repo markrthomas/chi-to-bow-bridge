@@ -68,15 +68,15 @@ Rows are named scenarios (golden txnids/beats aligned with **`verification/golde
 |----------|----------|---------------------|-------------------------------------|------------------|---------------------------|
 | Single-beat read + write smoke (BFM / completions) | Integration | - | Implemented - `make integration-test` -> `test_integration_bfm_completes_smoke` | Implemented - `make run UVM_TEST=chi_smoke_test` | Implemented - built into `tb_main.cpp` (after reset) |
 | Burst write + read (`0x71`/`0x72`, 3 / 4 beats) | Integration | - | Implemented - `test_integration_bfm_burst_through_top` | Implemented - `make run UVM_TEST=chi_burst_test` | Implemented - tail of `tb_main.cpp` |
-| Illegal REQ opcodes increment `err_illegal_req_hdr` + `err_pulse` (READ_RESP / WRITE_ACK on REQ) | Integration | - | Implemented - `test_integration_illegal_chi_req_opcodes_increment_err_counter` | Implemented - `make run UVM_TEST=chi_illegal_req_test` | Implemented - tail of `tb_main.cpp`: `inject_unknown_txn_rsp_hdr`, then double `drive_illegal_req_phase` |
+| Illegal REQ opcodes increment `err_illegal_req_hdr` + `err_pulse` (READ_RESP / WRITE_ACK on REQ) | Integration | - | Implemented - `test_integration_illegal_chi_req_opcodes_increment_err_counter` | Implemented - `make run UVM_TEST=chi_illegal_req_test` (illegal-only parity); stitched smoke+burst+inject+illegal — `make run UVM_TEST=chi_full_integration_test` | Implemented — `tb_main.cpp`: `inject_unknown_txn_rsp_hdr`, settle, double `drive_illegal_req_phase` |
 
 ### Integration BoW inject mux scenarios
 
-| Scenario | Topology | Block Cocotb `test/` | Integration Cocotb `integration/` | Verilator `vlate_bench/` |
-|----------|----------|----------------------|-----------------------------------|---------------------------|
-| Unknown txnid BoW `RSP_HDR` bumps `err_unknown_txn_rsp_hdr` | Integration | - | Implemented - `test_integration_unknown_txnid_bow_rsp_hdr_via_inj` | Implemented - `inject_unknown_txn_rsp_hdr` |
-| Illegal BoW `RSP_HDR` framing (`WRITE_ACK has_data=1`, `READ_RESP has_data=0`) increments `err_illegal_rsp_hdr` and is dropped without completing or mutating the txn | Block | Implemented - `test_illegal_rsp_headers_are_dropped_without_side_effects` | - | - |
-| Write / read BoW choreography, bursts, FIFO, broader illegals (`bow_rx` inject) | Block | Implemented - `make test` | - | - |
+| Scenario | Topology | Block Cocotb `test/` | Integration Cocotb `integration/` | UVM `uvm_bench/` | Verilator `vlate_bench/` |
+|----------|----------|----------------------|-----------------------------------|------------------|---------------------------|
+| Unknown txnid BoW `RSP_HDR` bumps `err_unknown_txn_rsp_hdr` | Integration | - | Implemented - `test_integration_unknown_txnid_bow_rsp_hdr_via_inj` | Implemented - `make run UVM_TEST=chi_unknown_txn_inj_test` ; stitched — **`chi_full_integration_test`** | Implemented - `inject_unknown_txn_rsp_hdr` |
+| Illegal BoW `RSP_HDR` framing (`WRITE_ACK has_data=1`, `READ_RESP has_data=0`) increments `err_illegal_rsp_hdr` and is dropped without completing or mutating the txn | Block | Implemented - `test_illegal_rsp_headers_are_dropped_without_side_effects` | - | - | - |
+| Write / read BoW choreography, bursts, FIFO, broader illegals (`bow_rx` inject) | Block | Implemented - `make test` | - | - | - |
 
 **Stress / randomized** cases run only under **block** Cocotb (`test/test_chi_to_bow_bridge.py`); integration UVM and Verilator benches remain directed. **Formal / second simulator (Cocotb + Verilator)** for the block suite is intentionally **not** in default CI - see **CI and regression expansion** below.
 
@@ -115,7 +115,7 @@ See also [design_spec.md](design_spec.md) Section 7 ("Known limitations").
 - **UVM-OSS parity policy** - Integration **`uvm_bench`** must stay aligned with **Integration Cocotb** and **`vlate_bench`** (**`docs/PLAN.md`**, **`uvm_bench/README.md`** mapping table); [`.github/pull_request_template.md`](../.github/pull_request_template.md) reminds authors to update UVM when OSS integration scenarios drift.
 - **Verilator structural coverage** - **`make -C vlate_bench coverage`** / **`make oss-regress-coverage`**: **`VerilatedCov::write()`**, **`verilator_coverage -write-info`** -> **`vlate_coverage.info`**. **`scripts/oss-regress.sh`** supports **`OSS_COVERAGE=1`** / **`--coverage`**.
 - **UVM functional + optional VCS structural coverage** - **`chi_integration_cov`** (**`uvm_bench/uvm/chi_tb_cov.svh`**) reports REQ/RSP handshake bins in **`sim.log`**; **`make -C uvm_bench coverage`** adds Synopsys **`-cm`** instrumentation (**`uvm_cov.vdb`**), **`make -C uvm_bench cov-report`** runs **URG** when installed.
-- **Integration BoW inject mux** - **`chi_to_bow_integration_top`** **`bow_inj_*`** drives bridge **`bow_rx`** when asserted (BFM stalled); Cocotb **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`** and **`inject_unknown_txn_rsp_hdr`** in **`vlate_bench/tb_main.cpp`** parity block **`bow_rx`** unknown-txn hdr fault.
+- **Integration BoW inject mux** - **`chi_to_bow_integration_top`** **`bow_inj_*`** drives bridge **`bow_rx`** when asserted (BFM stalled); Cocotb **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`**, **`inject_unknown_txn_rsp_hdr`** in **`vlate_bench/tb_main.cpp`**, and UVM **`chi_unknown_txn_inj_test`** / **`chi_full_integration_test`** (**`inject_unknown_txn_rsp_hdr`** in **`chi_tb_pkg`**) parity unknown-txn hdr fault.
 - **Illegal BoW response-header quarantine (block)** - **`chi_to_bow_bridge`** now drops malformed response headers after incrementing **`err_illegal_rsp_hdr`**: **`WRITE_ACK has_data=1`** no longer creates **`rsp_need_data`**, and **`READ_RESP has_data=0`** no longer emits **`chi_rsp_valid`** or clears **`pending_txn`**. Cocotb **`test_illegal_rsp_headers_are_dropped_without_side_effects`** proves each affected txn can still complete from a later well-formed response.
 
 ## Recommended near-term actions
