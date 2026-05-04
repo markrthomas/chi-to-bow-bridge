@@ -283,6 +283,19 @@ module chi_to_bow_bridge #(
 
     assign dbg_rsp_need_data = rsp_need_data;
 
+    wire [3:0] rx_pkt_type = rx_flit[127:124];
+    wire [1:0] rx_hdr_opcode = rx_flit[123:122];
+    wire [7:0] rx_hdr_txnid = rx_flit[121:114];
+    wire       rx_hdr_has_data = rx_flit[113];
+    wire [7:0] rx_data_txnid = rx_flit[123:116];
+    wire       rx_rsp_hdr_opcode_legal =
+        (rx_hdr_opcode == CHI_OP_READ_RESP) || (rx_hdr_opcode == CHI_OP_WRITE_ACK);
+    wire       rx_rsp_hdr_framing_legal =
+        rx_rsp_hdr_opcode_legal &&
+        !((rx_hdr_opcode == CHI_OP_WRITE_ACK) && rx_hdr_has_data) &&
+        !((rx_hdr_opcode == CHI_OP_READ_RESP) && !rx_hdr_has_data);
+    wire       rx_rsp_hdr_illegal = !rx_rsp_hdr_framing_legal;
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             rx_flit_valid <= 1'b0;
@@ -332,60 +345,55 @@ module chi_to_bow_bridge #(
 
             // Pop one BoW RX flit per cycle when the CHI response sink can accept a new beat.
             if (rx_flit_valid) begin
-                if (rx_flit[127:124] == PKT_TYPE_RSP_HDR) begin
-                    if ((rx_flit[123:122] == CHI_OP_WRITE_ACK) && rx_flit[113]) begin
+                if (rx_pkt_type == PKT_TYPE_RSP_HDR) begin
+                    if (rx_rsp_hdr_illegal) begin
                         err_illegal_rsp_hdr <= err_illegal_rsp_hdr + 32'd1;
                         err_pulse <= 1'b1;
-                    end else if ((rx_flit[123:122] == CHI_OP_READ_RESP) && !rx_flit[113]) begin
-                        err_illegal_rsp_hdr <= err_illegal_rsp_hdr + 32'd1;
-                        err_pulse <= 1'b1;
-                    end
-
-                    if ((rx_flit[123:122] == CHI_OP_READ_RESP) && rx_flit[113] && !pending_txn_hold[rx_flit[121:114]]) begin
+                    end else if ((rx_hdr_opcode == CHI_OP_READ_RESP) && rx_hdr_has_data && !pending_txn_hold[rx_hdr_txnid]) begin
                         err_unknown_txn_rsp_hdr <= err_unknown_txn_rsp_hdr + 32'd1;
                         err_pulse <= 1'b1;
-                    end else if ((rx_flit[123:122] == CHI_OP_WRITE_ACK) && !pending_txn_hold[rx_flit[121:114]]) begin
+                    end else if ((rx_hdr_opcode == CHI_OP_WRITE_ACK) && !pending_txn_hold[rx_hdr_txnid]) begin
                         err_unknown_txn_rsp_hdr <= err_unknown_txn_rsp_hdr + 32'd1;
                         err_pulse <= 1'b1;
-                    end else if (rx_flit[113]) begin
-                        if (rsp_need_data[rx_flit[121:114]]) begin
+                    end else if (rx_hdr_has_data) begin
+                        if (rsp_need_data[rx_hdr_txnid]) begin
                             err_dup_rsp_hdr <= err_dup_rsp_hdr + 32'd1;
                             err_pulse <= 1'b1;
-                            rsp_need_data[rx_flit[121:114]] <= 1'b0;
-                            rsp_rem_flat[rx_flit[121:114]*8 +: 8] <= 8'd0;
-                            pending_clr_mask[rx_flit[121:114]] <= 1'b1;
+                            rsp_need_data[rx_hdr_txnid] <= 1'b0;
+                            rsp_rem_flat[rx_hdr_txnid*8 +: 8] <= 8'd0;
+                            pending_clr_mask[rx_hdr_txnid] <= 1'b1;
                         end else begin
-                            rsp_need_data[rx_flit[121:114]] <= 1'b1;
-                            rsp_opcode_flat[rx_flit[121:114]*2 +: 2] <= rx_flit[123:122];
-                            rsp_rem_flat[rx_flit[121:114]*8 +: 8] <= rx_flit[7:0];
+                            rsp_need_data[rx_hdr_txnid] <= 1'b1;
+                            rsp_opcode_flat[rx_hdr_txnid*2 +: 2] <= rx_hdr_opcode;
+                            rsp_rem_flat[rx_hdr_txnid*8 +: 8] <= rx_flit[7:0];
                         end
                     end else begin
                         chi_rsp_valid  <= 1'b1;
-                        chi_rsp_opcode <= rx_flit[123:122];
-                        chi_rsp_txnid  <= rx_flit[121:114];
+                        chi_rsp_opcode <= rx_hdr_opcode;
+                        chi_rsp_txnid  <= rx_hdr_txnid;
                         chi_rsp_data   <= {DATA_WIDTH{1'b0}};
-                        pending_clr_mask[rx_flit[121:114]] <= 1'b1;
+                        pending_clr_mask[rx_hdr_txnid] <= 1'b1;
                     end
-                end else if (rx_flit[127:124] == PKT_TYPE_RSP_DATA) begin
-                    if (!rsp_need_data[rx_flit[123:116]]) begin
+                end else if (rx_pkt_type == PKT_TYPE_RSP_DATA) begin
+                    if (!rsp_need_data[rx_data_txnid]) begin
                         err_orphan_rsp_data <= err_orphan_rsp_data + 32'd1;
                         err_pulse <= 1'b1;
-                    end else if (!pending_txn_hold[rx_flit[123:116]]) begin
+                    end else if (!pending_txn_hold[rx_data_txnid]) begin
                         err_unknown_txn_rsp_data <= err_unknown_txn_rsp_data + 32'd1;
                         err_pulse <= 1'b1;
-                        rsp_need_data[rx_flit[123:116]] <= 1'b0;
-                        rsp_rem_flat[rx_flit[123:116]*8 +: 8] <= 8'd0;
+                        rsp_need_data[rx_data_txnid] <= 1'b0;
+                        rsp_rem_flat[rx_data_txnid*8 +: 8] <= 8'd0;
                     end else begin
-                        if (rsp_rem_flat[rx_flit[123:116]*8 +: 8] != 8'd0) begin
-                            rsp_rem_flat[rx_flit[123:116]*8 +: 8] <=
-                                rsp_rem_flat[rx_flit[123:116]*8 +: 8] - 8'd1;
+                        if (rsp_rem_flat[rx_data_txnid*8 +: 8] != 8'd0) begin
+                            rsp_rem_flat[rx_data_txnid*8 +: 8] <=
+                                rsp_rem_flat[rx_data_txnid*8 +: 8] - 8'd1;
                         end else begin
                             chi_rsp_valid  <= 1'b1;
-                            chi_rsp_opcode <= rsp_opcode_flat[rx_flit[123:116]*2 +: 2];
-                            chi_rsp_txnid  <= rx_flit[123:116];
+                            chi_rsp_opcode <= rsp_opcode_flat[rx_data_txnid*2 +: 2];
+                            chi_rsp_txnid  <= rx_data_txnid;
                             chi_rsp_data   <= rx_flit[DATA_WIDTH-1:0];
-                            rsp_need_data[rx_flit[123:116]] <= 1'b0;
-                            pending_clr_mask[rx_flit[123:116]] <= 1'b1;
+                            rsp_need_data[rx_data_txnid] <= 1'b0;
+                            pending_clr_mask[rx_data_txnid] <= 1'b1;
                         end
                     end
                 end
