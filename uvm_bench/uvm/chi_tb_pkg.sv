@@ -8,10 +8,16 @@
 // bow_inj_* (BoW RX inject mux on chi_to_bow_integration_top) is inactive in tb/tb_top.sv for UVM until
 // a matching chi_tb_pkg / test is added (Cocotb + Verilator cover unknown rsp_hdr inject first).
 // Mapping table: uvm_bench/README.md § "Stay synchronized with OSS"
+// Coverage: uvm/chi_tb_cov.svh (chi_integration_cov), Makefile coverage / cov-report targets.
 //----------------------------------------------------------------------
 package chi_tb_pkg;
   import uvm_pkg::*;
   `include "uvm_macros.svh"
+
+  // config_db names — CHI_DB_SCOPE_ALL is for top-level `set(null, ...)`. Components still `get(this, "", ...)`.
+  localparam string CHI_DB_SCOPE_ALL = "*";
+  localparam string CHI_DB_KEY_VIF   = "vif";
+  localparam string CHI_DB_KEY_TBCFG = "chi_tb_cfg";
 
   typedef enum logic [1:0] {
     CHI_RD = 2'b00,
@@ -25,6 +31,32 @@ package chi_tb_pkg;
   function automatic logic [63:0] exp_read_data(input logic [7:0] txnid);
     return {32'hA5A5_A5A5, 8'd0, txnid[7:0], 8'd0, txnid[7:0]};
   endfunction
+
+  //----------------------------------------------------------------------
+  // Typed knobs for pacing / drains — override via config_db from `chi_base_test` subtree or top.
+  // C++ twin defaults: vlate_bench/chi_tb.hpp `chi_tb::timing`.
+  //----------------------------------------------------------------------
+  class chi_tb_cfg extends uvm_object;
+    `uvm_object_utils_begin(chi_tb_cfg)
+      `uvm_field_int(smoke_gap_rd_wr_ns, UVM_DEFAULT)
+      `uvm_field_int(smoke_drain_ns, UVM_DEFAULT)
+      `uvm_field_int(burst_mid_ns, UVM_DEFAULT)
+      `uvm_field_int(burst_drain_ns, UVM_DEFAULT)
+      `uvm_field_int(illegal_tail_ns, UVM_DEFAULT)
+      `uvm_field_int(illegal_settle_clks, UVM_DEFAULT)
+    `uvm_object_utils_end
+
+    int unsigned smoke_gap_rd_wr_ns = 500;
+    int unsigned smoke_drain_ns     = 5000;
+    int unsigned burst_mid_ns       = 1000;
+    int unsigned burst_drain_ns     = 8000;
+    int unsigned illegal_tail_ns    = 500;
+    int unsigned illegal_settle_clks = 10;
+
+    function new(string name = "chi_tb_cfg");
+      super.new(name);
+    endfunction
+  endclass
 
   //----------------------------------------------------------------------
   class chi_seq_item extends uvm_sequence_item;
@@ -100,7 +132,7 @@ package chi_tb_pkg;
 
     virtual function void build_phase(uvm_phase phase);
       super.build_phase(phase);
-      if (!uvm_config_db#(virtual chi_integration_if)::get(this, "", "vif", vif)) begin
+      if (!uvm_config_db#(virtual chi_integration_if)::get(this, "", CHI_DB_KEY_VIF, vif)) begin
         `uvm_fatal("CHIDRV", "virtual chi_integration_if not set for driver")
       end
     endfunction
@@ -188,7 +220,7 @@ package chi_tb_pkg;
 
     virtual function void build_phase(uvm_phase phase);
       super.build_phase(phase);
-      if (!uvm_config_db#(virtual chi_integration_if)::get(this, "", "vif", vif)) begin
+      if (!uvm_config_db#(virtual chi_integration_if)::get(this, "", CHI_DB_KEY_VIF, vif)) begin
         `uvm_fatal("CHIMON", "virtual chi_integration_if not set for monitor")
       end
     endfunction
@@ -281,10 +313,13 @@ package chi_tb_pkg;
     endfunction
   endclass
 
+  `include "chi_tb_cov.svh"
+
   //----------------------------------------------------------------------
   class chi_agent extends uvm_agent;
     `uvm_component_utils(chi_agent)
 
+    // Classic ACTIVE agent fold: driver + sequencer share REQ traffic; monitor observes RSP only.
     chi_driver        drv;
     chi_sequencer     seqr;
     chi_rsp_monitor   mon;
@@ -310,8 +345,9 @@ package chi_tb_pkg;
   class chi_env extends uvm_env;
     `uvm_component_utils(chi_env)
 
-    chi_agent        agent;
-    chi_scoreboard   sb;
+    chi_agent             agent;
+    chi_scoreboard        sb;
+    chi_integration_cov   cov;
 
     function new(string name = "chi_env", uvm_component parent = null);
       super.new(name, parent);
@@ -321,6 +357,7 @@ package chi_tb_pkg;
       super.build_phase(phase);
       agent = chi_agent::type_id::create("agent", this);
       sb    = chi_scoreboard::type_id::create("sb", this);
+      cov   = chi_integration_cov::type_id::create("cov", this);
     endfunction
 
     virtual function void connect_phase(uvm_phase phase);
@@ -331,8 +368,61 @@ package chi_tb_pkg;
   endclass
 
   //----------------------------------------------------------------------
+  // Boilerplate-shaving layer: typed sequencer handle + small stimulus helpers.
+  //----------------------------------------------------------------------
+  virtual class chi_sequence_base extends uvm_sequence #(chi_seq_item);
+    `uvm_declare_p_sequencer(chi_sequencer)
+
+    chi_tb_cfg m_cfg;
+
+    function new(string name = "chi_sequence_base");
+      super.new(name);
+    endfunction
+
+    virtual task pre_start();
+      super.pre_start();
+      if (!uvm_config_db#(chi_tb_cfg)::get(get_sequencer(), "", CHI_DB_KEY_TBCFG, m_cfg)) begin
+        `uvm_info("CHISEQ",
+          "chi_tb_cfg not found on sequencer; using defaults",
+          UVM_FULL)
+        m_cfg = chi_tb_cfg::type_id::create("m_cfg");
+      end
+    endtask
+
+    task automatic pause_ns(int unsigned ns);
+      #(ns * 1ns);
+    endtask
+
+    task automatic drive_read(logic [63:0] addr, logic [7:0] txnid,
+                              logic [7:0] beats = 8'd1);
+      chi_seq_item tr;
+      tr = chi_seq_item::type_id::create($sformatf("rd_%02h", txnid));
+      tr.op = CHI_RD;
+      tr.addr = addr;
+      tr.data = '0;
+      tr.txnid = txnid;
+      tr.beats = beats;
+      start_item(tr);
+      finish_item(tr);
+    endtask
+
+    task automatic drive_write(logic [63:0] addr, logic [63:0] data, logic [7:0] txnid,
+                               logic [7:0] beats = 8'd1);
+      chi_seq_item tr;
+      tr = chi_seq_item::type_id::create($sformatf("wr_%02h", txnid));
+      tr.op = CHI_WR;
+      tr.addr = addr;
+      tr.data = data;
+      tr.txnid = txnid;
+      tr.beats = beats;
+      start_item(tr);
+      finish_item(tr);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
   // integration/test_integration.py smoke order: read @0x1000 txnid 0x2A, then write @0x2000 txnid 0x2B.
-  class chi_smoke_seq extends uvm_sequence #(chi_seq_item);
+  class chi_smoke_seq extends chi_sequence_base;
     `uvm_object_utils(chi_smoke_seq)
 
     function new(string name = "chi_smoke_seq");
@@ -340,34 +430,15 @@ package chi_tb_pkg;
     endfunction
 
     virtual task body();
-      chi_seq_item r;
-      chi_seq_item w;
-
-      r = chi_seq_item::type_id::create("r");
-      r.op = CHI_RD;
-      r.addr = 64'h1000;
-      r.data = 64'h0;
-      r.txnid = 8'h2A;
-      r.beats = 8'd1;
-      start_item(r);
-      finish_item(r);
-
-      #(500ns);
-
-      w = chi_seq_item::type_id::create("w");
-      w.op = CHI_WR;
-      w.addr = 64'h2000;
-      w.data = 64'hDEAD_BEEF_0000_0099;
-      w.txnid = 8'h2B;
-      w.beats = 8'd1;
-      start_item(w);
-      finish_item(w);
+      drive_read(64'h1000, 8'h2A);
+      pause_ns(m_cfg.smoke_gap_rd_wr_ns);
+      drive_write(64'h2000, 64'hDEAD_BEEF_0000_0099, 8'h2B);
     endtask
   endclass
 
   //----------------------------------------------------------------------
   // Integration burst parity — override `burst_traffic()` in a subclass for directed variants.
-  class chi_burst_smoke_seq extends uvm_sequence #(chi_seq_item);
+  class chi_burst_smoke_seq extends chi_sequence_base;
     `uvm_object_utils(chi_burst_smoke_seq)
 
     function new(string name = "chi_burst_smoke_seq");
@@ -379,35 +450,17 @@ package chi_tb_pkg;
     endtask
 
     virtual task burst_traffic();
-      chi_seq_item w;
-      chi_seq_item r;
-
-      w = chi_seq_item::type_id::create("bw");
-      w.op = CHI_WR;
-      w.addr = 64'h3000_4000_5000_6000;
-      w.data = 64'hBAD0_C0DE_1111_2222;
-      w.txnid = 8'h71;
-      w.beats = 8'd3;
-      start_item(w);
-      finish_item(w);
-
-      #(1us);
-
-      r = chi_seq_item::type_id::create("br");
-      r.op = CHI_RD;
-      r.addr = 64'h5000;
-      r.data = 64'h0;
-      r.txnid = 8'h72;
-      r.beats = 8'd4;
-      start_item(r);
-      finish_item(r);
+      drive_write(64'h3000_4000_5000_6000, 64'hBAD0_C0DE_1111_2222, 8'h71, 8'd3);
+      pause_ns(m_cfg.burst_mid_ns);
+      drive_read(64'h5000, 8'h72, 8'd4);
     endtask
   endclass
 
   //----------------------------------------------------------------------
   virtual class chi_base_test extends uvm_test;
 
-    chi_env                env;
+    chi_env env;
+    chi_tb_cfg cfg;
     virtual chi_integration_if vif;
 
     function new(string name, uvm_component parent);
@@ -416,11 +469,30 @@ package chi_tb_pkg;
 
     virtual function void build_phase(uvm_phase phase);
       super.build_phase(phase);
-      if (!uvm_config_db#(virtual chi_integration_if)::get(this, "", "vif", vif)) begin
+      if (!uvm_config_db#(virtual chi_integration_if)::get(this, "", CHI_DB_KEY_VIF,
+                                                            vif)) begin
         `uvm_fatal("CFG", "virtual chi_integration_if not set for chi_base_test subtree")
       end
+
+      if (!uvm_config_db#(chi_tb_cfg)::get(this, "", CHI_DB_KEY_TBCFG, cfg)) begin
+        cfg = chi_tb_cfg::type_id::create("cfg");
+      end
+      uvm_config_db#(chi_tb_cfg)::set(this, "env.agent.seqr", CHI_DB_KEY_TBCFG, cfg);
+
       env = chi_env::type_id::create("env", this);
     endfunction
+
+    // Shared checker for illegal REQ opcodes (parity with integration Cocotb).
+    task automatic expect_illegal_req_inc(logic [1:0] opc, logic [7:0] txn);
+      logic [31:0] base_cnt;
+      base_cnt = vif.err_illegal_req_hdr;
+      env.agent.drv.drive_illegal_req_phase(opc, txn);
+      if (vif.err_illegal_req_hdr !== (base_cnt + 32'd1)) begin
+        `uvm_error("CHK",
+          $sformatf("err_illegal_req_hdr exp=%0d obs=%0d",
+                    base_cnt + 32'd1, vif.err_illegal_req_hdr))
+      end
+    endtask
   endclass
 
   //----------------------------------------------------------------------
@@ -436,7 +508,7 @@ package chi_tb_pkg;
       phase.raise_objection(this);
       seq_h = chi_burst_smoke_seq::type_id::create("seq_h");
       seq_h.start(env.agent.seqr);
-      #(8us);
+      #(cfg.burst_drain_ns * 1ns);
       phase.drop_objection(this);
     endtask
   endclass
@@ -450,26 +522,14 @@ package chi_tb_pkg;
     endfunction : new
 
     virtual task run_phase(uvm_phase phase);
-      logic [31:0] base_cnt;
       phase.raise_objection(this);
 
-      repeat (10) @(posedge vif.clk);
+      repeat (cfg.illegal_settle_clks) @(posedge vif.clk);
 
-      base_cnt = vif.err_illegal_req_hdr;
-      env.agent.drv.drive_illegal_req_phase(CHI_RSP_READ, 8'h01);
-      if (vif.err_illegal_req_hdr !== (base_cnt + 32'd1)) begin
-        `uvm_error("CHK",
-          $sformatf("err_illegal_req_hdr exp=%0d obs=%0d", base_cnt + 32'd1, vif.err_illegal_req_hdr))
-      end
+      expect_illegal_req_inc(CHI_RSP_READ, 8'h01);
+      expect_illegal_req_inc(CHI_RSP_WACK, 8'h02);
 
-      base_cnt = vif.err_illegal_req_hdr;
-      env.agent.drv.drive_illegal_req_phase(CHI_RSP_WACK, 8'h02);
-      if (vif.err_illegal_req_hdr !== (base_cnt + 32'd1)) begin
-        `uvm_error("CHK",
-          $sformatf("err_illegal_req_hdr exp=%0d obs=%0d", base_cnt + 32'd1, vif.err_illegal_req_hdr))
-      end
-
-      #(500ns);
+      #(cfg.illegal_tail_ns * 1ns);
       phase.drop_objection(this);
     endtask
   endclass
@@ -487,7 +547,7 @@ package chi_tb_pkg;
       phase.raise_objection(this);
       seq_h = chi_smoke_seq::type_id::create("seq_h");
       seq_h.start(env.agent.seqr);
-      #(5us);
+      #(cfg.smoke_drain_ns * 1ns);
       phase.drop_objection(this);
     endtask
   endclass

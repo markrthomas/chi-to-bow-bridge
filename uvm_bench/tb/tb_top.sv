@@ -90,7 +90,8 @@ module tb_top;
   );
 
   initial begin
-    uvm_config_db#(virtual chi_integration_if)::set(null, "*", "vif", chi_if);
+    uvm_config_db#(virtual chi_integration_if)::set(null, chi_tb_pkg::CHI_DB_SCOPE_ALL,
+                                                    chi_tb_pkg::CHI_DB_KEY_VIF, chi_if);
     run_test();
   end
 endmodule : tb_top

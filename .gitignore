@@ -28,3 +28,5 @@ uvm_bench/csrc/
 uvm_bench/ucli.key
 uvm_bench/*.log
 uvm_bench/*.vpd
+uvm_bench/uvm_cov.vdb/
+uvm_bench/urg_report/
