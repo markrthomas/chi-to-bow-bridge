@@ -20,6 +20,7 @@ RTL        = ../src/chi_to_bow_bridge.v ../integration/bow_link_partner_bfm.v ..
 
 VFLAGS     = -Wall -Wno-fatal \
 	-cc --exe --build -j 0 \
+	--assert \
 	--top-module tb_top \
 	--timescale 1ns/1ps \
 	-Mdir $(OBJ_DIR)
@@ -27,6 +28,7 @@ VFLAGS     = -Wall -Wno-fatal \
 VFLAGS_COV = -Wall -Wno-fatal \
 	-cc --exe --build -j 0 \
 	--coverage \
+	--assert \
 	--top-module tb_top \
 	--timescale 1ns/1ps \
 	-Mdir $(OBJ_DIR_COV)
@@ -40,12 +42,14 @@ PDF := README.pdf
 lint:
 	$(VERILATOR) --lint-only -Wall -Wno-fatal -f sim.f
 
-$(SIM): tb_main.cpp tb_top.sv $(RTL) sim.f
+CHK_SVA := ../verification/chi_integration_protocol_chk.sv
+
+$(SIM): tb_main.cpp tb_top.sv $(RTL) $(CHK_SVA) sim.f
 	$(VERILATOR) $(VFLAGS) \
 		-o Vtb_top tb_main.cpp -f sim.f
 	@if [ -f "$(SIM)" ]; then :; elif [ -f "$(OBJ_DIR)/Vtb_top" ]; then :; else ls -la $(OBJ_DIR); exit 1; fi
 
-$(SIM_COV): tb_main.cpp tb_top.sv $(RTL) sim.f
+$(SIM_COV): tb_main.cpp tb_top.sv $(RTL) $(CHK_SVA) sim.f
 	$(VERILATOR) $(VFLAGS_COV) \
 		-o Vtb_top tb_main.cpp -f sim.f
 	@if [ -f "$(SIM_COV)" ]; then :; elif [ -f "$(OBJ_DIR_COV)/Vtb_top" ]; then :; else ls -la $(OBJ_DIR_COV); exit 1; fi

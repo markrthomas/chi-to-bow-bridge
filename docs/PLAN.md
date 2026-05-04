@@ -10,8 +10,8 @@ This document tracks **suggested directions** for the CHI-to-BoW bridge reposito
 | Cocotb | Unit tests (`test/`) and integration closed loop with `chi_to_bow_integration_top` + `bow_link_partner_bfm` (`integration/`) |
 | Reference BFM | `bow_link_partner_bfm`: deterministic single- and multi-beat read/write completions (REQ_DATA / RSP_HDR+RSP_DATA choreography); no reordering or error injection |
 | Documentation | `docs/design_spec.md`, `docs/integration.md`, **`docs/PLAN.md`**; PDFs via `docs/Makefile`; root **`make docs`** also builds **`uvm_bench/README.pdf`** and **`vlate_bench/README.pdf`** (see **[`README.md`](../README.md)** for the authoritative list and commands) |
-| UVM TB | `uvm_bench/`: `chi_smoke_test`, **`chi_burst_test`**, **`chi_illegal_req_test`** (VCS + UVM) vs integration top + BFM |
-| Verilator TB | `vlate_bench/`: C++ smoke + **burst** + illegal-REQ **`err_*`** parity vs same integration top |
+| UVM TB | `uvm_bench/`: `chi_smoke_test`, **`chi_burst_test`**, **`chi_illegal_req_test`** (VCS + UVM) vs integration top + BFM; same **`chi_integration_protocol_chk.sv`** bind via **`sim.f`** |
+| Verilator TB | `vlate_bench/`: C++ smoke + **burst** + illegal-REQ **`err_*`** parity vs same integration top; **REQ/RSP/`bow_inj` valid→ready hold** checks in **`chi_proto.hpp`** + Verilator **`--assert`** on bound **`verification/chi_integration_protocol_chk.sv`** |
 | CI (GitHub Actions) | **`test` job:** `make doctor && make` (Icarus cocotbs + Pandoc docs). **`vlate-bench` job:** Verilator **`lint`** (`--lint-only` on RTL + `tb_top.sv`) plus `make run`. **Does not** run VCS/UVM |
 
 ## OSS-first verification (no VCS)
@@ -117,12 +117,15 @@ See also [design_spec.md](design_spec.md) Section 7 ("Known limitations").
 - **UVM functional + optional VCS structural coverage** - **`chi_integration_cov`** (**`uvm_bench/uvm/chi_tb_cov.svh`**) reports REQ/RSP handshake bins in **`sim.log`**; **`make -C uvm_bench coverage`** adds Synopsys **`-cm`** instrumentation (**`uvm_cov.vdb`**), **`make -C uvm_bench cov-report`** runs **URG** when installed.
 - **Integration BoW inject mux** - **`chi_to_bow_integration_top`** **`bow_inj_*`** drives bridge **`bow_rx`** when asserted (BFM stalled); Cocotb **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`**, **`inject_unknown_txn_rsp_hdr`** in **`vlate_bench/tb_main.cpp`**, and UVM **`chi_unknown_txn_inj_test`** / **`chi_full_integration_test`** (**`inject_unknown_txn_rsp_hdr`** in **`chi_tb_pkg`**) parity unknown-txn hdr fault.
 - **Illegal BoW response-header quarantine (block)** - **`chi_to_bow_bridge`** now drops malformed response headers after incrementing **`err_illegal_rsp_hdr`**: **`WRITE_ACK has_data=1`** no longer creates **`rsp_need_data`**, and **`READ_RESP has_data=0`** no longer emits **`chi_rsp_valid`** or clears **`pending_txn`**. Cocotb **`test_illegal_rsp_headers_are_dropped_without_side_effects`** proves each affected txn can still complete from a later well-formed response.
+- **Integration valid/ready protocol checks** - **`verification/chi_integration_protocol_chk.sv`** binds into **`chi_to_bow_integration_top`** (listed from **`uvm_bench/sim.f`** and **`vlate_bench/sim.f`**). Hold-until-handshake is procedural asserts (Verilator has no **`until_with`**). **`vlate_bench/chi_proto.hpp`** (**`HoldChecker`**) mirrors REQ/RSP/inject in **`tb_main.cpp`**; **`vlate_bench/Makefile`** passes **`--assert`** for SV-side asserts.
 
 ## Recommended near-term actions
 
 1. **Deeper integration error-path checks** - Promote more block-level BoW ingress fault scenarios onto **`chi_to_bow_integration_top`** via **`bow_inj_*`** (illegal response-header quarantine, dup/orphan payloads, etc.) and mirror the highest-value rows in **`vlate_bench`**. Today integration/Verilator cover unknown-txn **`RSP_HDR`** injection; optional randomized Cocotb can follow after directed parity is in place.
 
 2. **Optional: machine-readable export** - Generate a minimal header/constants file from **`golden_payloads.py`** (script) if drift becomes painful; manual comments remain the baseline.
+
+3. **`bow_inj` hold semantics vs `bow_inj_en` teardown (deferred)** - Today **`chi_proto.hpp`** (**`posedge_sample_inj`**) and **`chi_integration_protocol_chk.sv`** **agree**: when **`bow_inj_en`** deasserts while a beat is stalled (**`valid && !ready`**), state clears **without** treating **`en`** dropping as a protocol violation (weaker than a literal **`until_with`** on **`en && valid`**). **If** you want stricter bus-style rules (“**`en && valid` must stay true until `ready`** even if **`en`** falls early”), update **`chi_integration_protocol_chk.sv`** and **`chi_proto.hpp`** **together**, add a directed testcase that expects failure under the new rule, and document the semantic change in **`uvm_bench/README.md`** / **`vlate_bench/README.md`** mapping notes.
 
 ## Medium-term directions
 
