@@ -7,6 +7,7 @@
 #include "Vtb_top.h"
 
 #include "chi_tb.hpp"
+#include "chi_proto.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -24,6 +25,11 @@ inline void clk_set(Vtb_top& t, unsigned level) {
   t.eval();
 }
 
+bool                     g_proto_fail = false;
+chi_proto::HoldChecker   g_chk_req;
+chi_proto::HoldChecker   g_chk_rsp;
+chi_proto::HoldChecker   g_chk_inj;
+
 void apply_idle_chi_inputs(Vtb_top& t, bool rst_low) {
   t.rst_n           = rst_low ? 0U : 1U;
   t.chi_req_valid   = 0;
@@ -39,9 +45,19 @@ void apply_idle_chi_inputs(Vtb_top& t, bool rst_low) {
   t.bow_inj_data_lo = 0;
 }
 
-// Rising-edge hook — chi_rsp_monitor::run_phase (subset).
+// Rising-edge hook — chi_rsp_monitor::run_phase (subset) + protocol hold checks (chi_proto.hpp).
 bool sampling_posedge_rsp(Vtb_top& t, chi_tb::scoreboard& sb, std::ostream& lg) {
-  if ((t.rst_n & 1U) == 0U) {
+  bool const rn = (t.rst_n & 1U) != 0;
+
+  g_chk_req.posedge_sample(rn, t.chi_req_valid != 0, t.chi_req_ready != 0, "CHI_REQ", lg, g_proto_fail);
+  g_chk_rsp.posedge_sample(rn, t.chi_rsp_valid != 0, t.chi_rsp_ready != 0, "CHI_RSP", lg, g_proto_fail);
+  g_chk_inj.posedge_sample_inj(rn, (t.bow_inj_en & 1U) != 0, (t.bow_inj_valid & 1U) != 0,
+      (t.bow_inj_ready & 1U) != 0, "BOW_INJ", lg, g_proto_fail);
+
+  if (g_proto_fail) {
+    return false;
+  }
+  if (!rn) {
     return true;
   }
   if (t.chi_rsp_valid && t.chi_rsp_ready) {
@@ -123,12 +139,15 @@ bool drive_until_accept(Vtb_top& t, chi_tb::chi_op_ty op,
   return true;
 }
 
-void run_clock_only(Vtb_top& t, chi_tb::scoreboard& sb, int cycles, std::ostream& lg) {
+bool run_clock_only(Vtb_top& t, chi_tb::scoreboard& sb, int cycles, std::ostream& lg) {
   for (int i = 0; i < cycles; ++i) {
     clk_set(t, 1);
-    (void)sampling_posedge_rsp(t, sb, lg);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
     clk_set(t, 0);
   }
+  return true;
 }
 
 // Mirrors integration/test_integration unknown-txn rsp_hdr via bow_inj_*.
@@ -302,13 +321,19 @@ int main(int argc, char** argv) {
   for (int i = 0; i < 14; ++i) {
     clk_set(*top, 0);
     clk_set(*top, 1);
-    (void)sampling_posedge_rsp(*top, sb, lg);
+    if (!sampling_posedge_rsp(*top, sb, lg)) {
+      rc = 1;
+      goto done;
+    }
   }
   top->rst_n = 1;
   for (int i = 0; i < 4; ++i) {
     clk_set(*top, 0);
     clk_set(*top, 1);
-    (void)sampling_posedge_rsp(*top, sb, lg);
+    if (!sampling_posedge_rsp(*top, sb, lg)) {
+      rc = 1;
+      goto done;
+    }
   }
 
   // --- single-beat smoke (chi_smoke_seq / chi_smoke_test; integration Cocotb order)
@@ -319,7 +344,10 @@ int main(int argc, char** argv) {
     goto done;
   }
 
-  run_clock_only(*top, sb, chi_tb::timing::cycles_for_ns(chi_tb::timing::SMOKE_GAP_RD_WR_NS), lg);
+  if (!run_clock_only(*top, sb, chi_tb::timing::cycles_for_ns(chi_tb::timing::SMOKE_GAP_RD_WR_NS), lg)) {
+    rc = 1;
+    goto done;
+  }
 
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::WR,
           static_cast<std::uint64_t>(0x2000),
@@ -329,8 +357,11 @@ int main(int argc, char** argv) {
     goto done;
   }
 
-  run_clock_only(*top, sb,
-      chi_tb::timing::cycles_for_ns(chi_tb::timing::SMOKE_DRAIN_NS), lg);
+  if (!run_clock_only(*top, sb,
+          chi_tb::timing::cycles_for_ns(chi_tb::timing::SMOKE_DRAIN_NS), lg)) {
+    rc = 1;
+    goto done;
+  }
 
   // --- multi-beat (chi_burst_smoke_seq / integration/cocotb parity)
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::WR,
@@ -341,8 +372,11 @@ int main(int argc, char** argv) {
     goto done;
   }
 
-  run_clock_only(*top, sb,
-      chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_MID_NS), lg);
+  if (!run_clock_only(*top, sb,
+          chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_MID_NS), lg)) {
+    rc = 1;
+    goto done;
+  }
 
   if (!drive_until_accept(*top, chi_tb::chi_op_ty::RD,
           static_cast<std::uint64_t>(0x5000), std::uint64_t{0},
@@ -351,8 +385,11 @@ int main(int argc, char** argv) {
     goto done;
   }
 
-  run_clock_only(*top, sb,
-      chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_MID_NS), lg);
+  if (!run_clock_only(*top, sb,
+          chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_MID_NS), lg)) {
+    rc = 1;
+    goto done;
+  }
 
   // integration/test_integration :: test_integration_unknown_txnid_bow_rsp_hdr_via_inj
   // (runs before illegal-REQ bumps so isolation checks stay valid).
@@ -362,7 +399,10 @@ int main(int argc, char** argv) {
   }
 
   // Illegal READ_RESP then WRITE_ACK on CHI REQ (chi_illegal_req_test / integration Cocotb)
-  run_clock_only(*top, sb, chi_tb::timing::ILLEGAL_SETTLE_CLKS, lg);
+  if (!run_clock_only(*top, sb, chi_tb::timing::ILLEGAL_SETTLE_CLKS, lg)) {
+    rc = 1;
+    goto done;
+  }
 
   {
     auto const base0 = static_cast<std::uint32_t>(top->err_illegal_req_hdr);
@@ -377,14 +417,20 @@ int main(int argc, char** argv) {
     }
   }
 
-  run_clock_only(*top, sb,
-      chi_tb::timing::cycles_for_ns(chi_tb::timing::ILLEGAL_TAIL_NS), lg);
+  if (!run_clock_only(*top, sb,
+          chi_tb::timing::cycles_for_ns(chi_tb::timing::ILLEGAL_TAIL_NS), lg)) {
+    rc = 1;
+    goto done;
+  }
 
   // Long drain so stitched phases retire all responses (>= chi_tb_cfg::burst_drain_ns intent).
-  run_clock_only(*top, sb,
-      chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_DRAIN_NS)
-          + chi_tb::timing::COMBINED_FINAL_MARGIN_CYCLES,
-      lg);
+  if (!run_clock_only(*top, sb,
+          chi_tb::timing::cycles_for_ns(chi_tb::timing::BURST_DRAIN_NS)
+              + chi_tb::timing::COMBINED_FINAL_MARGIN_CYCLES,
+          lg)) {
+    rc = 1;
+    goto done;
+  }
 
   if (sb.pending() != 0U) {
     lg << "[SB] ERROR: " << sb.pending() << " unmatched expected responses at end-of-test.\n";
