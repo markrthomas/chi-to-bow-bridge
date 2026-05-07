@@ -10,6 +10,7 @@ results.xml
 
 # Local assistant / scratch notes (not part of the project)
 NOTES
+.codex
 
 # Generated docs
 docs/design_spec.pdf
