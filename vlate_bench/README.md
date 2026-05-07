@@ -47,7 +47,7 @@ make pdf
 
 Produces **`README.pdf`**. Remove it with `make clean-pdf` (or `make clean`, which also removes `obj_dir` and logs).
 
-The repository **root** `make docs` also builds this PDF (and **`uvm_bench/README.pdf`**).
+The repository **root** `make docs` also builds this PDF (plus **`uvm_bench/README.pdf`**, **`uvm_bench/UVM_QUICKREF.pdf`**).
 
 ## How to run
 
