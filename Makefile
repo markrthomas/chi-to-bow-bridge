@@ -1,4 +1,4 @@
-.PHONY: all test integration-test docs clean doctor waves gtkwave oss-regress oss-regress-coverage
+.PHONY: all test integration-test docs uvm-pdf clean doctor waves gtkwave oss-regress oss-regress-coverage
 
 all: test integration-test docs
 
@@ -14,6 +14,10 @@ docs:
 	$(MAKE) -C docs
 	$(MAKE) -C uvm_bench pdf
 	$(MAKE) -C vlate_bench pdf
+
+# UVM bench Markdown → PDF only (`README.pdf`, `UVM_QUICKREF.pdf`). Requires pandoc (+ PDF backend).
+uvm-pdf:
+	$(MAKE) -C uvm_bench pdf
 
 waves:
 	$(MAKE) -C test waves

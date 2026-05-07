@@ -13,6 +13,7 @@ docs/design_spec.pdf
 docs/integration.pdf
 docs/PLAN.pdf
 uvm_bench/README.pdf
+uvm_bench/UVM_QUICKREF.pdf
 vlate_bench/README.pdf
 
 # Verilator TB build output

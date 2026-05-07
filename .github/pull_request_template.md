@@ -13,6 +13,6 @@
 ## Checklist
 
 - [ ] Documentation updated (if behavior/interfaces changed)
-- [ ] **UVM parity:** If Integration Cocotb (`integration/test_integration.py`) or **`vlate_bench/tb_main.cpp`** scenarios changed or **`docs/PLAN.md`** gained new integration matrix coverage → update **`uvm_bench/uvm/chi_tb_pkg.sv`**, **`uvm_bench/tb/chi_integration_if.sv`**, **`uvm_bench/tb/tb_top.sv`**, **`uvm_bench/uvm/chi_tb_cov.svh`** (functional bins/crosses) **and** the mapping table in **`uvm_bench/README.md`** (same PR preferred), or leave a checklist note + tracked issue linking the gap.
+- [ ] **UVM parity:** If Integration Cocotb (`integration/test_integration.py`) or **`vlate_bench/tb_main.cpp`** scenarios changed or **`docs/PLAN.md`** gained new integration matrix coverage → update **`uvm_bench/uvm/chi_tb_pkg.sv`**, **`uvm_bench/tb/chi_integration_if.sv`**, **`uvm_bench/tb/tb_top.sv`**, **`uvm_bench/uvm/chi_tb_cov.svh`** (functional bins/crosses) **and** the mapping table in **`uvm_bench/README.md`** plus **`uvm_bench/UVM_QUICKREF.md`** where rows/commands overlap (same PR preferred), or leave a checklist note + tracked issue linking the gap.
 - [ ] New tests added or existing tests updated (if needed)
 - [ ] No generated artifacts committed (`sim_build/`, `results.xml`, PDFs, etc.)

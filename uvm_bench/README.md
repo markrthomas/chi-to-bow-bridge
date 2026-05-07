@@ -4,6 +4,8 @@ This directory contains a **SystemVerilog UVM** testbench for the **CHI-to-BoW i
 
 Policy: **`uvm_bench` is not independent of the OSS thread.** It stays **behaviorally aligned** with **Integration Cocotb** and **Verilator `vlate_bench`** per **[`docs/PLAN.md`](../docs/PLAN.md)** (scenario matrix + UVM–OSS parity). When integration scenarios move, update **`uvm/chi_tb_pkg.sv`** **and this mapping table** in the **same PR** when possible.
 
+**Quick lookup:** commands, tests, paths, and **`config_db`** keys are summarized in **[`UVM_QUICKREF.md`](UVM_QUICKREF.md)** (also built as **`UVM_QUICKREF.pdf`** — see **Markdown → PDF** below).
+
 ## Stay synchronized with OSS (mandatory mapping)
 
 | Integration Cocotb (`integration/test_integration.py`) | Verilator (`vlate_bench/tb_main.cpp`) | UVM (+UVM_TESTNAME / `chi_tb_pkg.sv`) |
@@ -42,24 +44,40 @@ Beyond the OSS-mapped smoke+burst+illegal-REQ+unknown-txn-inject matrix above, e
 
 | Path | Role |
 |------|------|
-| `sim.f` | Compilation file list (RTL + TB); run VCS **from `uvm_bench/`** or adjust paths). |
+| `sim.f` | Compilation file list (RTL + **`verification/chi_integration_protocol_chk.sv`** bind module + TB); run VCS **from `uvm_bench/`** or adjust paths). |
 | `tb/chi_integration_if.sv` | Virtual-interface bundle for CHI REQ/RSP, **`bow_inj_*`**, and mirrored **`err_*`** counters (driver vs monitor modports). |
 | `tb/tb_top.sv` | Top module: ties `chi_to_bow_integration_top` to the interface, `uvm_config_db` for `vif`, `run_test()`. |
 | `uvm/chi_tb_pkg.sv` | UVM package: driver (**`inject_unknown_txn_rsp_hdr`** + **`drive_illegal_req_phase`**), monitor, scoreboard, **`chi_tb_cfg`** (includes **`stitched_final_ns`** for **`chi_full_integration_test`**), sequences, **`chi_unknown_txn_inj_test`**, **`chi_full_integration_test`**, plus smaller tests documented above. |
 | `uvm/chi_tb_cov.svh` | **`chi_integration_cov`**: functional covergroups on CHI REQ/RSP valid/ready handshakes (opcodes, golden txnids, beats, crosses). Included from **`chi_tb_pkg.sv`**; **`chi_env`** always builds **`cov`**. |
-| `Makefile` | `compile` / `run` / **`compile-cov`** / **`run-cov`** / **`coverage`** / **`cov-report`** / `clean` / **`pdf`** (README → PDF via Pandoc). |
+| `Makefile` | `compile` / `run` / **`compile-cov`** / **`run-cov`** / **`coverage`** / **`cov-report`** / `clean` / **`pdf`** / **`pdf-readme`** / **`pdf-quickref`**. |
 
-### PDF of this document
+### Integration protocol asserts
 
-From **`uvm_bench/`** (requires [Pandoc](https://pandoc.org/) on `PATH`, same as **`docs/`**):
+**`verification/chi_integration_protocol_chk.sv`** is compiled via **`sim.f`** and **binds** into **`chi_to_bow_integration_top`**. It checks CHI REQ/RSP and **`bow_inj_*`** valid/ready “hold until handshake” behavior (procedural asserts compatible with Verilator when the same file is used in **`vlate_bench`**). The Verilator C++ mirror is **`vlate_bench/chi_proto.hpp`** (**`HoldChecker`**).
+
+### Markdown → PDF (UVM documentation)
+
+All PDFs use [Pandoc](https://pandoc.org/) (`PANDOC` on `PATH`, override with **`make PANDOC=…`**). The CI image installs TeX so Pandoc can emit PDF; locally, install **`pandoc`** plus a LaTeX engine if **`make pdf`** fails.
+
+From **`uvm_bench/`**:
+
+| Command | Output |
+|---------|--------|
+| **`make pdf`** or **`make pdf-all`** | **`README.pdf`** and **`UVM_QUICKREF.pdf`** |
+| **`make pdf-readme`** | **`README.md` → `README.pdf`** only |
+| **`make pdf-quickref`** | **`UVM_QUICKREF.md` → `UVM_QUICKREF.pdf`** only |
+
+Optional Pandoc flags for every PDF in one shot:
 
 ```bash
-make pdf
+make pdf PANDOC_PDF_OPTS='--toc -V geometry:margin=1in'
 ```
 
-Produces **`README.pdf`**. Remove it with `make clean-pdf` (or `make clean`, which also removes simulation artifacts).
+Remove PDFs with **`make clean-pdf`** (or **`make clean`**, which also removes simulation artifacts).
 
-The repository **root** `make docs` also builds this PDF (and **`vlate_bench/README.pdf`**).
+From the repository **root**, **`make docs`** runs **`make -C docs pdf`** then **`make -C uvm_bench pdf`** then **`make -C vlate_bench pdf`**, so both UVM PDFs are produced together with **`docs/*.pdf`** and **`vlate_bench/README.pdf`**.
+
+For convenience the root Makefile also exposes **`make uvm-pdf`** (same as **`make -C uvm_bench pdf`**).
 
 ## How to run
 

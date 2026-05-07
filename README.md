@@ -16,7 +16,7 @@ sudo apt update
 sudo apt install -y iverilog pandoc gtkwave python3 python3-pip make
 python3 -m pip install --user cocotb pytest
 
-# from repo root: unit tests, integration (bridge+BFM), spec PDFs, bench README PDFs, roadmap PDF
+# from repo root: unit tests, integration, spec PDFs, UVM + Verilator bench PDFs, roadmap PDF
 make
 # or step-by-step:
 #   make test
@@ -53,9 +53,10 @@ From the repository root:
   - `make test`
 - Run system integration sim (bridge + in-repo BFM, asserts `err_*` clean):
   - `make integration-test`
-- Build PDFs (Markdown in `docs/` and both bench READMEs):
+- Build PDFs (Markdown in `docs/` plus **UVM**:`README.md` + **`UVM_QUICKREF.md`**, **Verilator**: `README.md`):
   - `make docs`
-  - This runs `make -C docs` (three spec/plan PDFs below), then **`make -C uvm_bench pdf`** and **`make -C vlate_bench pdf`** (environment README PDFs).
+  - This runs `make -C docs` (three spec/plan PDFs below), then **`make -C uvm_bench pdf`** (**`README.pdf`**, **`UVM_QUICKREF.pdf`**) and **`make -C vlate_bench pdf`** (**`README.pdf`**).
+  - Shortcut for UVM PDFs only: **`make uvm-pdf`**.
 - Generate waveforms (`.fst` and, when available, `.vcd`):
   - `make waves`
 - Open waveforms in GTKWave:
@@ -71,7 +72,7 @@ From the repository root:
 
 Continuous integration (GitHub Actions) runs two jobs combined locally by **`make oss-regress`** (when Verilator is installed):
 
-1. **`test`** — `make doctor && make`: cocotb unit/integration sims plus **`make docs`** (spec/integration/**`docs/PLAN.pdf`**, and **`uvm_bench/README.pdf`** / **`vlate_bench/README.pdf`**).
+1. **`test`** — `make doctor && make`: cocotb unit/integration sims plus **`make docs`** (spec/integration/**`docs/PLAN.pdf`**, **`uvm_bench/README.pdf`**, **`uvm_bench/UVM_QUICKREF.pdf`**, and **`vlate_bench/README.pdf`**).
 2. **`vlate-bench`** — installs OSS **Verilator**, runs **`make -C vlate_bench lint`** (RTL-only) then **`make -C vlate_bench run`** so lint + parity C++ TB stay green.
 
 OSS-first verification (no VCS) is spelled out in **`docs/PLAN.md`**.
@@ -88,7 +89,7 @@ Quick reference:
 | `uvm_bench/` | Synopsys VCS + UVM | `make -C uvm_bench run`; optional `make -C uvm_bench coverage` / `cov-report` |
 | `vlate_bench/` | Verilator | `make -C vlate_bench lint`, `make -C vlate_bench run`, `make -C vlate_bench coverage` |
 
-Each environment directory has its own **`README.md`** (and **`make pdf`** → **`README.pdf`**). See those files for flags, file lists, and troubleshooting.
+Each environment directory has its own **`README.md`** (**`make -C uvm_bench pdf`** also emits **`UVM_QUICKREF.pdf`**). See those files for flags, file lists, and troubleshooting.
 
 ## Direct Subdirectory Commands
 
@@ -96,11 +97,12 @@ Each environment directory has its own **`README.md`** (and **`make pdf`** → *
   - `make -C test`
 - Integration sim only:
   - `make -C integration`
-- Build spec/plan PDFs only (not bench README PDFs):
+- Build spec/plan PDFs only (not bench README / quickref PDFs):
   - `make -C docs pdf`
 - UVM environment (VCS installed):
   - `make -C uvm_bench run`
-  - `make -C uvm_bench pdf` — **`uvm_bench/README.pdf`**
+  - **`make -C uvm_bench pdf`** — **`README.pdf`** + **`UVM_QUICKREF.pdf`** (or **`make pdf-readme`** / **`make pdf-quickref`** individually)
+  - From repo root: **`make uvm-pdf`**
 - Verilator environment:
   - `make -C vlate_bench lint`
   - `make -C vlate_bench run`
@@ -115,7 +117,8 @@ Each environment directory has its own **`README.md`** (and **`make pdf`** → *
   - `chi_to_bow_bridge.vcd` (if `fst2vcd` is installed)
 - PDFs produced by **`make docs`**:
   - **Specs & roadmap**: `docs/design_spec.pdf`, `docs/integration.pdf`, **`docs/PLAN.pdf`** (Markdown sources in **`docs/`**)
-  - **Environment guides**: **`uvm_bench/README.pdf`**, **`vlate_bench/README.pdf`** (from each bench’s `README.md` via Pandoc; same run as above)
+  - **UVM guides**: **`uvm_bench/README.pdf`** (from **`README.md`**), **`uvm_bench/UVM_QUICKREF.pdf`** (from **`UVM_QUICKREF.md`**)
+  - **Verilator guide**: **`vlate_bench/README.pdf`** (from **`README.md`**)
 
 ## Notes
 
