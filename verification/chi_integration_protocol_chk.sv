@@ -23,7 +23,7 @@ module chi_integration_protocol_chk (
   // --- CHI REQ (TB→DUT): valid must stay high until chi_req_ready ----------------------------
   logic req_waiting_q;
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n)
       req_waiting_q <= 1'b0;
     else begin
@@ -36,7 +36,7 @@ module chi_integration_protocol_chk (
     end
   end
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or negedge rst_n) begin
     if (rst_n && req_waiting_q && !chi_req_valid)
       assert (0)
       else $error("PROTO_SVA: CHI REQ valid dropped before chi_req_ready");
@@ -45,7 +45,7 @@ module chi_integration_protocol_chk (
   // --- CHI RSP (DUT→TB): valid must stay high until chi_rsp_ready ---------------------------
   logic rsp_waiting_q;
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n)
       rsp_waiting_q <= 1'b0;
     else begin
@@ -58,7 +58,7 @@ module chi_integration_protocol_chk (
     end
   end
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or negedge rst_n) begin
     if (rst_n && rsp_waiting_q && !chi_rsp_valid)
       assert (0)
       else $error("PROTO_SVA: CHI RSP valid dropped before chi_rsp_ready");
@@ -67,7 +67,7 @@ module chi_integration_protocol_chk (
   // --- bow_inj: same as HoldChecker::posedge_sample_inj (clear when !bow_inj_en, no check)
   logic inj_waiting_q;
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n)
       inj_waiting_q <= 1'b0;
     else if (!bow_inj_en)
@@ -82,7 +82,7 @@ module chi_integration_protocol_chk (
     end
   end
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or negedge rst_n) begin
     if (rst_n && bow_inj_en && inj_waiting_q && !bow_inj_valid)
       assert (0)
       else $error("PROTO_SVA: bow_inj valid dropped before bow_inj_ready (while bow_inj_en)");

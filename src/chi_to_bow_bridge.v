@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module chi_to_bow_bridge #(
     parameter ADDR_WIDTH = 64,
     parameter DATA_WIDTH = 64,
@@ -108,8 +110,9 @@ module chi_to_bow_bridge #(
             chi_rd_ptr <= {PTR_W{1'b0}};
             chi_count  <= {CNT_W{1'b0}};
             for (i = 0; i < FIFO_DEPTH; i = i + 1) begin
-                chi_mem[i] = {CHI_REQ_FIFO_W{1'b0}};
+                chi_mem[i] <= {CHI_REQ_FIFO_W{1'b0}};
             end
+
         end else begin
             if (chi_push && chi_pop) begin
                 chi_count <= chi_count;
@@ -177,7 +180,7 @@ module chi_to_bow_bridge #(
             bow_count  <= {CNT_W{1'b0}};
             bow_pop <= 1'b0;
             for (i = 0; i < FIFO_DEPTH; i = i + 1) begin
-                bow_mem[i] = 128'd0;
+                bow_mem[i] <= 128'd0;
             end
         end else begin
             if (bow_push && bow_pop) begin
