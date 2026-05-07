@@ -6,11 +6,11 @@ One-page companion to **[`README.md`](README.md)** and **[`UVM_ONBOARDING.md`](U
 
 | Requirement | Notes |
 |-------------|--------|
-| **Synopsys VCS** | `vcs` on `PATH`; run all Makefile flows **from `uvm_bench/`** so **`sim.f`** paths resolve. |
-| **UVM** | Supplied by VCS via **`-ntb_opts uvm-1.2`** (see **[`Makefile`](Makefile)** **`VCS_BASE`**). |
-| **Pandoc** (PDF only) | **`make pdf`** / per-source **`pdf-readme`** / **`pdf-quickref`** / **`pdf-onboarding`** — same stack as **`docs/`** (often needs TeX for PDF backend). |
+| Synopsys VCS | `vcs` on `PATH`; run all Makefile flows from `uvm_bench/` so `sim.f` paths resolve. |
+| UVM | Supplied by VCS via `-ntb_opts uvm-1.2` (see [`Makefile`](Makefile) `VCS_BASE`). |
+| Pandoc (PDF only) | `make pdf`, `pdf-readme`, `pdf-quickref`, `pdf-onboarding` — same stack as `docs/` (often needs TeX for PDF backend). |
 
-Parity policy: align with **Integration Cocotb** and **`vlate_bench`** per **`docs/PLAN.md`**.
+Parity policy: align with Integration Cocotb and `vlate_bench` per `docs/PLAN.md`.
 
 ---
 
@@ -18,18 +18,18 @@ Parity policy: align with **Integration Cocotb** and **`vlate_bench`** per **`do
 
 | Target | Purpose |
 |--------|---------|
-| **`compile`** | `vcs … -f sim.f -o ./simv` |
-| **`run`** | `compile` then **`./simv +UVM_TESTNAME=$(UVM_TEST) …`** — default **`UVM_TEST=chi_smoke_test`** |
-| **`compile-cov`** / **`run-cov`** / **`coverage`** | VCS **`-cm`** structural instrumentation → **`uvm_cov.vdb`** (gitignored). |
-| **`cov-report`** | **URG** textual report from **`$(COV_DIR)`** — requires **`urg`** on **`PATH`**. |
-| **`pdf`** | All Markdown PDFs (**`README.pdf`**, **`UVM_QUICKREF.pdf`**, **`UVM_ONBOARDING.pdf`**). |
-| **`pdf-readme`** | **`README.md` → `README.pdf`** only. |
-| **`pdf-quickref`** | **`UVM_QUICKREF.md` → `UVM_QUICKREF.pdf`** only. |
-| **`pdf-onboarding`** | **`UVM_ONBOARDING.md` → `UVM_ONBOARDING.pdf`** only. |
-| **`clean-pdf`** | Remove generated **`*.pdf`** in this directory. |
-| **`clean`** | **`clean-pdf`** plus **`simv`**, **`sim.log`**, coverage dirs, etc. |
+| `compile` | `vcs … -f sim.f -o ./simv` |
+| `run` | `compile` then `./simv +UVM_TESTNAME=$(UVM_TEST) …` — default `UVM_TEST=chi_smoke_test` |
+| `compile-cov` / `run-cov` / `coverage` | VCS `-cm` structural instrumentation → `uvm_cov.vdb` (gitignored). |
+| `cov-report` | URG textual report from `$(COV_DIR)` — requires `urg` on `PATH`. |
+| `pdf` | All Markdown PDFs (`README.pdf`, `UVM_QUICKREF.pdf`, `UVM_ONBOARDING.pdf`). |
+| `pdf-readme` | `README.md` → `README.pdf` only. |
+| `pdf-quickref` | `UVM_QUICKREF.md` → `UVM_QUICKREF.pdf` only. |
+| `pdf-onboarding` | `UVM_ONBOARDING.md` → `UVM_ONBOARDING.pdf` only. |
+| `clean-pdf` | Remove generated `*.pdf` in this directory. |
+| `clean` | `clean-pdf` plus `simv`, `sim.log`, coverage dirs, etc. |
 
-Variables: **`UVM_TEST`**, **`EXTRA_VCSOPTS`**, **`VCS`**, **`SIMV`**, **`COV_DIR`**, **`PANDOC`**, **`PANDOC_PDF_OPTS`** (optional extra Pandoc flags).
+Variables: `UVM_TEST`, `EXTRA_VCSOPTS`, `VCS`, `SIMV`, `COV_DIR`, `PANDOC`, `PANDOC_PDF_OPTS` (optional extra Pandoc flags).
 
 ---
 
@@ -37,11 +37,11 @@ Variables: **`UVM_TEST`**, **`EXTRA_VCSOPTS`**, **`VCS`**, **`SIMV`**, **`COV_DI
 
 | Test | Role |
 |------|------|
-| **`chi_smoke_test`** | Single-beat read/write smoke — parity integration Cocotb smoke. |
-| **`chi_burst_test`** | Multi-beat write/read — parity integration burst scenario. |
-| **`chi_illegal_req_test`** | Illegal REQ-channel opcodes → **`err_illegal_req_hdr`** / **`err_pulse`**. |
-| **`chi_unknown_txn_inj_test`** | Unknown-txn **`RSP_HDR`** on **`bow_inj_*`**. |
-| **`chi_full_integration_test`** | Stitched smoke → burst → inject → illegal (matches **`vlate_bench/tb_main.cpp`** ordering). |
+| `chi_smoke_test` | Single-beat read/write smoke — parity integration Cocotb smoke. |
+| `chi_burst_test` | Multi-beat write/read — parity integration burst scenario. |
+| `chi_illegal_req_test` | Illegal REQ-channel opcodes → `err_illegal_req_hdr` / `err_pulse`. |
+| `chi_unknown_txn_inj_test` | Unknown-txn `RSP_HDR` on `bow_inj_*`. |
+| `chi_full_integration_test` | Stitched smoke → burst → inject → illegal (matches `vlate_bench/tb_main.cpp` ordering). |
 
 Example:
 
@@ -55,11 +55,11 @@ make run UVM_TEST=chi_burst_test
 
 | Path | Role |
 |------|------|
-| **`sim.f`** | RTL + **`verification/chi_integration_protocol_chk.sv`** (bind protocol asserts) + TB. |
-| **`tb/tb_top.sv`** | Top, **`uvm_config_db`**, **`run_test()`**. |
-| **`tb/chi_integration_if.sv`** | CHI REQ/RSP, **`bow_inj_*`**, **`err_*`** — driver/monitor modports. |
-| **`uvm/chi_tb_pkg.sv`** | Agents, sequences, tests, **`inject_unknown_txn_rsp_hdr`**, **`drive_illegal_req_phase`**, **`chi_tb_cfg`**. |
-| **`uvm/chi_tb_cov.svh`** | **`chi_integration_cov`**: REQ/RSP handshakes, **`bow_inj_*`** beat completions, **`err_pulse`** counter snapshots; **`report_phase`** **`[COV]`** prints four **`get_coverage()`** percentages. Details: **`README.md`** § *Coverage / Functional*. |
+| `sim.f` | RTL + `verification/chi_integration_protocol_chk.sv` (bind protocol asserts) + TB. |
+| `tb/tb_top.sv` | Top, `uvm_config_db`, `run_test()`. |
+| `tb/chi_integration_if.sv` | CHI REQ/RSP, `bow_inj_*`, `err_*` — driver/monitor modports. |
+| `uvm/chi_tb_pkg.sv` | Agents, sequences, tests, `inject_unknown_txn_rsp_hdr`, `drive_illegal_req_phase`, `chi_tb_cfg`. |
+| `uvm/chi_tb_cov.svh` | `chi_integration_cov`: REQ/RSP handshakes, `bow_inj_*` beat completions, `err_pulse` counter snapshots; `report_phase` `[COV]` prints four `get_coverage()` percentages. Details: `README.md` § *Coverage / Functional*. |
 
 ---
 
@@ -67,37 +67,37 @@ make run UVM_TEST=chi_burst_test
 
 | Symbol | Typical use |
 |--------|-------------|
-| **`CHI_DB_SCOPE_ALL`** | **`"*"`** — wildcard scope for **`tb_top`** **`set(null, …)`**. |
-| **`CHI_DB_KEY_VIF`** | **`"vif"`** — **`virtual chi_integration_if`**. |
-| **`CHI_DB_KEY_TBCFG`** | **`"chi_tb_cfg"`** — pacing / drain knobs (**`chi_tb_cfg`**). |
+| `CHI_DB_SCOPE_ALL` | `"*"` — wildcard scope for `tb_top` `set(null, …)`. |
+| `CHI_DB_KEY_VIF` | `"vif"` — `virtual chi_integration_if`. |
+| `CHI_DB_KEY_TBCFG` | `"chi_tb_cfg"` — pacing / drain knobs (`chi_tb_cfg`). |
 
-Custom **`chi_tb_cfg`**: **`set(this, "", CHI_DB_KEY_TBCFG, cfg)`** in **`build_phase`** before **`super.build_phase`** in **`chi_base_test`** subclasses.
+Custom `chi_tb_cfg`: `set(this, "", CHI_DB_KEY_TBCFG, cfg)` in `build_phase` before `super.build_phase` in `chi_base_test` subclasses.
 
 ---
 
 ## Protocol checking
 
-**`verification/chi_integration_protocol_chk.sv`** is listed in **`sim.f`** and **binds** into **`chi_to_bow_integration_top`**: REQ/RSP/`bow_inj` valid-hold rules (see **`vlate_bench/chi_proto.hpp`** for the Verilator-side twin).
+`verification/chi_integration_protocol_chk.sv` is listed in `sim.f` and binds into `chi_to_bow_integration_top`: REQ/RSP/`bow_inj` valid-hold rules (see `vlate_bench/chi_proto.hpp` for the Verilator-side twin).
 
 ---
 
 ## Functional coverage (`chi_integration_cov`)
 
-Covergroups **`cg_req_handshake`**, **`cg_rsp_handshake`**, **`cg_bow_inj_handshake`**, **`cg_err_on_pulse`** live in **`uvm/chi_tb_cov.svh`**. **`report_phase`** emits **`[COV]`** with four **`get_coverage()`** percentages (REQ, RSP, inject handshake, err snapshots). Bin semantics and a **recommended test order** to close them are in **`README.md`** (*Coverage / Functional*).
+Covergroups `cg_req_handshake`, `cg_rsp_handshake`, `cg_bow_inj_handshake`, `cg_err_on_pulse` live in `uvm/chi_tb_cov.svh`. `report_phase` emits `[COV]` with four `get_coverage()` percentages (REQ, RSP, inject handshake, err snapshots). Bin semantics and a recommended test order to close them are in `README.md` (*Coverage / Functional*).
 
 ---
 
 ## Golden constants
 
-Cross-check **`verification/golden_payloads.py`**, **`chi_tb_pkg.sv`** (**`exp_read_data()`**, **`BOW_INJ_UNKNOWN_HDR_*`**), and **`vlate_bench/chi_tb.hpp`** when changing opcodes, txnids, or BoW flit layouts.
+Cross-check `verification/golden_payloads.py`, `chi_tb_pkg.sv` (`exp_read_data()`, `BOW_INJ_UNKNOWN_HDR_*`), and `vlate_bench/chi_tb.hpp` when changing opcodes, txnids, or BoW flit layouts.
 
 ---
 
 ## Related docs
 
-- **`README.md`** — full UVM bench documentation.
-- **`UVM_ONBOARDING.md`** — TB/DUT figures, **`config_db`** flow, parity lane table, “where to edit”.
-- **`docs/PLAN.md`** — scenario matrix and OSS / UVM parity policy.
-- **`docs/design_spec.md`** — CHI/BoW abstraction.
+- `README.md` — full UVM bench documentation.
+- `UVM_ONBOARDING.md` — TB/DUT figures, `config_db` flow, parity lane table, “where to edit”.
+- `docs/PLAN.md` — scenario matrix and OSS / UVM parity policy.
+- `docs/design_spec.md` — CHI/BoW abstraction.
 
-PDFs: from repo root **`make docs`**, or **`make -C uvm_bench pdf`**.
+PDFs: from repo root `make docs`, or `make -C uvm_bench pdf`.

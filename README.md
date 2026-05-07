@@ -13,7 +13,7 @@ From a fresh Ubuntu-like machine, run:
 
 ```bash
 sudo apt update
-sudo apt install -y iverilog pandoc gtkwave python3 python3-pip make
+sudo apt install -y fonts-dejavu-core iverilog pandoc texlive-latex-base texlive-latex-recommended texlive-xetex gtkwave python3 python3-pip make
 python3 -m pip install --user cocotb pytest
 
 # from repo root: unit tests, integration, spec PDFs, UVM + Verilator bench PDFs, roadmap PDF
@@ -41,7 +41,7 @@ make waves
 - `iverilog` and `vvp` available at `/usr/bin` (or adjust in `test/Makefile`)
 - Python 3 with Cocotb installed:
   - `python3 -m pip install --user cocotb pytest`
-- `pandoc` for Markdown → PDF conversion (design spec, roadmap, README PDFs)
+- `pandoc` plus **XeLaTeX** (`texlive-xetex`) and **DejaVu** fonts (`fonts-dejavu-core`) — PDF defaults: **`docs/pandoc-pdf-defaults.yaml`** — for Markdown → PDF conversion (design spec, roadmap, README PDFs)
 - **Optional — `vlate_bench/`**: [Verilator](https://www.veripool.org/verilator/) (`verilator`) and a C++17 toolchain (`make run` builds `obj_dir/Vtb_top`)
 - **Optional — `uvm_bench/`**: [Synopsys VCS](https://synopsys.com) with bundled UVM via `-ntb_opts uvm-1.2` (`make run` builds `./simv`)
 
@@ -155,7 +155,7 @@ Each environment directory has its own **`README.md`** (**`make -C uvm_bench pdf
     - `which iverilog`
     - `which vvp`
 
-- `pandoc` missing for docs
+- `pandoc` missing or **`make docs`** fails with **no output PDF** / **`xelatex` not found**
   - Install and rebuild:
-    - `sudo apt install -y pandoc`
+    - `sudo apt install -y fonts-dejavu-core pandoc texlive-latex-base texlive-latex-recommended texlive-xetex`
     - `make docs`

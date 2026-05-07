@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y iverilog pandoc texlive-latex-base texlive-latex-recommended make
+          sudo apt-get install -y fonts-dejavu-core iverilog pandoc texlive-latex-base texlive-latex-recommended texlive-xetex make
           python -m pip install --upgrade pip
           python -m pip install cocotb pytest
 
