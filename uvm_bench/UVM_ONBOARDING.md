@@ -88,7 +88,18 @@ tb_top (SV module)
 | **`chi_driver`** | Drive **`chi_req_*`** until accepted; tasks **`inject_unknown_txn_rsp_hdr`**, **`drive_illegal_req_phase`** |
 | **`chi_rsp_monitor`** | Detect completed responses (**`chi_rsp_valid && chi_rsp_ready`**) |
 | **`chi_scoreboard`** | Match reads/writes to expected opcode / txnid / data (**`exp_read_data()`**) |
-| **`chi_integration_cov`** | Sample REQ/RSP handshake bins on **`vif`** |
+| **`chi_integration_cov`** | Samples **`vif`** each clock: REQ/RSP accepted beats, completed **`bow_inj_*`** beats, and **`err_pulse`** snapshots of **`err_illegal_req_hdr`** / **`err_unknown_txn_rsp_hdr`**. |
+
+### Functional coverage (four covergroups)
+
+| Covergroup | What closes it (tests) |
+|------------|-------------------------|
+| **`cg_req_handshake`** | Smoke + burst + illegal REQ (**`chi_smoke_test`**, **`chi_burst_test`**, **`chi_illegal_req_test`**, stitched). |
+| **`cg_rsp_handshake`** | Same set (responses for legal traffic). |
+| **`cg_bow_inj_handshake`** | Unknown **`RSP_HDR`** inject (**`chi_unknown_txn_inj_test`** or stitched **`chi_full_integration_test`**). |
+| **`cg_err_on_pulse`** | Illegal REQ and inject paths that pulse **`err_pulse`** with distinct counter snapshots. |
+
+Full bin/cross documentation lives in **`README.md`** (*Coverage / Functional*); implementation in **`uvm/chi_tb_cov.svh`**.
 
 ---
 
@@ -99,7 +110,7 @@ tb_top (SV module)
 | **`build_phase`** | **`tb_top`** sets **`vif`** in **`config_db`**; test builds **`chi_tb_cfg`** (default or override); **`chi_env`** creates agent, scoreboard, **`cov`**. |
 | **`connect_phase`** | TLM ports not heavily custom here; agent internally wired in **`chi_agent`**. |
 | **`run_phase`** | Sequences start on **`chi_sequencer`**; driver/monitor/scoreboard **`run_phase`** threads sample **`vif`**. |
-| **`report_phase`** | **`chi_integration_cov`** prints **`[COV]`** handshake percentages to **`sim.log`**. |
+| **`report_phase`** | **`chi_integration_cov`** prints **`[COV]`** with **four** **`get_coverage()`** percentages (REQ, RSP, **`bow_inj`** handshake, **`err_pulse`** snapshots). See **`README.md`** (*Coverage / Functional*) for bin tables. |
 
 ---
 
