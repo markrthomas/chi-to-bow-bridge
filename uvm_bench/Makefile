@@ -3,6 +3,7 @@
 #   make pdf              — all Markdown guides → PDF (requires pandoc + PDF backend)
 #   make pdf-readme       — README.md → README.pdf
 #   make pdf-quickref     — UVM_QUICKREF.md → UVM_QUICKREF.pdf
+#   make pdf-onboarding   — UVM_ONBOARDING.md → UVM_ONBOARDING.pdf
 #
 # Optional: EXTRA_VCSOPTS=...
 SIMV      ?= ./simv
@@ -19,14 +20,16 @@ PANDOC          ?= pandoc
 # Optional extra flags for all PDFs, e.g. -V geometry:margin=1in --toc
 PANDOC_PDF_OPTS ?=
 
-MD_README   := README.md
-MD_QUICKREF := UVM_QUICKREF.md
-PDF_README  := README.pdf
+MD_README    := README.md
+MD_QUICKREF  := UVM_QUICKREF.md
+MD_ONBOARD   := UVM_ONBOARDING.md
+PDF_README   := README.pdf
 PDF_QUICKREF := UVM_QUICKREF.pdf
-PDF_ALL     := $(PDF_README) $(PDF_QUICKREF)
+PDF_ONBOARD  := UVM_ONBOARDING.pdf
+PDF_ALL      := $(PDF_README) $(PDF_QUICKREF) $(PDF_ONBOARD)
 
 .PHONY: compile run compile-cov run-cov coverage cov-report clean clean-pdf \
-	pdf pdf-readme pdf-quickref pdf-all
+	pdf pdf-readme pdf-quickref pdf-onboarding pdf-all
 
 compile:
 	$(VCS) $(VCS_BASE) $(EXTRA_VCSOPTS) -f sim.f -o $(SIMV)
@@ -55,6 +58,8 @@ pdf-readme: $(PDF_README)
 
 pdf-quickref: $(PDF_QUICKREF)
 
+pdf-onboarding: $(PDF_ONBOARD)
+
 $(PDF_README): $(MD_README)
 	@command -v $(PANDOC) >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
 	$(PANDOC) $(PANDOC_PDF_OPTS) "$(MD_README)" -o "$(PDF_README)"
@@ -62,6 +67,10 @@ $(PDF_README): $(MD_README)
 $(PDF_QUICKREF): $(MD_QUICKREF)
 	@command -v $(PANDOC) >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
 	$(PANDOC) $(PANDOC_PDF_OPTS) "$(MD_QUICKREF)" -o "$(PDF_QUICKREF)"
+
+$(PDF_ONBOARD): $(MD_ONBOARD)
+	@command -v $(PANDOC) >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
+	$(PANDOC) $(PANDOC_PDF_OPTS) "$(MD_ONBOARD)" -o "$(PDF_ONBOARD)"
 
 clean-pdf:
 	rm -f $(PDF_ALL)

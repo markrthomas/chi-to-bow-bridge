@@ -8,12 +8,16 @@ results.xml
 *.vcd
 *.fst
 
+# Local assistant / scratch notes (not part of the project)
+NOTES
+
 # Generated docs
 docs/design_spec.pdf
 docs/integration.pdf
 docs/PLAN.pdf
 uvm_bench/README.pdf
 uvm_bench/UVM_QUICKREF.pdf
+uvm_bench/UVM_ONBOARDING.pdf
 vlate_bench/README.pdf
 
 # Verilator TB build output

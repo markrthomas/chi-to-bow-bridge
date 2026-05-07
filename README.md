@@ -33,7 +33,7 @@ make waves
 - `doc/` - Standardized documentation directory
 - `docs/` - Design specification, integration addendum, **roadmap (PLAN)**, and docs Makefile (`design_spec.pdf`, `integration.pdf`, `PLAN.pdf`)
 - `scripts/` - Helper scripts (see **`make oss-regress`**)
-- `uvm_bench/` - Synopsys VCS / UVM integration smoke TB (optional license)
+- **`uvm_bench/`** - Synopsys VCS / UVM integration TB (**[`UVM_ONBOARDING.md`](uvm_bench/UVM_ONBOARDING.md)** for DV/UVM engineers new to the repo)
 - `vlate_bench/` - Verilator + C++ parity smoke TB
 
 ## Prerequisites
@@ -53,9 +53,9 @@ From the repository root:
   - `make test`
 - Run system integration sim (bridge + in-repo BFM, asserts `err_*` clean):
   - `make integration-test`
-- Build PDFs (Markdown in `docs/` plus **UVM**:`README.md` + **`UVM_QUICKREF.md`**, **Verilator**: `README.md`):
+- Build PDFs (Markdown in `docs/` plus **UVM**: **`README.md`**, **`UVM_QUICKREF.md`**, **`UVM_ONBOARDING.md`**, **Verilator**: `README.md`):
   - `make docs`
-  - This runs `make -C docs` (three spec/plan PDFs below), then **`make -C uvm_bench pdf`** (**`README.pdf`**, **`UVM_QUICKREF.pdf`**) and **`make -C vlate_bench pdf`** (**`README.pdf`**).
+  - This runs `make -C docs` (three spec/plan PDFs below), then **`make -C uvm_bench pdf`** (**`README.pdf`**, **`UVM_QUICKREF.pdf`**, **`UVM_ONBOARDING.pdf`**) and **`make -C vlate_bench pdf`** (**`README.pdf`**).
   - Shortcut for UVM PDFs only: **`make uvm-pdf`**.
 - Generate waveforms (`.fst` and, when available, `.vcd`):
   - `make waves`
@@ -72,7 +72,7 @@ From the repository root:
 
 Continuous integration (GitHub Actions) runs two jobs combined locally by **`make oss-regress`** (when Verilator is installed):
 
-1. **`test`** — `make doctor && make`: cocotb unit/integration sims plus **`make docs`** (spec/integration/**`docs/PLAN.pdf`**, **`uvm_bench/README.pdf`**, **`uvm_bench/UVM_QUICKREF.pdf`**, and **`vlate_bench/README.pdf`**).
+1. **`test`** — `make doctor && make`: cocotb unit/integration sims plus **`make docs`** (spec/integration/**`docs/PLAN.pdf`**, **`uvm_bench/README.pdf`**, **`uvm_bench/UVM_QUICKREF.pdf`**, **`uvm_bench/UVM_ONBOARDING.pdf`**, and **`vlate_bench/README.pdf`**).
 2. **`vlate-bench`** — installs OSS **Verilator**, runs **`make -C vlate_bench lint`** (RTL-only) then **`make -C vlate_bench run`** so lint + parity C++ TB stay green.
 
 OSS-first verification (no VCS) is spelled out in **`docs/PLAN.md`**.
@@ -89,7 +89,7 @@ Quick reference:
 | `uvm_bench/` | Synopsys VCS + UVM | `make -C uvm_bench run`; optional `make -C uvm_bench coverage` / `cov-report` |
 | `vlate_bench/` | Verilator | `make -C vlate_bench lint`, `make -C vlate_bench run`, `make -C vlate_bench coverage` |
 
-Each environment directory has its own **`README.md`** (**`make -C uvm_bench pdf`** also emits **`UVM_QUICKREF.pdf`**). See those files for flags, file lists, and troubleshooting.
+Each environment directory has its own **`README.md`** (**`make -C uvm_bench pdf`** also emits **`UVM_QUICKREF.pdf`** and **`UVM_ONBOARDING.pdf`**). See those files for flags, file lists, and troubleshooting.
 
 ## Direct Subdirectory Commands
 
@@ -101,7 +101,7 @@ Each environment directory has its own **`README.md`** (**`make -C uvm_bench pdf
   - `make -C docs pdf`
 - UVM environment (VCS installed):
   - `make -C uvm_bench run`
-  - **`make -C uvm_bench pdf`** — **`README.pdf`** + **`UVM_QUICKREF.pdf`** (or **`make pdf-readme`** / **`make pdf-quickref`** individually)
+  - **`make -C uvm_bench pdf`** — **`README.pdf`**, **`UVM_QUICKREF.pdf`**, **`UVM_ONBOARDING.pdf`** (or **`make pdf-readme`**, **`make pdf-quickref`**, **`make pdf-onboarding`** individually)
   - From repo root: **`make uvm-pdf`**
 - Verilator environment:
   - `make -C vlate_bench lint`
@@ -117,7 +117,7 @@ Each environment directory has its own **`README.md`** (**`make -C uvm_bench pdf
   - `chi_to_bow_bridge.vcd` (if `fst2vcd` is installed)
 - PDFs produced by **`make docs`**:
   - **Specs & roadmap**: `docs/design_spec.pdf`, `docs/integration.pdf`, **`docs/PLAN.pdf`** (Markdown sources in **`docs/`**)
-  - **UVM guides**: **`uvm_bench/README.pdf`** (from **`README.md`**), **`uvm_bench/UVM_QUICKREF.pdf`** (from **`UVM_QUICKREF.md`**)
+  - **UVM guides**: **`uvm_bench/README.pdf`**, **`uvm_bench/UVM_QUICKREF.pdf`**, **`uvm_bench/UVM_ONBOARDING.pdf`** (from **`README.md`**, **`UVM_QUICKREF.md`**, **`UVM_ONBOARDING.md`**)
   - **Verilator guide**: **`vlate_bench/README.pdf`** (from **`README.md`**)
 
 ## Notes
