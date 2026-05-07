@@ -7,7 +7,7 @@
 //   - verification/golden_payloads.py + chi_tb.hpp (constants / read payloads)
 // bow_inj_* BoW RX inject mux is wired through tb/chi_integration_if.sv (parity with Cocotb / vlate_bench).
 // Mapping table: uvm_bench/README.md § "Stay synchronized with OSS"
-// Coverage: uvm/chi_tb_cov.svh (chi_integration_cov), Makefile coverage / cov-report targets.
+// Coverage: uvm/chi_tb_cov.svh (chi_integration_cov: REQ/RSP, bow_inj handshake, err_pulse snapshots).
 //----------------------------------------------------------------------
 package chi_tb_pkg;
   import uvm_pkg::*;

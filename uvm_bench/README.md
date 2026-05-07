@@ -124,12 +124,14 @@ make run UVM_TEST=chi_full_integration_test
 
 ### Coverage
 
-- **Functional (SV covergroups):** **`chi_integration_cov`** samples the virtual **`chi_integration_if`** every clock; **`report_phase`** prints **`[COV]`** percentages from **`cg_req_handshake`** / **`cg_rsp_handshake`** (`sim.log`). Extend bins when **`docs/PLAN.md`** integration scenarios add txnids or beats.
-- **Structural (Synopsys VCS `-cm`):** rebuild with instrumentation and leave a **`uvm_cov.vdb`** database (gitignored):
+#### Structural (Synopsys VCS `-cm`)
+
+Rebuild with instrumentation and leave a **`uvm_cov.vdb`** database (gitignored):
 
 ```bash
 make coverage UVM_TEST=chi_smoke_test
-# repeat for chi_burst_test / chi_illegal_req_test, then merge/report with URG:
+# repeat for chi_burst_test / chi_illegal_req_test / chi_unknown_txn_inj_test /
+#          chi_full_integration_test as needed, then merge/report with URG:
 make cov-report
 ```
 
@@ -140,6 +142,30 @@ Custom VCS switches:
 ```bash
 make compile EXTRA_VCSOPTS="+define+MY_DEFINE"
 ```
+
+#### Functional (SV covergroups in **`chi_integration_cov`**)
+
+Source: **`uvm/chi_tb_cov.svh`**, instantiated from **`chi_env`** (**`chi_tb_pkg.sv`**).  
+Sampling runs **every posedge **`vif.clk`** while **`rst_n`** is asserted**, driven entirely by **`chi_integration_if`** (no whitebox probes).
+
+**`report_phase`** prints one **`[COV]`** line with **`get_coverage()`** percentages for **each covergroup** (four metrics separated by **`|`**). Extend **`chi_tb_cov.svh`** when **`docs/PLAN.md`** adds integration-visible stimulus so bins stay meaningful.
+
+| Covergroup | Intent |
+|------------|--------|
+| **`cg_req_handshake`** | REQ-channel handshake (**`chi_req_valid && chi_req_ready`**): opcode legality / **`illegal_on_req_chan`** (**`READ_RESP` / `WRITE_ACK` on REQ**), golden txnids (**`0x2A`/`0x2B`/`0x71`/`0x72`** plus **`0x01`/`0x02`** illegal-REQ cases), beats (**single vs burst 3/4**); crosses opcode×txnid and opcode×beats. |
+| **`cg_rsp_handshake`** | RSP-channel handshake (**`chi_rsp_valid && chi_rsp_ready`**): **`READ_RESP` vs `WRITE_ACK`**, golden txnids, opcode×txnid cross. |
+| **`cg_bow_inj_handshake`** | Completed **`bow_inj_*`** beats (**`bow_inj_en && bow_inj_valid && bow_inj_ready`**). **`inj_hi_cp` / `inj_lo_cp`** include bins that match **`BOW_INJ_UNKNOWN_HDR_*`** (**same constants as **`inject_unknown_txn_rsp_hdr`** / **`golden_payloads.py`**). **`cross_inj_payload`** ties hi/lo together. Run **`chi_unknown_txn_inj_test`** or **`chi_full_integration_test`** to close the golden inject tuple. |
+| **`cg_err_on_pulse`** | When **`vif.err_pulse`** is high, snapshots **`err_illegal_req_hdr`** and **`err_unknown_txn_rsp_hdr`**. Bins encode **`0` / `1` / `2` / default** for illegal-count progression and **`0` / `1` / default** for unknown-hdr counts; **`cross_ill_unk`** correlates the two counters at pulse instants. **`chi_illegal_req_test`**, **`chi_unknown_txn_inj_test`**, and the stitched test exercise different corners. |
+
+**Suggested regression order for functional closure** (quick → full matrix):
+
+| Order | `UVM_TEST` | Covergroups primarily exercised |
+|-------|------------|----------------------------------|
+| 1 | **`chi_smoke_test`** | REQ/RSP golden smoke txnids + single beat |
+| 2 | **`chi_burst_test`** | REQ/RSP burst txnids + beats bins/crosses |
+| 3 | **`chi_illegal_req_test`** | REQ illegal opcodes; **`cg_err_on_pulse`** illegal-count bins |
+| 4 | **`chi_unknown_txn_inj_test`** | **`cg_bow_inj_handshake`** golden tuple; unknown **`err_*`** snapshot bins |
+| 5 | **`chi_full_integration_test`** | All of the above in one pass (stitched ordering matches **`vlate_bench`**) |
 
 ### Manual VCS (equivalent sketch)
 
@@ -157,7 +183,7 @@ Artifacts: `./simv`, `sim.log` (Makefile `clean` removes common VCS clutter).
 ## Architecture (conceptual)
 
 1. **`tb_top`** builds clock/reset (interface reset wired to RTL `rst_n`), **`bow_inj_*`** and **`err_*`** observability into **`chi_integration_if`**, and publishes `virtual chi_integration_if` via **`uvm_config_db`** with **`set(null, CHI_DB_SCOPE_ALL, CHI_DB_KEY_VIF, …)`** (wildcard scope `"*"`). Components resolve it with the usual **`get(this, "", CHI_DB_KEY_VIF, …)`** walk upward—use **`CHI_DB_KEY_VIF`** so extensions share one field name.
-2. **`chi_agent`** contains the CHI driver, sequencer, and response monitor. **`chi_env`** also instantiates **`chi_integration_cov`**, which samples REQ/RSP handshakes on **`vif`** for functional coverage.
+2. **`chi_agent`** contains the CHI driver, sequencer, and response monitor. **`chi_env`** also instantiates **`chi_integration_cov`**, which samples **`chi_integration_if`** each clock for REQ/RSP handshakes, **`bow_inj_*`** completions, and **`err_pulse`** snapshots (**see § Coverage / Functional** above).
 3. **`chi_driver`** implements **valid/ready** on `chi_req_*` until the request is accepted, then emits an expectation into the scoreboard (**same ordering as acceptance**, not end-to-end protocol completion). Directed **`inject_unknown_txn_rsp_hdr`** asserts **`bow_inj_*`** handshake + **`err_unknown_txn_rsp_hdr`** isolation (parity with Cocotb / **`vlate_bench`**).
 4. **`chi_rsp_monitor`** samples completed CHI responses when `chi_rsp_valid && chi_rsp_ready` on clock edges.
 5. **`chi_scoreboard`** matches observed responses to queued expectations (write-ack and read response with predictable data; multi-beat reads complete on the last data beat exposed on CHI, as in RTL).

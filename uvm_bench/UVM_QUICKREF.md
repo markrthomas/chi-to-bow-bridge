@@ -59,7 +59,7 @@ make run UVM_TEST=chi_burst_test
 | **`tb/tb_top.sv`** | Top, **`uvm_config_db`**, **`run_test()`**. |
 | **`tb/chi_integration_if.sv`** | CHI REQ/RSP, **`bow_inj_*`**, **`err_*`** — driver/monitor modports. |
 | **`uvm/chi_tb_pkg.sv`** | Agents, sequences, tests, **`inject_unknown_txn_rsp_hdr`**, **`drive_illegal_req_phase`**, **`chi_tb_cfg`**. |
-| **`uvm/chi_tb_cov.svh`** | **`chi_integration_cov`** — included from **`chi_tb_pkg.sv`**. |
+| **`uvm/chi_tb_cov.svh`** | **`chi_integration_cov`**: REQ/RSP handshakes, **`bow_inj_*`** beat completions, **`err_pulse`** counter snapshots; **`report_phase`** **`[COV]`** prints four **`get_coverage()`** percentages. Details: **`README.md`** § *Coverage / Functional*. |
 
 ---
 
@@ -78,6 +78,12 @@ Custom **`chi_tb_cfg`**: **`set(this, "", CHI_DB_KEY_TBCFG, cfg)`** in **`build_
 ## Protocol checking
 
 **`verification/chi_integration_protocol_chk.sv`** is listed in **`sim.f`** and **binds** into **`chi_to_bow_integration_top`**: REQ/RSP/`bow_inj` valid-hold rules (see **`vlate_bench/chi_proto.hpp`** for the Verilator-side twin).
+
+---
+
+## Functional coverage (`chi_integration_cov`)
+
+Covergroups **`cg_req_handshake`**, **`cg_rsp_handshake`**, **`cg_bow_inj_handshake`**, **`cg_err_on_pulse`** live in **`uvm/chi_tb_cov.svh`**. **`report_phase`** emits **`[COV]`** with four **`get_coverage()`** percentages (REQ, RSP, inject handshake, err snapshots). Bin semantics and a **recommended test order** to close them are in **`README.md`** (*Coverage / Functional*).
 
 ---
 
