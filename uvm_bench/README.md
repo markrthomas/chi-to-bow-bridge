@@ -12,19 +12,38 @@ Policy: **`uvm_bench` is not independent of the OSS thread.** It stays **behavio
 
 ## Stay synchronized with OSS (mandatory mapping)
 
-| Integration Cocotb (`integration/test_integration.py`) | Verilator (`vlate_bench/tb_main.cpp`) | UVM (+UVM_TESTNAME / `chi_tb_pkg.sv`) |
-| --- | --- | --- |
-| `test_integration_bfm_completes_smoke` — read `@0x1000` **`0x2A`**, write `@0x2000` **`0x2B`**, write data **`0xDEADBEEF00000099`** | First `drive_until_accept` **RD**, idle, **`WR`** block | **`chi_smoke_test`** ← **`chi_smoke_seq`** (read-first, **`#500ns`** between) |
-| `test_integration_bfm_burst_through_top` — write **`0x71`** ×3 beats, read **`0x72`** ×4 beats | Burst **`drive_until_accept`** WR then RD | **`chi_burst_test`** ← **`chi_burst_smoke_seq::burst_traffic()`** (**`#1us`** pacing) |
-| `test_integration_illegal_chi_req_opcodes_increment_err_counter` — **`CHI_OP_READ_RESP` (2'b10)** and **`CHI_OP_WRITE_ACK` (2'b11)** on REQ, txn **`0x01`** / **`0x02`** | **`drive_illegal_req_phase`** (after **`inject_unknown_txn_rsp_hdr`**) | **`chi_illegal_req_test`** <- **`drive_illegal_req_phase`** |
-| **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`** — malformed BoW **`RSP_HDR`** with txn **`0xFE`** on **`bow_inj_*`** | **`inject_unknown_txn_rsp_hdr`** | **`chi_unknown_txn_inj_test`** (`inject_unknown_txn_rsp_hdr`); stitched smoke+burst+inject+illegal: **`chi_full_integration_test`** |
+Pipe tables here were too wide for PDF; each scenario is a short block so columns stay readable when printed.
 
-Constants / read payload layouts: **`verification/golden_payloads.py`** <-> **`chi_tb.hpp`** <-> **`exp_read_data()`** in **`chi_tb_pkg.sv`**.
+### Smoke — single-beat read/write
+
+- **Cocotb** (`integration/test_integration.py`): `test_integration_bfm_completes_smoke` — read `@0x1000` `0x2A`, write `@0x2000` `0x2B`, write data `0xDEADBEEF00000099`.
+- **Verilator** (`vlate_bench/tb_main.cpp`): first `drive_until_accept` RD, idle, WR block.
+- **UVM:** `chi_smoke_test` ← `chi_smoke_seq` (read-first, `#500ns` between ops).
+
+### Burst — multi-beat traffic
+
+- **Cocotb:** `test_integration_bfm_burst_through_top` — write `0x71` ×3 beats, read `0x72` ×4 beats.
+- **Verilator:** burst `drive_until_accept` WR then RD.
+- **UVM:** `chi_burst_test` ← `chi_burst_smoke_seq::burst_traffic()` (`#1us` pacing).
+
+### Illegal REQ-channel opcodes
+
+- **Cocotb:** `test_integration_illegal_chi_req_opcodes_increment_err_counter` — `CHI_OP_READ_RESP` (2'b10) and `CHI_OP_WRITE_ACK` (2'b11) on REQ, txn `0x01` / `0x02`.
+- **Verilator:** `drive_illegal_req_phase` (after `inject_unknown_txn_rsp_hdr` where that ordering applies).
+- **UVM:** `chi_illegal_req_test` calls `drive_illegal_req_phase`.
+
+### Unknown txn — BoW `RSP_HDR` inject
+
+- **Cocotb:** `test_integration_unknown_txnid_bow_rsp_hdr_via_inj` — malformed BoW `RSP_HDR` with txn `0xFE` on `bow_inj_*`.
+- **Verilator:** `inject_unknown_txn_rsp_hdr`.
+- **UVM:** `chi_unknown_txn_inj_test`; stitched smoke → burst → inject → illegal: `chi_full_integration_test`.
+
+Constants / read payload layouts: `verification/golden_payloads.py` ↔ `chi_tb.hpp` ↔ `exp_read_data()` in `chi_tb_pkg.sv`.
 
 ### PR workflow (when touching integration verification)
 
 1. Change **`integration/test_integration.py`** and/or **`vlate_bench/tb_main.cpp`** as needed **or** intentionally leave them untouched.
-2. If the **integration scenario matrix** ([`docs/PLAN.md`](../docs/PLAN.md)) changes, update **`uvm/chi_tb_pkg.sv`** (sequences, delays, **`drive_illegal_req_phase`**) and **this table** above.
+2. If the **integration scenario matrix** ([`docs/PLAN.md`](../docs/PLAN.md)) changes, update **`uvm/chi_tb_pkg.sv`** (sequences, delays, **`drive_illegal_req_phase`**) and **this mapping** above.
 3. Run **`make oss-regress`** (or **`make integration-test`** + **`make -C vlate_bench lint && make -C vlate_bench run`**). Run **`make -C uvm_bench run`** for each **`UVM_TEST`** you touched — at minimum **`chi_smoke_test`**, **`chi_burst_test`**, **`chi_illegal_req_test`**, **`chi_unknown_txn_inj_test`**, **`chi_full_integration_test`** when inject or stitched flow changes ([`Makefile`](Makefile)). After changing **`chi_tb_cov.svh`** bins/crosses or VCS **`VCS_COV_COMPILE`** knobs, run **`make -C uvm_bench coverage`** (if licensed) and inspect **`sim.log`** **`COV`** lines plus optional **`make cov-report`**.
 
 ## What it verifies
@@ -48,12 +67,12 @@ Beyond the OSS-mapped smoke+burst+illegal-REQ+unknown-txn-inject matrix above, e
 
 | Path | Role |
 |------|------|
-| `sim.f` | Compilation file list (RTL + **`verification/chi_integration_protocol_chk.sv`** bind module + TB); run VCS **from `uvm_bench/`** or adjust paths). |
-| `tb/chi_integration_if.sv` | Virtual-interface bundle for CHI REQ/RSP, **`bow_inj_*`**, and mirrored **`err_*`** counters (driver vs monitor modports). |
+| `sim.f` | Compilation file list (RTL + bind `verification/chi_integration_protocol_chk.sv` + TB); run VCS from `uvm_bench/` or adjust paths. |
+| `tb/chi_integration_if.sv` | Virtual-interface bundle for CHI REQ/RSP, `bow_inj_*`, and mirrored `err_*` counters (driver vs monitor modports). |
 | `tb/tb_top.sv` | Top module: ties `chi_to_bow_integration_top` to the interface, `uvm_config_db` for `vif`, `run_test()`. |
-| `uvm/chi_tb_pkg.sv` | UVM package: driver (**`inject_unknown_txn_rsp_hdr`** + **`drive_illegal_req_phase`**), monitor, scoreboard, **`chi_tb_cfg`** (includes **`stitched_final_ns`** for **`chi_full_integration_test`**), sequences, **`chi_unknown_txn_inj_test`**, **`chi_full_integration_test`**, plus smaller tests documented above. |
-| `uvm/chi_tb_cov.svh` | **`chi_integration_cov`**: functional covergroups on CHI REQ/RSP valid/ready handshakes (opcodes, golden txnids, beats, crosses). Included from **`chi_tb_pkg.sv`**; **`chi_env`** always builds **`cov`**. |
-| `Makefile` | `compile` / `run` / **`compile-cov`** / **`run-cov`** / **`coverage`** / **`cov-report`** / `clean` / **`pdf`** / **`pdf-readme`** / **`pdf-quickref`** / **`pdf-onboarding`**. |
+| `uvm/chi_tb_pkg.sv` | UVM package: driver (`inject_unknown_txn_rsp_hdr`, `drive_illegal_req_phase`), monitor, scoreboard, `chi_tb_cfg` (`stitched_final_ns` for `chi_full_integration_test`), sequences, tests listed above. |
+| `uvm/chi_tb_cov.svh` | `chi_integration_cov`: REQ/RSP handshakes, opcodes, txnids, beats, crosses. Included from `chi_tb_pkg.sv`; `chi_env` always builds `cov`. |
+| `Makefile` | `compile`, `run`, `compile-cov`, `run-cov`, `coverage`, `cov-report`, `clean`, `pdf`, `pdf-readme`, `pdf-quickref`, `pdf-onboarding`. |
 
 ### Integration protocol asserts
 
@@ -61,16 +80,16 @@ Beyond the OSS-mapped smoke+burst+illegal-REQ+unknown-txn-inject matrix above, e
 
 ### Markdown → PDF (UVM documentation)
 
-All PDFs use [Pandoc](https://pandoc.org/) (`PANDOC` on `PATH`, override with **`make PANDOC=…`**). The CI image installs TeX so Pandoc can emit PDF; locally, install **`pandoc`** plus a LaTeX engine if **`make pdf`** fails.
+All PDFs use [Pandoc](https://pandoc.org/) (`PANDOC` on `PATH`, override with **`make PANDOC=…`**) with **`xelatex`** and **DejaVu** body/mono fonts (repo **`docs/pandoc-pdf-defaults.yaml`**). Install **`pandoc`**, **`texlive-xetex`**, **`texlive-latex-recommended`**, and **`fonts-dejavu-core`** if **`make pdf`** fails or **`xelatex`** reports missing fonts.
 
 From **`uvm_bench/`**:
 
 | Command | Output |
 |---------|--------|
-| **`make pdf`** or **`make pdf-all`** | **`README.pdf`**, **`UVM_QUICKREF.pdf`**, **`UVM_ONBOARDING.pdf`** |
-| **`make pdf-readme`** | **`README.md` → `README.pdf`** only |
-| **`make pdf-quickref`** | **`UVM_QUICKREF.md` → `UVM_QUICKREF.pdf`** only |
-| **`make pdf-onboarding`** | **`UVM_ONBOARDING.md` → `UVM_ONBOARDING.pdf`** only |
+| `make pdf` or `make pdf-all` | `README.pdf`, `UVM_QUICKREF.pdf`, `UVM_ONBOARDING.pdf` |
+| `make pdf-readme` | `README.md` → `README.pdf` only |
+| `make pdf-quickref` | `UVM_QUICKREF.md` → `UVM_QUICKREF.pdf` only |
+| `make pdf-onboarding` | `UVM_ONBOARDING.md` → `UVM_ONBOARDING.pdf` only |
 
 Optional Pandoc flags for every PDF in one shot:
 
@@ -145,27 +164,35 @@ make compile EXTRA_VCSOPTS="+define+MY_DEFINE"
 
 #### Functional (SV covergroups in **`chi_integration_cov`**)
 
-Source: **`uvm/chi_tb_cov.svh`**, instantiated from **`chi_env`** (**`chi_tb_pkg.sv`**).  
-Sampling runs **every posedge **`vif.clk`** while **`rst_n`** is asserted**, driven entirely by **`chi_integration_if`** (no whitebox probes).
+Source: `uvm/chi_tb_cov.svh`, instantiated from `chi_env` in `chi_tb_pkg.sv`.
 
-**`report_phase`** prints one **`[COV]`** line with **`get_coverage()`** percentages for **each covergroup** (four metrics separated by **`|`**). Extend **`chi_tb_cov.svh`** when **`docs/PLAN.md`** adds integration-visible stimulus so bins stay meaningful.
+Sampling runs every posedge of `vif.clk` while `rst_n` is asserted, driven entirely by `chi_integration_if` (no whitebox probes).
 
-| Covergroup | Intent |
-|------------|--------|
-| **`cg_req_handshake`** | REQ-channel handshake (**`chi_req_valid && chi_req_ready`**): opcode legality / **`illegal_on_req_chan`** (**`READ_RESP` / `WRITE_ACK` on REQ**), golden txnids (**`0x2A`/`0x2B`/`0x71`/`0x72`** plus **`0x01`/`0x02`** illegal-REQ cases), beats (**single vs burst 3/4**); crosses opcode×txnid and opcode×beats. |
-| **`cg_rsp_handshake`** | RSP-channel handshake (**`chi_rsp_valid && chi_rsp_ready`**): **`READ_RESP` vs `WRITE_ACK`**, golden txnids, opcode×txnid cross. |
-| **`cg_bow_inj_handshake`** | Completed **`bow_inj_*`** beats (**`bow_inj_en && bow_inj_valid && bow_inj_ready`**). **`inj_hi_cp` / `inj_lo_cp`** include bins that match **`BOW_INJ_UNKNOWN_HDR_*`** (**same constants as **`inject_unknown_txn_rsp_hdr`** / **`golden_payloads.py`**). **`cross_inj_payload`** ties hi/lo together. Run **`chi_unknown_txn_inj_test`** or **`chi_full_integration_test`** to close the golden inject tuple. |
-| **`cg_err_on_pulse`** | When **`vif.err_pulse`** is high, snapshots **`err_illegal_req_hdr`** and **`err_unknown_txn_rsp_hdr`**. Bins encode **`0` / `1` / `2` / default** for illegal-count progression and **`0` / `1` / default** for unknown-hdr counts; **`cross_ill_unk`** correlates the two counters at pulse instants. **`chi_illegal_req_test`**, **`chi_unknown_txn_inj_test`**, and the stitched test exercise different corners. |
+`report_phase` prints one `[COV]` line with `get_coverage()` percentages for each covergroup (four metrics separated by `|`). Extend `chi_tb_cov.svh` when `docs/PLAN.md` adds integration-visible stimulus so bins stay meaningful.
+
+#### `cg_req_handshake`
+
+REQ-channel handshake (`chi_req_valid && chi_req_ready`): opcode legality / `illegal_on_req_chan` (`READ_RESP` / `WRITE_ACK` on REQ), golden txnids (`0x2A`, `0x2B`, `0x71`, `0x72`, plus `0x01`/`0x02` illegal-REQ cases), beats (single vs burst 3/4); crosses opcode×txnid and opcode×beats.
+
+#### `cg_rsp_handshake`
+
+RSP-channel handshake (`chi_rsp_valid && chi_rsp_ready`): `READ_RESP` vs `WRITE_ACK`, golden txnids, opcode×txnid cross.
+
+#### `cg_bow_inj_handshake`
+
+Completed `bow_inj_*` beats (`bow_inj_en && bow_inj_valid && bow_inj_ready`). `inj_hi_cp` / `inj_lo_cp` bins match `BOW_INJ_UNKNOWN_HDR_*` (same constants as `inject_unknown_txn_rsp_hdr` / `golden_payloads.py`). `cross_inj_payload` ties hi/lo. Run `chi_unknown_txn_inj_test` or `chi_full_integration_test` to close the golden inject tuple.
+
+#### `cg_err_on_pulse`
+
+When `vif.err_pulse` is high, snapshots `err_illegal_req_hdr` and `err_unknown_txn_rsp_hdr`. Bins encode illegal-count progression (`0` / `1` / `2` / default) and unknown-hdr counts (`0` / `1` / default); `cross_ill_unk` correlates the two at pulse instants. `chi_illegal_req_test`, `chi_unknown_txn_inj_test`, and the stitched test exercise different corners.
 
 **Suggested regression order for functional closure** (quick → full matrix):
 
-| Order | `UVM_TEST` | Covergroups primarily exercised |
-|-------|------------|----------------------------------|
-| 1 | **`chi_smoke_test`** | REQ/RSP golden smoke txnids + single beat |
-| 2 | **`chi_burst_test`** | REQ/RSP burst txnids + beats bins/crosses |
-| 3 | **`chi_illegal_req_test`** | REQ illegal opcodes; **`cg_err_on_pulse`** illegal-count bins |
-| 4 | **`chi_unknown_txn_inj_test`** | **`cg_bow_inj_handshake`** golden tuple; unknown **`err_*`** snapshot bins |
-| 5 | **`chi_full_integration_test`** | All of the above in one pass (stitched ordering matches **`vlate_bench`**) |
+1. `chi_smoke_test` — REQ/RSP golden smoke txnids + single beat.
+2. `chi_burst_test` — REQ/RSP burst txnids + beats bins/crosses.
+3. `chi_illegal_req_test` — REQ illegal opcodes; `cg_err_on_pulse` illegal-count bins.
+4. `chi_unknown_txn_inj_test` — `cg_bow_inj_handshake` golden tuple; unknown `err_*` snapshot bins.
+5. `chi_full_integration_test` — all of the above (stitched ordering matches `vlate_bench`).
 
 ### Manual VCS (equivalent sketch)
 

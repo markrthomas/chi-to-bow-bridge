@@ -1,0 +1,24 @@
+# Shared Pandoc defaults for Markdown → PDF (docs, uvm_bench, vlate_bench README PDFs).
+# Header tweaks (margins, tables): docs/pandoc-pdf-header.tex via Makefile -H flag.
+# Usage: pandoc --defaults THIS.yaml -H pandoc-pdf-header.tex SRC.md -o DEST.pdf
+#
+# Engine: XeLaTeX — Pandoc’s Unicode/OpenType path; LuaLaTeX would look nearly identical here.
+# Fonts: DejaVu (system/OpenType) — broad Unicode coverage (arrows, symbols), distinct monospace.
+from: markdown
+to: pdf
+standalone: true
+pdf-engine: xelatex
+variables:
+  documentclass: article
+  fontsize: 10pt
+  papersize: letter
+  geometry: margin=2cm
+  colorlinks: true
+  linkcolor: blue
+  urlcolor: blue
+  toc: false
+  secnumdepth: 3
+  linestretch: 1.08
+  mainfont: DejaVu Serif
+  sansfont: DejaVu Sans
+  monofont: DejaVu Sans Mono

@@ -5,7 +5,7 @@
 | Doc | Use when you need |
 |-----|-------------------|
 | **This file** | Mental model, diagrams, "where do I look?" |
-| **[`README.md`](README.md)** | Full narrative, OSS parity table, coverage, manual `vcs` lines |
+| **[`README.md`](README.md)** | Full narrative, OSS parity mapping, coverage, manual `vcs` lines |
 | **[`UVM_QUICKREF.md`](UVM_QUICKREF.md)** | One-screen commands, tests, paths, `config_db` keys |
 | **[`docs/PLAN.md`](../docs/PLAN.md)** | Scenario matrix and parity policy vs Cocotb / Verilator |
 
@@ -85,19 +85,17 @@ tb_top (SV module)
 
 | Component | Typical responsibility |
 |-----------|------------------------|
-| **`chi_driver`** | Drive **`chi_req_*`** until accepted; tasks **`inject_unknown_txn_rsp_hdr`**, **`drive_illegal_req_phase`** |
-| **`chi_rsp_monitor`** | Detect completed responses (**`chi_rsp_valid && chi_rsp_ready`**) |
-| **`chi_scoreboard`** | Match reads/writes to expected opcode / txnid / data (**`exp_read_data()`**) |
-| **`chi_integration_cov`** | Samples **`vif`** each clock: REQ/RSP accepted beats, completed **`bow_inj_*`** beats, and **`err_pulse`** snapshots of **`err_illegal_req_hdr`** / **`err_unknown_txn_rsp_hdr`**. |
+| `chi_driver` | Drive `chi_req_*` until accepted; tasks `inject_unknown_txn_rsp_hdr`, `drive_illegal_req_phase`. |
+| `chi_rsp_monitor` | Detect completed responses (`chi_rsp_valid && chi_rsp_ready`). |
+| `chi_scoreboard` | Match reads/writes to expected opcode / txnid / data (`exp_read_data()`). |
+| `chi_integration_cov` | Samples `vif` each clock: REQ/RSP accepted beats, completed `bow_inj_*` beats, and `err_pulse` snapshots of `err_illegal_req_hdr` / `err_unknown_txn_rsp_hdr`. |
 
 ### Functional coverage (four covergroups)
 
-| Covergroup | What closes it (tests) |
-|------------|-------------------------|
-| **`cg_req_handshake`** | Smoke + burst + illegal REQ (**`chi_smoke_test`**, **`chi_burst_test`**, **`chi_illegal_req_test`**, stitched). |
-| **`cg_rsp_handshake`** | Same set (responses for legal traffic). |
-| **`cg_bow_inj_handshake`** | Unknown **`RSP_HDR`** inject (**`chi_unknown_txn_inj_test`** or stitched **`chi_full_integration_test`**). |
-| **`cg_err_on_pulse`** | Illegal REQ and inject paths that pulse **`err_pulse`** with distinct counter snapshots. |
+- **`cg_req_handshake`** — Smoke + burst + illegal REQ (`chi_smoke_test`, `chi_burst_test`, `chi_illegal_req_test`, stitched).
+- **`cg_rsp_handshake`** — Same set (responses for legal traffic).
+- **`cg_bow_inj_handshake`** — Unknown `RSP_HDR` inject (`chi_unknown_txn_inj_test` or stitched `chi_full_integration_test`).
+- **`cg_err_on_pulse`** — Illegal REQ and inject paths that pulse `err_pulse` with distinct counter snapshots.
 
 Full bin/cross documentation lives in **`README.md`** (*Coverage / Functional*); implementation in **`uvm/chi_tb_cov.svh`**.
 
@@ -107,10 +105,10 @@ Full bin/cross documentation lives in **`README.md`** (*Coverage / Functional*);
 
 | UVM phase | Typical activity in this bench |
 |-----------|--------------------------------|
-| **`build_phase`** | **`tb_top`** sets **`vif`** in **`config_db`**; test builds **`chi_tb_cfg`** (default or override); **`chi_env`** creates agent, scoreboard, **`cov`**. |
-| **`connect_phase`** | TLM ports not heavily custom here; agent internally wired in **`chi_agent`**. |
-| **`run_phase`** | Sequences start on **`chi_sequencer`**; driver/monitor/scoreboard **`run_phase`** threads sample **`vif`**. |
-| **`report_phase`** | **`chi_integration_cov`** prints **`[COV]`** with **four** **`get_coverage()`** percentages (REQ, RSP, **`bow_inj`** handshake, **`err_pulse`** snapshots). See **`README.md`** (*Coverage / Functional*) for bin tables. |
+| `build_phase` | `tb_top` sets `vif` in `config_db`; test builds `chi_tb_cfg` (default or override); `chi_env` creates agent, scoreboard, `cov`. |
+| `connect_phase` | TLM ports not heavily custom here; agent internally wired in `chi_agent`. |
+| `run_phase` | Sequences start on `chi_sequencer`; driver/monitor/scoreboard `run_phase` threads sample `vif`. |
+| `report_phase` | `chi_integration_cov` prints `[COV]` with four `get_coverage()` percentages (REQ, RSP, `bow_inj` handshake, `err_pulse` snapshots). See **`README.md`** (*Coverage / Functional*) for bin tables. |
 
 ---
 
@@ -140,13 +138,13 @@ Key string literals are **`chi_tb_pkg::CHI_DB_KEY_VIF`**, **`CHI_DB_KEY_TBCFG`**
 
 | Step | Where | What happens |
 |------|-------|----------------|
-| 1 | Sequence (`chi_smoke_seq`, etc.) | Builds **`chi_seq_item`** → **`start_item`/`finish_item`** |
-| 2 | Driver | Waits **`chi_req_ready`**, asserts **`chi_req_valid`** until handshake |
-| 3 | DUT + BFM | BoW choreography completes; CHI RSP appears |
-| 4 | Monitor | On RSP handshake, sends observation to scoreboard |
-| 5 | Scoreboard | Compares against expectation queued at REQ acceptance |
+| 1 | Sequence (`chi_smoke_seq`, etc.) | Builds `chi_seq_item` → `start_item` / `finish_item`. |
+| 2 | Driver | Waits `chi_req_ready`, asserts `chi_req_valid` until handshake. |
+| 3 | DUT + BFM | BoW choreography completes; CHI RSP appears. |
+| 4 | Monitor | On RSP handshake, sends observation to scoreboard. |
+| 5 | Scoreboard | Compares against expectation queued at REQ acceptance. |
 
-Illegal / inject scenarios bypass scoreboard expectations where documented (**`chi_illegal_req_test`** checks **`err_*`** pins instead).
+Illegal / inject scenarios bypass scoreboard expectations where documented (`chi_illegal_req_test` checks `err_*` pins instead).
 
 ---
 
@@ -154,11 +152,11 @@ Illegal / inject scenarios bypass scoreboard expectations where documented (**`c
 
 | Lane | Entry point | Role |
 |------|-------------|------|
-| **Integration Cocotb** | **`integration/test_integration.py`** | Primary OSS behavioral reference |
-| **Verilator C++** | **`vlate_bench/tb_main.cpp`** | Fast parity regression |
-| **UVM (this bench)** | **`+UVM_TESTNAME=...`** | Licensed VCS sign-off |
+| Integration Cocotb | `integration/test_integration.py` | Primary OSS behavioral reference |
+| Verilator C++ | `vlate_bench/tb_main.cpp` | Fast parity regression |
+| UVM (this bench) | `+UVM_TESTNAME=...` | Licensed VCS sign-off |
 
-When you change stimulus or expectations, update **both** the mapping table in **`README.md`** and rows here **conceptually** stay aligned - **`docs/PLAN.md`** is the formal matrix owner.
+When you change stimulus or expectations, update **both** the mapping in **`README.md`** and rows here **conceptually** stay aligned — **`docs/PLAN.md`** is the formal matrix owner.
 
 ---
 
@@ -166,11 +164,11 @@ When you change stimulus or expectations, update **both** the mapping table in *
 
 | Goal | Likely files |
 |------|----------------|
-| New directed scenario | **`uvm/chi_tb_pkg.sv`** - new sequence + test class; register test |
-| Pacing / idle gaps | **`chi_tb_cfg`** defaults or per-test **`config_db`** override |
-| New CHI-side checker | Scoreboard / monitor in **`chi_tb_pkg.sv`**; update **`chi_tb_cov.svh`** if observable bins matter |
-| New integration-net exposure | **`tb/chi_integration_if.sv`**, **`tb/tb_top.sv`**, driver/monitor |
-| RTL-facing bind checks | **`verification/chi_integration_protocol_chk.sv`** |
+| New directed scenario | `uvm/chi_tb_pkg.sv` — new sequence + test class; register test |
+| Pacing / idle gaps | `chi_tb_cfg` defaults or per-test `config_db` override |
+| New CHI-side checker | Scoreboard / monitor in `chi_tb_pkg.sv`; update `chi_tb_cov.svh` if observable bins matter |
+| New integration-net exposure | `tb/chi_integration_if.sv`, `tb/tb_top.sv`, driver/monitor |
+| RTL-facing bind checks | `verification/chi_integration_protocol_chk.sv` |
 
 ---
 
@@ -195,6 +193,6 @@ make pdf                              # README + QUICKREF + ONBOARDING (see Make
 
 | Document | Content |
 |----------|---------|
-| **`docs/design_spec.md`** | CHI/BoW simplifications |
-| **`docs/integration.md`** | Integration topology narrative |
-| **`verification/golden_payloads.py`** | Opcode / txnid / payload constants (cross-check SV/C++) |
+| `docs/design_spec.md` | CHI/BoW simplifications |
+| `docs/integration.md` | Integration topology narrative |
+| `verification/golden_payloads.py` | Opcode / txnid / payload constants (cross-check SV/C++) |

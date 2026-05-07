@@ -17,8 +17,11 @@ COV_DIR         ?= ./uvm_cov.vdb
 VCS_COV_COMPILE ?= -cm line+cond+tgl+branch -cm_dir $(COV_DIR) -cm_name chi_tb_uvm
 
 PANDOC          ?= pandoc
-# Optional extra flags for all PDFs, e.g. -V geometry:margin=1in --toc
+# Optional extra flags for all PDFs, e.g. --toc (applied after shared defaults)
 PANDOC_PDF_OPTS ?=
+DOCS_ROOT       := $(abspath $(CURDIR)/../docs)
+PANDOC_DEFAULTS := $(DOCS_ROOT)/pandoc-pdf-defaults.yaml
+PANDOC_HDR      := $(DOCS_ROOT)/pandoc-pdf-header.tex
 
 MD_README    := README.md
 MD_QUICKREF  := UVM_QUICKREF.md
@@ -60,17 +63,17 @@ pdf-quickref: $(PDF_QUICKREF)
 
 pdf-onboarding: $(PDF_ONBOARD)
 
-$(PDF_README): $(MD_README)
+$(PDF_README): $(MD_README) $(PANDOC_DEFAULTS) $(PANDOC_HDR)
 	@command -v $(PANDOC) >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
-	$(PANDOC) $(PANDOC_PDF_OPTS) "$(MD_README)" -o "$(PDF_README)"
+	$(PANDOC) --defaults "$(PANDOC_DEFAULTS)" -H "$(PANDOC_HDR)" $(PANDOC_PDF_OPTS) "$(MD_README)" -o "$(PDF_README)"
 
-$(PDF_QUICKREF): $(MD_QUICKREF)
+$(PDF_QUICKREF): $(MD_QUICKREF) $(PANDOC_DEFAULTS) $(PANDOC_HDR)
 	@command -v $(PANDOC) >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
-	$(PANDOC) $(PANDOC_PDF_OPTS) "$(MD_QUICKREF)" -o "$(PDF_QUICKREF)"
+	$(PANDOC) --defaults "$(PANDOC_DEFAULTS)" -H "$(PANDOC_HDR)" $(PANDOC_PDF_OPTS) "$(MD_QUICKREF)" -o "$(PDF_QUICKREF)"
 
-$(PDF_ONBOARD): $(MD_ONBOARD)
+$(PDF_ONBOARD): $(MD_ONBOARD) $(PANDOC_DEFAULTS) $(PANDOC_HDR)
 	@command -v $(PANDOC) >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
-	$(PANDOC) $(PANDOC_PDF_OPTS) "$(MD_ONBOARD)" -o "$(PDF_ONBOARD)"
+	$(PANDOC) --defaults "$(PANDOC_DEFAULTS)" -H "$(PANDOC_HDR)" $(PANDOC_PDF_OPTS) "$(MD_ONBOARD)" -o "$(PDF_ONBOARD)"
 
 clean-pdf:
 	rm -f $(PDF_ALL)

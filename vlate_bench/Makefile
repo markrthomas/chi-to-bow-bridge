@@ -36,6 +36,12 @@ VFLAGS_COV = -Wall -Wno-fatal \
 MD  := README.md
 PDF := README.pdf
 
+PANDOC          ?= pandoc
+PANDOC_PDF_OPTS ?=
+DOCS_ROOT       := $(abspath $(CURDIR)/../docs)
+PANDOC_DEFAULTS := $(DOCS_ROOT)/pandoc-pdf-defaults.yaml
+PANDOC_HDR      := $(DOCS_ROOT)/pandoc-pdf-header.tex
+
 .PHONY: run lint clean clean-pdf pdf coverage coverage-info
 
 # OSS lint-only gate (CI): RTL + tb_top shell, no C++ link.
@@ -68,9 +74,9 @@ coverage: $(SIM_COV)
 
 pdf: $(PDF)
 
-$(PDF): $(MD)
-	@command -v pandoc >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
-	pandoc "$(MD)" -o "$(PDF)"
+$(PDF): $(MD) $(PANDOC_DEFAULTS) $(PANDOC_HDR)
+	@command -v $(PANDOC) >/dev/null 2>&1 || (echo "Error: pandoc not found in PATH"; exit 1)
+	$(PANDOC) --defaults "$(PANDOC_DEFAULTS)" -H "$(PANDOC_HDR)" $(PANDOC_PDF_OPTS) "$(MD)" -o "$(PDF)"
 
 clean-pdf:
 	rm -f "$(PDF)"
