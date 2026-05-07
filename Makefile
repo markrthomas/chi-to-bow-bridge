@@ -15,7 +15,7 @@ docs:
 	$(MAKE) -C uvm_bench pdf
 	$(MAKE) -C vlate_bench pdf
 
-# UVM bench Markdown → PDF only (`README.pdf`, `UVM_QUICKREF.pdf`). Requires pandoc (+ PDF backend).
+# UVM bench Markdown → PDF only (README + QUICKREF + ONBOARDING). Requires pandoc (+ PDF backend).
 uvm-pdf:
 	$(MAKE) -C uvm_bench pdf
 

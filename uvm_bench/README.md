@@ -2,6 +2,10 @@
 
 This directory contains a **SystemVerilog UVM** testbench for the **CHI-to-BoW integration** hierarchy, intended to run with **Synopsys VCS** and the **UVM 1.x** library bundled via `-ntb_opts uvm-1.2`.
 
+## New to this repo (know DV / UVM)?
+
+Start with **[`UVM_ONBOARDING.md`](UVM_ONBOARDING.md)** — repo slice, DUT vs TB diagrams, UVM hierarchy, **`config_db`** flow, parity triangle, and “where to edit” tables. Then skim **[`README.md`](README.md)** (policy + parity mapping) and keep **[`UVM_QUICKREF.md`](UVM_QUICKREF.md)** open while coding.
+
 Policy: **`uvm_bench` is not independent of the OSS thread.** It stays **behaviorally aligned** with **Integration Cocotb** and **Verilator `vlate_bench`** per **[`docs/PLAN.md`](../docs/PLAN.md)** (scenario matrix + UVM–OSS parity). When integration scenarios move, update **`uvm/chi_tb_pkg.sv`** **and this mapping table** in the **same PR** when possible.
 
 **Quick lookup:** commands, tests, paths, and **`config_db`** keys are summarized in **[`UVM_QUICKREF.md`](UVM_QUICKREF.md)** (also built as **`UVM_QUICKREF.pdf`** — see **Markdown → PDF** below).
@@ -49,7 +53,7 @@ Beyond the OSS-mapped smoke+burst+illegal-REQ+unknown-txn-inject matrix above, e
 | `tb/tb_top.sv` | Top module: ties `chi_to_bow_integration_top` to the interface, `uvm_config_db` for `vif`, `run_test()`. |
 | `uvm/chi_tb_pkg.sv` | UVM package: driver (**`inject_unknown_txn_rsp_hdr`** + **`drive_illegal_req_phase`**), monitor, scoreboard, **`chi_tb_cfg`** (includes **`stitched_final_ns`** for **`chi_full_integration_test`**), sequences, **`chi_unknown_txn_inj_test`**, **`chi_full_integration_test`**, plus smaller tests documented above. |
 | `uvm/chi_tb_cov.svh` | **`chi_integration_cov`**: functional covergroups on CHI REQ/RSP valid/ready handshakes (opcodes, golden txnids, beats, crosses). Included from **`chi_tb_pkg.sv`**; **`chi_env`** always builds **`cov`**. |
-| `Makefile` | `compile` / `run` / **`compile-cov`** / **`run-cov`** / **`coverage`** / **`cov-report`** / `clean` / **`pdf`** / **`pdf-readme`** / **`pdf-quickref`**. |
+| `Makefile` | `compile` / `run` / **`compile-cov`** / **`run-cov`** / **`coverage`** / **`cov-report`** / `clean` / **`pdf`** / **`pdf-readme`** / **`pdf-quickref`** / **`pdf-onboarding`**. |
 
 ### Integration protocol asserts
 
@@ -63,9 +67,10 @@ From **`uvm_bench/`**:
 
 | Command | Output |
 |---------|--------|
-| **`make pdf`** or **`make pdf-all`** | **`README.pdf`** and **`UVM_QUICKREF.pdf`** |
+| **`make pdf`** or **`make pdf-all`** | **`README.pdf`**, **`UVM_QUICKREF.pdf`**, **`UVM_ONBOARDING.pdf`** |
 | **`make pdf-readme`** | **`README.md` → `README.pdf`** only |
 | **`make pdf-quickref`** | **`UVM_QUICKREF.md` → `UVM_QUICKREF.pdf`** only |
+| **`make pdf-onboarding`** | **`UVM_ONBOARDING.md` → `UVM_ONBOARDING.pdf`** only |
 
 Optional Pandoc flags for every PDF in one shot:
 
@@ -75,7 +80,7 @@ make pdf PANDOC_PDF_OPTS='--toc -V geometry:margin=1in'
 
 Remove PDFs with **`make clean-pdf`** (or **`make clean`**, which also removes simulation artifacts).
 
-From the repository **root**, **`make docs`** runs **`make -C docs pdf`** then **`make -C uvm_bench pdf`** then **`make -C vlate_bench pdf`**, so both UVM PDFs are produced together with **`docs/*.pdf`** and **`vlate_bench/README.pdf`**.
+From the repository **root**, **`make docs`** runs **`make -C docs pdf`** then **`make -C uvm_bench pdf`** then **`make -C vlate_bench pdf`**, so all three UVM PDFs are produced together with **`docs/*.pdf`** and **`vlate_bench/README.pdf`**.
 
 For convenience the root Makefile also exposes **`make uvm-pdf`** (same as **`make -C uvm_bench pdf`**).
 

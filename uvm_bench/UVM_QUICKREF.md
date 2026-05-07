@@ -1,6 +1,6 @@
 # UVM bench quick reference (`uvm_bench`)
 
-One-page companion to **[`README.md`](README.md)**. Policy, narrative walk-through, and OSS parity live there; this sheet lists **commands**, **tests**, **paths**, and **config_db** names you touch most often.
+One-page companion to **[`README.md`](README.md)** and **[`UVM_ONBOARDING.md`](UVM_ONBOARDING.md)** (diagrams + tables for DV engineers new to the repo). This sheet lists **commands**, **tests**, **paths**, and **`config_db`** names you touch most often.
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ One-page companion to **[`README.md`](README.md)**. Policy, narrative walk-throu
 |-------------|--------|
 | **Synopsys VCS** | `vcs` on `PATH`; run all Makefile flows **from `uvm_bench/`** so **`sim.f`** paths resolve. |
 | **UVM** | Supplied by VCS via **`-ntb_opts uvm-1.2`** (see **[`Makefile`](Makefile)** **`VCS_BASE`**). |
-| **Pandoc** (PDF only) | **`make pdf`** / **`make pdf-readme`** / **`make pdf-quickref`** — same stack as **`docs/`** (often needs TeX for PDF backend). |
+| **Pandoc** (PDF only) | **`make pdf`** / per-source **`pdf-readme`** / **`pdf-quickref`** / **`pdf-onboarding`** — same stack as **`docs/`** (often needs TeX for PDF backend). |
 
 Parity policy: align with **Integration Cocotb** and **`vlate_bench`** per **`docs/PLAN.md`**.
 
@@ -22,9 +22,10 @@ Parity policy: align with **Integration Cocotb** and **`vlate_bench`** per **`do
 | **`run`** | `compile` then **`./simv +UVM_TESTNAME=$(UVM_TEST) …`** — default **`UVM_TEST=chi_smoke_test`** |
 | **`compile-cov`** / **`run-cov`** / **`coverage`** | VCS **`-cm`** structural instrumentation → **`uvm_cov.vdb`** (gitignored). |
 | **`cov-report`** | **URG** textual report from **`$(COV_DIR)`** — requires **`urg`** on **`PATH`**. |
-| **`pdf`** | All Markdown PDFs below (**`README.pdf`** + **`UVM_QUICKREF.pdf`**). |
+| **`pdf`** | All Markdown PDFs (**`README.pdf`**, **`UVM_QUICKREF.pdf`**, **`UVM_ONBOARDING.pdf`**). |
 | **`pdf-readme`** | **`README.md` → `README.pdf`** only. |
 | **`pdf-quickref`** | **`UVM_QUICKREF.md` → `UVM_QUICKREF.pdf`** only. |
+| **`pdf-onboarding`** | **`UVM_ONBOARDING.md` → `UVM_ONBOARDING.pdf`** only. |
 | **`clean-pdf`** | Remove generated **`*.pdf`** in this directory. |
 | **`clean`** | **`clean-pdf`** plus **`simv`**, **`sim.log`**, coverage dirs, etc. |
 
@@ -89,6 +90,7 @@ Cross-check **`verification/golden_payloads.py`**, **`chi_tb_pkg.sv`** (**`exp_r
 ## Related docs
 
 - **`README.md`** — full UVM bench documentation.
+- **`UVM_ONBOARDING.md`** — TB/DUT figures, **`config_db`** flow, parity lane table, “where to edit”.
 - **`docs/PLAN.md`** — scenario matrix and OSS / UVM parity policy.
 - **`docs/design_spec.md`** — CHI/BoW abstraction.
 
