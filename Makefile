@@ -1,4 +1,5 @@
-.PHONY: all test integration-test docs uvm-pdf clean doctor waves gtkwave oss-regress oss-regress-coverage
+.PHONY: all test integration-test docs uvm-pdf clean doctor waves gtkwave oss-regress oss-regress-coverage \
+        lint regress coverage formal ci
 
 all: test integration-test docs
 
@@ -40,6 +41,29 @@ oss-regress:
 # Same as oss-regress, plus structural coverage: builds `obj_dir_cov/`, emits `vlate_bench/vlate_coverage.info`.
 oss-regress-coverage:
 	OSS_COVERAGE=1 ./scripts/oss-regress.sh
+
+# Standard DV gate targets (consistent with other RTL repos).
+# lint: Verilator RTL lint via vlate_bench.
+lint:
+	$(MAKE) -C vlate_bench lint
+
+# regress: fast CI gate — lint + Cocotb directed + integration + Verilator C++ TB.
+regress: lint test integration-test
+	$(MAKE) -C vlate_bench run
+	@echo "[REGRESS] lint + cocotb + integration + vlate_bench PASSED"
+
+# coverage: Verilator structural coverage via vlate_bench (OSS).
+coverage: oss-regress-coverage
+
+# formal: no SymbiYosys .sby property files yet (OSS path).
+#         See docs/PLAN.md (Medium-term directions).
+formal:
+	@echo "[FORMAL] No SymbiYosys .sby property files in OSS path yet."
+	@echo "         See docs/PLAN.md and DV_STANDARDS.md in the workspace root."
+
+# ci: comprehensive local run — regress + coverage.
+ci: regress coverage
+	@echo "[CI] All gates passed."
 
 doctor:
 	@echo "== Tool checks =="
