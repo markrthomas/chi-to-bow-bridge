@@ -1,9 +1,9 @@
-.PHONY: all test integration-test docs uvm-pdf clean doctor waves gtkwave oss-regress oss-regress-coverage \
+.PHONY: all test sim integration-test docs uvm-pdf clean doctor waves gtkwave oss-regress oss-regress-coverage \
         lint regress coverage formal ci
 
 all: test integration-test docs
 
-test:
+test sim:
 	$(MAKE) -C test clean
 	$(MAKE) -C test
 
