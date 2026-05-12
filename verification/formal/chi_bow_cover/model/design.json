@@ -1,0 +1,4299 @@
+{
+  "$schema": "https://raw.githubusercontent.com/YosysHQ/yosys/main/misc/jny.schema.json",
+  "generator": "Yosys 0.64+40 (git sha1 90b906c4f, clang++ 18.1.8 -fPIC -O3)",
+  "version": "0.0.1",
+  "invocation": "write_jny -no-connections ../model/design.json ",
+  "features": ["attributes", "properties"],
+  "modules": [
+      {
+        "name": "chi_bow_props",
+        "cell_sorts": [
+          {
+            "type": "$scopeinfo",
+            "ports": [
+
+            ],
+            "cells": [
+                {
+                  "name": "u_dut",
+                  "attributes": {
+                    "cell_module_not_derived": "00000000000000000000000000000001",
+                    "cell_src": "chi_bow_props.sv:86.7-118.6",
+                    "module": "$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\\chi_to_bow_bridge",
+                    "module_dynports": "00000000000000000000000000000001",
+                    "module_hdlname": "chi_to_bow_bridge",
+                    "module_src": "chi_to_bow_bridge.v:3.1-416.10"
+                  },
+                  "parameters": {
+                    "TYPE": "module"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$ge",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [3, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [3, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$ge$chi_bow_props.sv:137$9",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:137.25-137.35"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000011",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000011",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$sub",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [2, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$sub$chi_to_bow_bridge.v:122$124",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:122.30-122.46"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$sub$chi_to_bow_bridge.v:245$175",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:245.37-245.56"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$sub$chi_to_bow_bridge.v:259$176",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:259.39-259.60"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$sub$chi_to_bow_bridge.v:392$461",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:392.33-392.74"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000001000"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$check",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "ARGS",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "EN",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "TRG",
+                  "direction": "io",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "_witness_.check_assert_chi_bow_props_sv_235_66",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assert_chi_bow_props_sv_235_66",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:235.17-235.57"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assert",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000001",
+                    "TRG_POLARITY": "1",
+                    "TRG_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assert_chi_bow_props_sv_238_69",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assert_chi_bow_props_sv_238_69",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:238.13-238.43"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assert",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111110",
+                    "TRG_ENABLE": "00000000000000000000000000000001",
+                    "TRG_POLARITY": "1",
+                    "TRG_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assert_chi_bow_props_sv_241_71",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assert_chi_bow_props_sv_241_71",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:241.13-241.43"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assert",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111101",
+                    "TRG_ENABLE": "00000000000000000000000000000001",
+                    "TRG_POLARITY": "1",
+                    "TRG_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assert_chi_bow_props_sv_246_73",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assert_chi_bow_props_sv_246_73",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:246.17-246.85"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assert",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111100",
+                    "TRG_ENABLE": "00000000000000000000000000000001",
+                    "TRG_POLARITY": "1",
+                    "TRG_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_137_8",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_137_8",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:137.17-137.53"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_145_13",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_145_13",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:145.17-145.52"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_148_16",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_148_16",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:148.17-148.51"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_151_19",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_151_19",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:151.17-151.47"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_154_22",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_154_22",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:154.17-157.6"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_162_28",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_162_28",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:162.13-163.62"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_170_35",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_170_35",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:170.17-170.50"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_172_37",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_172_37",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:172.17-172.50"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111110",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_179_41",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_179_41",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:179.13-179.50"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_185_45",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_185_45",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:185.13-185.50"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_assume_chi_bow_props_sv_191_49",
+                  "attributes": {
+                    "hdlname": "_witness_ check_assume_chi_bow_props_sv_191_49",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:191.13-191.46"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "assume",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000000",
+                    "TRG_POLARITY": true,
+                    "TRG_WIDTH": "00000000000000000000000000000000"
+                  }
+                },
+                {
+                  "name": "_witness_.check_cover_chi_bow_props_sv_257_78",
+                  "attributes": {
+                    "hdlname": "_witness_ check_cover_chi_bow_props_sv_257_78",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:257.13-257.72"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "cover",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111111",
+                    "TRG_ENABLE": "00000000000000000000000000000001",
+                    "TRG_POLARITY": "1",
+                    "TRG_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "_witness_.check_cover_chi_bow_props_sv_259_81",
+                  "attributes": {
+                    "hdlname": "_witness_ check_cover_chi_bow_props_sv_259_81",
+                    "keep": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:259.13-259.72"
+                  },
+                  "parameters": {
+                    "ARGS_WIDTH": "00000000000000000000000000000000",
+                    "FLAVOR": "cover",
+                    "FORMAT": true,
+                    "PRIORITY": "11111111111111111111111111111110",
+                    "TRG_ENABLE": "00000000000000000000000000000001",
+                    "TRG_POLARITY": "1",
+                    "TRG_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$dff",
+            "ports": [
+                {
+                  "name": "CLK",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "D",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Q",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$procdff$2445",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:125.5-125.48"
+                  },
+                  "parameters": {
+                    "CLK_POLARITY": "1",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$shl",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [256, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [8, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [256, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$shl$chi_to_bow_bridge.v:221$166",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:221.26-221.63"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$shift",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [9, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [256, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:365$345",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:365.29-365.64"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000001001",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:366$354",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:366.29-366.70"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:370$373",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:370.29-370.82"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000001000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:370$377",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:370.29-370.82"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000001000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:371$382",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:371.29-371.78"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:371$386",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:371.29-371.78"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:378$393",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:378.25-378.63"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000001001",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:388$440",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:388.25-388.67"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:391$455",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:391.29-392.74"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:391$463",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:391.29-392.74"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:398$473",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:398.29-398.65"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000001001",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shift$chi_to_bow_bridge.v:399$480",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:399.29-399.68"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000001001",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$pmux",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [34, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [68, 0]
+                },
+                {
+                  "name": "S",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [34, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$procmux$491",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:142.42-142.49"
+                  },
+                  "parameters": {
+                    "S_WIDTH": "00000000000000000000000000000010",
+                    "WIDTH": "00000000000000000000000000100010"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$shiftx",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [256, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [8, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$shiftx$chi_to_bow_bridge.v:358$302",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:358.90-358.104"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shiftx$chi_to_bow_bridge.v:362$328",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:362.42-362.56"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shiftx$chi_to_bow_bridge.v:381$404",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:381.39-381.54"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shiftx$chi_to_bow_bridge.v:384$415",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:384.51-384.66"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shiftx$chi_to_bow_bridge.v:392$460",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:392.45-392.67"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100000",
+                    "Y_WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$shiftx$chi_to_bow_bridge.v:395$467",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:395.62-395.84"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000001000000000",
+                    "B_SIGNED": "00000000000000000000000000000001",
+                    "B_WIDTH": "00000000000000000000000000100000",
+                    "Y_WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$shiftx$chi_bow_props.sv:235$67",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:235.41-235.56"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$neg",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [33, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [33, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$neg$chi_to_bow_bridge.v:370$376",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:370.29-370.82"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000001",
+                    "A_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000000000100001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$neg$chi_to_bow_bridge.v:371$385",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:371.29-371.78"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000001",
+                    "A_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000000000100001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$neg$chi_to_bow_bridge.v:378$392",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:378.25-378.63"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000001",
+                    "A_WIDTH": "00000000000000000000000000001001",
+                    "Y_WIDTH": "00000000000000000000000000001001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$neg$chi_to_bow_bridge.v:391$462",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:391.29-392.74"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000001",
+                    "A_WIDTH": "00000000000000000000000000100001",
+                    "Y_WIDTH": "00000000000000000000000000100001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$neg$chi_to_bow_bridge.v:399$479",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:399.29-399.68"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000001",
+                    "A_WIDTH": "00000000000000000000000000001001",
+                    "Y_WIDTH": "00000000000000000000000000001001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$add",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [3, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [3, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [3, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$add$chi_bow_props.sv:135$6",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:135.31-135.40"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000011",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000011",
+                    "Y_WIDTH": "00000000000000000000000000000011"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$add$chi_to_bow_bridge.v:120$123",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:120.30-120.46"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$add$chi_to_bow_bridge.v:133$127",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:133.31-133.48"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$add$chi_to_bow_bridge.v:137$128",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:137.31-137.48"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$add$chi_to_bow_bridge.v:189$151",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:189.30-189.46"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$add$chi_to_bow_bridge.v:196$155",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:196.31-196.48"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$and",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$and$chi_bow_props.sv:197$57",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:197.23-198.77"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:100$108",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:100.28-100.55"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:104$110",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:104.21-104.50"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:104$111",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:104.21-104.69"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:104$115",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:104.21-105.78"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:173$143",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:173.21-173.48"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:222$170",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:222.33-222.94"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:369$366",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:369.29-369.64"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:370$375",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:370.29-370.82"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000001000000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000001000000000",
+                    "Y_WIDTH": "00000000000000000000001000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:371$384",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:371.29-371.78"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000100000000000",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:391$457",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:391.29-392.74"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000100000000000",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$and$chi_to_bow_bridge.v:398$471",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:398.29-398.65"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$or",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [256, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [256, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [256, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:222$168",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:222.34-222.73"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:365$346",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:365.29-365.64"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:366$355",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:366.29-366.70"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000100000000000",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:369$369",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:369.29-369.64"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:370$378",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:370.29-370.82"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000001000000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000001000000000",
+                    "Y_WIDTH": "00000000000000000000001000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:371$387",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:371.29-371.78"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000100000000000",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:388$441",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:388.25-388.67"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000100000000000",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:391$464",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:391.29-392.74"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000100000000000",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$or$chi_to_bow_bridge.v:398$474",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:398.29-398.65"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$or$chi_bow_props.sv:198$56",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:198.10-198.76"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$reduce_bool",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$auto$opt_dff.cc:235:make_patterns_logic$2614",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2448",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000011",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2458",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2500",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2547",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2549",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2623",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2625",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$ne$chi_to_bow_bridge.v:103$109",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:103.30-103.51"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$ne$chi_to_bow_bridge.v:162$131",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:162.23-162.49"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$ne$chi_to_bow_bridge.v:390$445",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:390.29-390.71"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$adffe",
+            "ports": [
+                {
+                  "name": "ARST",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "CLK",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "D",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "EN",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Q",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$auto$ff.cc:337:slice$2612",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:212.5-223.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2446",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:224.5-270.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2449",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:224.5-270.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2456",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:107.5-140.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2463",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:176.5-203.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2470",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2489",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:107.5-140.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2510",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:107.5-140.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0000000000000000000000000000000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000100010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2540",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:176.5-203.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000010000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2545",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:224.5-270.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2559",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:224.5-270.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2564",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:176.5-203.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2580",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:107.5-140.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0000000000000000000000000000000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000100010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2586",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:224.5-270.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000010000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2599",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000010000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2605",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:107.5-140.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2606",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:224.5-270.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2617",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2634",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$ff.cc:337:slice$2651",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000001000000000"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$reduce_and",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$auto$opt_dff.cc:252:make_patterns_logic$2616",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2462",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2488",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2512",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2544",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2551",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2563",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000011",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2584",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2603",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2633",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2650",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:252:make_patterns_logic$2659",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000111",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$logic_not",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [6, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$eq$chi_bow_props.sv:145$14",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:145.25-145.51"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000110",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:179$42",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:179.21-179.49"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000110",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:185$46",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:185.21-185.49"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000110",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:191$50",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:191.21-191.45"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:105$112",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:105.11-105.40"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:160$129",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:160.23-160.49"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:97$105",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:97.23-97.49"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:100$107",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:100.29-100.38"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:168$133",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:168.12-168.22"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:168$135",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:168.55-168.64"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:169$139",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:169.11-169.25"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:218$160",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:218.28-218.41"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:218$161",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:218.47-218.60"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:218$164",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:218.82-218.92"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:298$184",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:298.9-298.66"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:299$187",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:299.50-299.66"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:299$189",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:299.9-299.67"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_not$chi_to_bow_bridge.v:358$303",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:358.73-358.104"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_not$chi_bow_props.sv:213$59",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:213.13-213.19"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_not$chi_bow_props.sv:235$68",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:235.25-235.56"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_not$chi_bow_props.sv:246$76",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:246.25-246.84"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$dffe",
+            "ports": [
+                {
+                  "name": "CLK",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "D",
+                  "direction": "io",
+                  "range": [3, 0]
+                },
+                {
+                  "name": "EN",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Q",
+                  "direction": "",
+                  "range": [3, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$auto$ff.cc:337:slice$2611",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:134.5-136.8"
+                  },
+                  "parameters": {
+                    "CLK_POLARITY": "00000000000000000000000000000001",
+                    "EN_POLARITY": "00000000000000000000000000000001",
+                    "WIDTH": "00000000000000000000000000000011"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$logic_or",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$logic_or$chi_to_bow_bridge.v:105$114",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:105.10-105.77"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_or$chi_to_bow_bridge.v:168$134",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:168.11-168.35"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_or$chi_to_bow_bridge.v:168$137",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:168.41-168.78"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_or$chi_to_bow_bridge.v:169$140",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:169.10-169.43"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_or$chi_to_bow_bridge.v:295$181",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:295.9-295.83"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_or$chi_bow_props.sv:155$25",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:155.9-156.50"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_or$chi_bow_props.sv:162$31",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:162.21-163.61"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$not",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$eq$chi_bow_props.sv:148$17",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:148.25-148.50"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:172$38",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:172.25-172.49"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:81:create_not$2459",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:81:create_not$2541",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:81:create_not$2560",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:81:create_not$2566",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:81:create_not$2568",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:81:create_not$2581",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:81:create_not$2600",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:81:create_not$2656",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$not$chi_to_bow_bridge.v:171$142",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:171.27-171.36"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$not$chi_to_bow_bridge.v:222$169",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:222.77-222.94"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$not$chi_to_bow_bridge.v:370$374",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:370.29-370.82"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000001000000000",
+                    "Y_WIDTH": "00000000000000000000001000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$not$chi_to_bow_bridge.v:371$383",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:371.29-371.78"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$not$chi_to_bow_bridge.v:378$390",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:378.25-378.63"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$not$chi_to_bow_bridge.v:391$456",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:391.29-392.74"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000100000000000",
+                    "Y_WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$not$chi_to_bow_bridge.v:399$477",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:399.29-399.68"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000100000000",
+                    "Y_WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$not$chi_to_bow_bridge.v:79$104",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:79.26-79.58"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$493_CMP0",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:142.42-142.49"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$eq",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [8, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [8, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$eq$chi_bow_props.sv:151$20",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:151.25-151.46"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:163$30",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:163.21-163.61"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:169$34",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:169.17-169.57"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:184$44",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:184.13-184.54"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000100",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000100",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:190$48",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:190.13-190.53"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000100",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000100",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:219$63",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:219.26-219.67"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000100",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000100",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:246$74",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:246.43-246.83"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000100",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000100",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:257$79",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:257.37-257.71"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$eq$chi_bow_props.sv:259$82",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:259.37-259.71"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:105$113",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:105.46-105.76"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:161$130",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:161.23-161.57"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:262$178",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:262.21-262.52"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:351$255",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:351.21-351.52"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000100",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000100",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:355$284",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:355.35-355.68"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:358$301",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:358.35-358.68"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:380$395",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:380.30-380.62"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000100",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000100",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$eq$chi_to_bow_bridge.v:98$106",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:98.23-98.57"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$mux",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [256, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [256, 0]
+                },
+                {
+                  "name": "S",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [256, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$procmux$1121",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:361.34-361.49|chi_to_bow_bridge.v:361.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1139",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:361.34-361.49|chi_to_bow_bridge.v:361.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1157",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:361.34-361.49|chi_to_bow_bridge.v:361.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1316",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:358.34-358.104|chi_to_bow_bridge.v:358.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1331",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:358.34-358.104|chi_to_bow_bridge.v:358.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1346",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:358.34-358.104|chi_to_bow_bridge.v:358.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1478",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:355.34-355.123|chi_to_bow_bridge.v:355.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1490",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:355.34-355.123|chi_to_bow_bridge.v:355.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1502",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:355.34-355.123|chi_to_bow_bridge.v:355.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1607",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:352.25-352.43|chi_to_bow_bridge.v:352.21-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1616",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:352.25-352.43|chi_to_bow_bridge.v:352.21-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1625",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:352.25-352.43|chi_to_bow_bridge.v:352.21-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1702",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:351.21-351.52|chi_to_bow_bridge.v:351.17-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1708",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:351.21-351.52|chi_to_bow_bridge.v:351.17-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1714",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:351.21-351.52|chi_to_bow_bridge.v:351.17-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1794",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:350.17-350.30|chi_to_bow_bridge.v:350.13-409.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1886",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:405.26-405.39|chi_to_bow_bridge.v:405.22-409.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$1889",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:350.17-350.30|chi_to_bow_bridge.v:350.13-409.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2029",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:390.29-390.71|chi_to_bow_bridge.v:390.25-400.28"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2032",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:384.34-384.66|chi_to_bow_bridge.v:384.30-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2035",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:381.25-381.54|chi_to_bow_bridge.v:381.21-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2037",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:380.30-380.62|chi_to_bow_bridge.v:380.26-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2041",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:361.34-361.49|chi_to_bow_bridge.v:361.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2044",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:358.34-358.104|chi_to_bow_bridge.v:358.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2047",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:355.34-355.123|chi_to_bow_bridge.v:355.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2050",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:352.25-352.43|chi_to_bow_bridge.v:352.21-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2052",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:351.21-351.52|chi_to_bow_bridge.v:351.17-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2056",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:333.17-333.47|chi_to_bow_bridge.v:333.13-335.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2061",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:390.29-390.71|chi_to_bow_bridge.v:390.25-400.28"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2064",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:384.34-384.66|chi_to_bow_bridge.v:384.30-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2067",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:381.25-381.54|chi_to_bow_bridge.v:381.21-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2069",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:380.30-380.62|chi_to_bow_bridge.v:380.26-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2073",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:361.34-361.49|chi_to_bow_bridge.v:361.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2076",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:358.34-358.104|chi_to_bow_bridge.v:358.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2079",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:355.34-355.123|chi_to_bow_bridge.v:355.30-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2082",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:352.25-352.43|chi_to_bow_bridge.v:352.21-379.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2084",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:351.21-351.52|chi_to_bow_bridge.v:351.17-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2086",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:350.17-350.30|chi_to_bow_bridge.v:350.13-409.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2088",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:262.21-262.52|chi_to_bow_bridge.v:262.17-267.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2090",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:251.26-251.39|chi_to_bow_bridge.v:251.22-268.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2094",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:244.21-244.40|chi_to_bow_bridge.v:244.17-250.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2096",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:237.17-237.31|chi_to_bow_bridge.v:237.13-268.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000001000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2112",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:262.21-262.52|chi_to_bow_bridge.v:262.17-267.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2114",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:251.26-251.39|chi_to_bow_bridge.v:251.22-268.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2118",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:244.21-244.40|chi_to_bow_bridge.v:244.17-250.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2120",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:237.17-237.31|chi_to_bow_bridge.v:237.13-268.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2122",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:251.26-251.39|chi_to_bow_bridge.v:251.22-268.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000010000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2125",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:237.17-237.31|chi_to_bow_bridge.v:237.13-268.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000010000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2127",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:233.17-233.45|chi_to_bow_bridge.v:233.13-235.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2129",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:251.26-251.39|chi_to_bow_bridge.v:251.22-268.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2132",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:237.17-237.31|chi_to_bow_bridge.v:237.13-268.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2154",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:188.26-188.34|chi_to_bow_bridge.v:188.22-192.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2181",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:121.26-121.33|chi_to_bow_bridge.v:121.22-123.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$2184",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:119.26-119.34|chi_to_bow_bridge.v:119.22-123.16"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000010"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$497",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:390.29-390.71|chi_to_bow_bridge.v:390.25-400.28"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$533",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:390.29-390.71|chi_to_bow_bridge.v:390.25-400.28"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$551",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:390.29-390.71|chi_to_bow_bridge.v:390.25-400.28"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$605",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:384.34-384.66|chi_to_bow_bridge.v:384.30-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$635",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:384.34-384.66|chi_to_bow_bridge.v:384.30-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$665",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:384.34-384.66|chi_to_bow_bridge.v:384.30-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$725",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:381.25-381.54|chi_to_bow_bridge.v:381.21-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$737",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:381.25-381.54|chi_to_bow_bridge.v:381.21-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$749",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:381.25-381.54|chi_to_bow_bridge.v:381.21-401.24"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$820",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:380.30-380.62|chi_to_bow_bridge.v:380.26-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$829",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:380.30-380.62|chi_to_bow_bridge.v:380.26-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$838",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:380.30-380.62|chi_to_bow_bridge.v:380.26-402.20"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$894",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:362.29-362.56|chi_to_bow_bridge.v:362.25-372.28"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$936",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:362.29-362.56|chi_to_bow_bridge.v:362.25-372.28"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000100000000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procmux$978",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_to_bow_bridge.v:362.29-362.56|chi_to_bow_bridge.v:362.25-372.28"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$ternary$chi_to_bow_bridge.v:221$167",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:221.9-221.78"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$procmux$2196",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:255.13-255.20|chi_bow_props.sv:255.9-260.12"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2198",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:245.17-245.27|chi_bow_props.sv:245.13-246.86"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2200",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:229.13-229.36|chi_bow_props.sv:229.9-248.12"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2204",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:229.13-229.36|chi_bow_props.sv:229.9-248.12"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2206",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:234.17-234.27|chi_bow_props.sv:234.13-235.58"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2208",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:229.13-229.36|chi_bow_props.sv:229.9-248.12"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2210",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:219.26-219.67|chi_bow_props.sv:219.22-220.40"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2213",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:217.21-217.81|chi_bow_props.sv:217.17-220.40"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2219",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:184.13-184.54|chi_bow_props.sv:184.9-185.51"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2221",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:178.13-178.53|chi_bow_props.sv:178.9-179.51"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2224",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:169.17-169.57|chi_bow_props.sv:169.13-172.51"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2226",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:168.13-168.53|chi_bow_props.sv:168.9-173.12"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2229",
+                  "attributes": {
+                    "full_case": "00000000000000000000000000000001",
+                    "src": "chi_bow_props.sv:169.17-169.57|chi_bow_props.sv:169.13-172.51"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$procmux$2231",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:168.13-168.53|chi_bow_props.sv:168.9-173.12"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$ternary$chi_bow_props.sv:137$11",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:137.25-137.52"
+                  },
+                  "parameters": {
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$ne",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2492",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2502",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2621",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2627",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000011",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000011",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2629",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2631",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2636",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$auto$opt_dff.cc:235:make_patterns_logic$2644",
+                  "attributes": {
+
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000011",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000011",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$ne$chi_bow_props.sv:135$5",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:135.13-135.23"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000011",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000011",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$adff",
+            "ports": [
+                {
+                  "name": "ARST",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "CLK",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "D",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Q",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$procdff$2241",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0",
+                    "CLK_POLARITY": "1",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procdff$2301",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "CLK_POLARITY": "1",
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procdff$2306",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "CLK_POLARITY": "1",
+                    "WIDTH": "00000000000000000000000100000000"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$procdff$2333",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:302.5-414.8"
+                  },
+                  "parameters": {
+                    "ARST_POLARITY": "00000000000000000000000000000000",
+                    "ARST_VALUE": "0",
+                    "CLK_POLARITY": "1",
+                    "WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$gt",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$gt$chi_to_bow_bridge.v:163$132",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:163.23-163.60"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$gt$chi_to_bow_bridge.v:244$174",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:244.21-244.40"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000001000",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000001000",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$le",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [2, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$le$chi_bow_props.sv:238$70",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:238.21-238.42"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$le$chi_bow_props.sv:241$72",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:241.21-241.42"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000010",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000010",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          },
+          {
+            "type": "$logic_and",
+            "ports": [
+                {
+                  "name": "A",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "B",
+                  "direction": "io",
+                  "range": [0, 0]
+                },
+                {
+                  "name": "Y",
+                  "direction": "",
+                  "range": [0, 0]
+                }
+            ],
+            "cells": [
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:117$122",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:117.17-117.36"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:168$136",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:168.54-168.77"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:168$138",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:168.10-168.79"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:168$141",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:168.9-169.44"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:217$158",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:217.27-217.58"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:217$159",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:217.27-217.74"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:218$162",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:218.27-218.61"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:218$163",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:218.27-218.77"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:218$165",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:218.27-218.93"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:233$173",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:233.17-233.45"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:297$185",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:297.9-298.66"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:297$190",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:297.9-299.67"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:298$183",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:298.11-298.65"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:299$188",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:299.11-299.66"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:333$230",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:333.17-333.47"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:355$285",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:355.34-355.88"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:355$288",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:355.34-355.123"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$flatten\\u_dut.$logic_and$chi_to_bow_bridge.v:358$304",
+                  "attributes": {
+                    "src": "chi_to_bow_bridge.v:358.34-358.104"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_and$chi_bow_props.sv:217$62",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:217.21-217.81"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_and$chi_bow_props.sv:229$65",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:229.13-229.36"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_and$chi_bow_props.sv:246$75",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:246.27-246.83"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_and$chi_bow_props.sv:257$80",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:257.20-257.71"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                },
+                {
+                  "name": "$logic_and$chi_bow_props.sv:259$83",
+                  "attributes": {
+                    "src": "chi_bow_props.sv:259.20-259.71"
+                  },
+                  "parameters": {
+                    "A_SIGNED": "00000000000000000000000000000000",
+                    "A_WIDTH": "00000000000000000000000000000001",
+                    "B_SIGNED": "00000000000000000000000000000000",
+                    "B_WIDTH": "00000000000000000000000000000001",
+                    "Y_WIDTH": "00000000000000000000000000000001"
+                  }
+                }
+            ]
+          }
+        ],
+        "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "hdlname": "chi_bow_props",
+            "dynports": "00000000000000000000000000000001",
+            "top": "00000000000000000000000000000001",
+            "src": "chi_bow_props.sv:23.1-263.10"
+        }
+      }
+  ]
+}

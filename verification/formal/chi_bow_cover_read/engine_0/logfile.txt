@@ -1,0 +1,18 @@
+##   0:00:00  Solver: yices
+##   0:00:00  Checking cover reachability in step 0..
+##   0:00:01  Checking cover reachability in step 1..
+##   0:00:02  Checking cover reachability in step 2..
+##   0:00:03  Checking cover reachability in step 3..
+##   0:00:04  Checking cover reachability in step 4..
+##   0:00:06  Checking cover reachability in step 5..
+##   0:00:07  Checking cover reachability in step 6..
+##   0:00:09  Checking cover reachability in step 7..
+##   0:00:11  Checking cover reachability in step 8..
+##   0:00:12  Checking cover reachability in step 9..
+##   0:00:15  Checking cover reachability in step 10..
+##   0:00:16  Reached cover statement in step 10 at chi_bow_props: chi_bow_props.sv:301.13-301.72 (_witness_.check_cover_chi_bow_props_sv_301_88)
+##   0:00:16  Writing trace to VCD file: engine_0/trace0.vcd
+##   0:00:16  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+##   0:00:16  Writing trace to constraints file: engine_0/trace0.smtc
+##   0:00:16  Writing trace to Yosys witness file: engine_0/trace0.yw
+##   0:00:17  Status: passed

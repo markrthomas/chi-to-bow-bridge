@@ -1,0 +1,267 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.64+40 (git sha1 90b906c4f, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `design_prep.ys' --
+
+1. Executing RTLIL frontend.
+Input filename: design.il
+
+2. Executing SCC pass (detecting logic loops).
+Found 0 SCCs in module chi_bow_props.
+Found 0 SCCs.
+
+3. Executing SIMPLEMAP pass (map simple cells to gate primitives).
+
+4. Executing MEMORY_NORDFF pass (extracting $dff cells from memories).
+
+5. Executing ASYNC2SYNC pass.
+Replacing chi_bow_props.$auto$ff.cc:337:slice$2602 ($adffe): ARST=\rst_n, D=$procmux$2211_Y, Q=\f_in_burst
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2440 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$add$chi_to_bow_bridge.v:201$156_Y, Q=\u_dut.bow_rd_ptr
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2441 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$add$chi_to_bow_bridge.v:135$127_Y, Q=\u_dut.chi_wr_ptr
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2442 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$0\tx_need_data[0:0], Q=\u_dut.tx_need_data
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2468 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$procmux$2184_Y, Q=\u_dut.chi_count
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2475 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$0\tx_burst_rem[7:0], Q=\u_dut.tx_burst_rem
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2482 ($adffe): ARST=\rst_n, D=\u_dut.chi_peek [23:16], Q=\u_dut.tx_data_payload
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2506 ($adffe): ARST=\rst_n, D={ \chi_req_opcode [1] \u_dut.chi_req_opcode [0] \u_dut.chi_req_addr \u_dut.chi_req_data \chi_req_beats \chi_req_txnid }, Q=\u_dut.chi_mem[1]
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2510 ($adffe): ARST=\rst_n, D=\u_dut.bow_peek, Q=\u_dut.rx_flit
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2534 ($adffe): ARST=\rst_n, D={ \bow_rx_data [127:113] \u_dut.bow_rx_data [112:8] \bow_rx_data [7:0] }, Q=\u_dut.bow_mem[0]
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2545 ($adffe): ARST=\rst_n, D=\u_dut.chi_peek [7:0], Q=\u_dut.tx_data_txnid
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2557 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$0\bow_tx_data[127:0], Q=\u_dut.bow_tx_data
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2567 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$procmux$2154_Y, Q=\u_dut.bow_count
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2574 ($adffe): ARST=\rst_n, D={ \chi_req_opcode [1] \u_dut.chi_req_opcode [0] \u_dut.chi_req_addr \u_dut.chi_req_data \chi_req_beats \chi_req_txnid }, Q=\u_dut.chi_mem[0]
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2586 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$add$chi_to_bow_bridge.v:197$155_Y, Q=\u_dut.bow_wr_ptr
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2587 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$0\bow_tx_valid[0:0], Q=\u_dut.bow_tx_valid
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2591 ($adffe): ARST=\rst_n, D={ \bow_rx_data [127:113] \u_dut.bow_rx_data [112:8] \bow_rx_data [7:0] }, Q=\u_dut.bow_mem[1]
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2600 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$add$chi_to_bow_bridge.v:139$128_Y, Q=\u_dut.chi_rd_ptr
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2607 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$or$chi_to_bow_bridge.v:374$378_Y, Q=\u_dut.rsp_opcode_flat
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2616 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$3$lookahead\rsp_rem_flat$193[2047:0]$269, Q=\u_dut.rsp_rem_flat
+Replacing chi_bow_props.$flatten\u_dut.$auto$ff.cc:337:slice$2633 ($adffe): ARST=\rst_n, D=$flatten\u_dut.$3$lookahead\rsp_need_data$192[255:0]$268, Q=\u_dut.rsp_need_data
+Replacing chi_bow_props.$flatten\u_dut.$procdff$2239 ($adff): ARST=\rst_n, D=$flatten\u_dut.$0\chi_rsp_valid[0:0], Q=\u_dut.chi_rsp_valid
+Replacing chi_bow_props.$flatten\u_dut.$procdff$2299 ($adff): ARST=\rst_n, D=\u_dut.pending_next, Q=\u_dut.pending_txn_hold
+Replacing chi_bow_props.$flatten\u_dut.$procdff$2304 ($adff): ARST=\rst_n, D=$flatten\u_dut.$0$lookahead\pending_clr_mask$194[255:0]$211, Q=\u_dut.pending_clr_mask
+Replacing chi_bow_props.$flatten\u_dut.$procdff$2329 ($adff): ARST=\rst_n, D=$flatten\u_dut.$0\bow_pop[0:0], Q=\u_dut.rx_flit_valid
+
+6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \chi_bow_props..
+Removed 38 unused cells and 38 unused wires.
+<suppressed ~39 debug messages>
+
+7. Executing FORMALFF pass.
+
+8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \chi_bow_props..
+Removed 1 unused cells and 1 unused wires.
+<suppressed ~2 debug messages>
+
+9. Executing CHECK pass (checking for obvious problems).
+Checking module chi_bow_props...
+Warning: Wire chi_bow_props.\u_dut.chi_rsp_ready is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_tx_ready is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_valid is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_valid is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [127] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [126] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [125] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [124] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [123] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [122] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [121] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [120] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [119] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [118] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [117] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [116] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [115] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [114] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [113] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [112] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [111] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [110] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [109] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [108] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [107] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [106] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [105] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [104] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [103] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [102] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [101] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [100] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [99] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [98] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [97] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [96] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [95] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [94] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [93] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [92] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [91] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [90] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [89] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [88] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [87] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [86] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [85] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [84] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [83] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [82] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [81] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [80] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [79] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [78] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [77] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [76] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [75] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [74] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [73] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [72] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [71] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [70] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [69] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [68] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [67] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [66] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [65] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [64] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [63] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [62] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [61] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [60] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [59] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [58] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [57] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [56] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [55] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [54] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [53] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [52] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [51] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [50] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [49] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [48] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [47] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [46] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [45] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [44] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [43] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [42] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [41] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [40] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [39] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [38] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [37] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [36] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [35] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [34] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [33] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [32] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [31] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [30] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [29] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [28] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [27] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [26] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [25] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [24] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [23] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [22] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [21] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [20] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [19] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [18] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [17] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [16] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [15] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [14] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [13] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [12] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [11] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [10] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [9] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.bow_rx_data [8] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [7] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [6] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [5] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [4] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [3] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [2] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [1] is used but has no driver.
+Warning: Wire chi_bow_props.\bow_rx_data [0] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_opcode [1] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_opcode [0] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_addr [7] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_addr [6] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_addr [5] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_addr [4] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_addr [3] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_addr [2] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_addr [1] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_addr [0] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_data [7] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_data [6] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_data [5] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_data [4] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_data [3] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_data [2] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_data [1] is used but has no driver.
+Warning: Wire chi_bow_props.\u_dut.chi_req_data [0] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_beats [7] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_beats [6] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_beats [5] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_beats [4] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_beats [3] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_beats [2] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_beats [1] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_beats [0] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_txnid [7] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_txnid [6] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_txnid [5] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_txnid [4] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_txnid [3] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_txnid [2] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_txnid [1] is used but has no driver.
+Warning: Wire chi_bow_props.\chi_req_txnid [0] is used but has no driver.
+Found and reported 166 problems.
+
+10. Executing SETUNDEF pass (replace undef values with defined constants).
+
+11. Executing OPT pass (performing simple optimizations).
+
+11.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module chi_bow_props.
+
+11.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 560 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Computing hashes of 559 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+11.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+11.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \chi_bow_props..
+Removed 0 unused cells and 149 unused wires.
+<suppressed ~1 debug messages>
+
+11.5. Finished fast OPT passes.
+
+12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \chi_bow_props..
+Removed 0 unused cells and 50 unused wires.
+<suppressed ~1 debug messages>
+
+13. Executing RTLIL backend.
+Output filename: ../model/design_prep.il
+
+Warnings: 166 unique messages, 166 total
+End of script. Logfile hash: c1cf73c956, time: 1.82s, user: 1.75s, system: 0.08s, MEM: 91.06 MB peak
+Yosys 0.64+40 (git sha1 90b906c4f, clang++ 18.1.8 -fPIC -O3)
+Time spent: 42% 1x check (0 sec), 28% 4x opt_clean (0 sec), ...

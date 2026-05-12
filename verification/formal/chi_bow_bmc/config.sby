@@ -1,0 +1,51 @@
+# chi_bow.sby — SymbiYosys formal proof for chi_to_bow_bridge
+#
+# Tasks:
+#   bmc          — safety: no-double-alloc, FIFO bounds, flit ordering
+#   cover_write  — reachability: end-to-end WRITE transaction (WRITE_ACK)
+#   cover_read   — reachability: end-to-end READ transaction (READ_RESP)
+#
+# Cover goals are kept in separate tasks so each is searched independently
+# from step 0, avoiding the sequential-cover depth blowup that occurs when
+# smtbmc must chain two long traces (4 reset + many productive steps each).
+#
+# Run all:      sby -f chi_bow.sby
+# One task:     sby -f chi_bow.sby bmc
+
+[options]
+mode bmc
+depth 20
+
+[engines]
+smtbmc
+
+[script bmc]
+read -sv chi_bow_props.sv chi_to_bow_bridge.v
+hierarchy -top chi_bow_props
+proc
+opt
+memory_map
+flatten
+opt
+
+[script cover_write]
+read -sv -DCOVER_WRITE chi_bow_props.sv chi_to_bow_bridge.v
+hierarchy -top chi_bow_props
+proc
+opt
+memory_map
+flatten
+opt
+
+[script cover_read]
+read -sv -DCOVER_READ chi_bow_props.sv chi_to_bow_bridge.v
+hierarchy -top chi_bow_props
+proc
+opt
+memory_map
+flatten
+opt
+
+[files]
+chi_bow_props.sv
+../../src/chi_to_bow_bridge.v

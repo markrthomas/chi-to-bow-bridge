@@ -1,0 +1,27 @@
+# chi_bow_cover_write.sby — cover: end-to-end WRITE transaction (WRITE_ACK)
+#
+# Proves that a CHI WRITE request can propagate through the bridge as BoW
+# REQ_HDR + REQ_DATA and the resulting BoW WRITE_ACK response is forwarded
+# back to the CHI fabric (chi_rsp_valid && chi_rsp_opcode == WRITE_ACK).
+#
+# Run: sby -f chi_bow_cover_write.sby
+
+[options]
+mode cover
+depth 15
+
+[engines]
+smtbmc
+
+[script]
+read -sv -DCOVER_WRITE chi_bow_props.sv chi_to_bow_bridge.v
+hierarchy -top chi_bow_props
+proc
+opt
+memory_map
+flatten
+opt
+
+[files]
+chi_bow_props.sv
+../../src/chi_to_bow_bridge.v

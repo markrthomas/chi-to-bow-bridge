@@ -1,0 +1,1531 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.64+40 (git sha1 90b906c4f, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `../model/design.ys' --
+
+1. Executing Verilog-2005 frontend: chi_bow_props.sv
+Parsing SystemVerilog input from `chi_bow_props.sv' to AST representation.
+Storing AST representation for module `$abstract\chi_bow_props'.
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: chi_to_bow_bridge.v
+Parsing SystemVerilog input from `chi_to_bow_bridge.v' to AST representation.
+Storing AST representation for module `$abstract\chi_to_bow_bridge'.
+Successfully finished Verilog frontend.
+
+3. Executing HIERARCHY pass (managing design hierarchy).
+
+4. Executing AST frontend in derive mode using pre-parsed AST for module `\chi_bow_props'.
+Generating RTLIL representation for module `\chi_bow_props'.
+
+4.1. Analyzing design hierarchy..
+Top module:  \chi_bow_props
+Parameter \ADDR_WIDTH = 8
+Parameter \DATA_WIDTH = 8
+Parameter \FIFO_DEPTH = 2
+
+4.2. Executing AST frontend in derive mode using pre-parsed AST for module `\chi_to_bow_bridge'.
+Parameter \ADDR_WIDTH = 8
+Parameter \DATA_WIDTH = 8
+Parameter \FIFO_DEPTH = 2
+Generating RTLIL representation for module `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Warning: Replacing memory \bow_mem with list of registers. See chi_to_bow_bridge.v:184
+Warning: Replacing memory \chi_mem with list of registers. See chi_to_bow_bridge.v:115
+chi_to_bow_bridge.v:259: Warning: Range [63:0] select out of bounds on signal `\chi_peek_addr': Setting 56 MSB bits to undef.
+
+4.3. Analyzing design hierarchy..
+Top module:  \chi_bow_props
+Used module:     $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge
+
+4.4. Analyzing design hierarchy..
+Top module:  \chi_bow_props
+Used module:     $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge
+Removing unused module `$abstract\chi_to_bow_bridge'.
+Removing unused module `$abstract\chi_bow_props'.
+Removed 2 unused modules.
+Module chi_bow_props directly or indirectly contains formal properties -> setting "keep" attribute.
+
+5. Executing PROC pass (convert processes to netlists).
+
+5.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+5.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed 1 dead cases from process $proc$chi_to_bow_bridge.v:206$488 in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Marked 1 switch rules as full_case in process $proc$chi_to_bow_bridge.v:206$488 in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Removed 1 dead cases from process $proc$chi_to_bow_bridge.v:144$485 in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Marked 1 switch rules as full_case in process $proc$chi_to_bow_bridge.v:144$485 in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Marked 13 switch rules as full_case in process $proc$chi_to_bow_bridge.v:305$199 in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Marked 3 switch rules as full_case in process $proc$chi_to_bow_bridge.v:225$174 in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Marked 5 switch rules as full_case in process $proc$chi_to_bow_bridge.v:178$147 in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Marked 5 switch rules as full_case in process $proc$chi_to_bow_bridge.v:109$119 in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Marked 2 switch rules as full_case in process $proc$chi_bow_props.sv:222$58 in module chi_bow_props.
+Marked 1 switch rules as full_case in process $proc$chi_bow_props.sv:177$32 in module chi_bow_props.
+Removed a total of 2 dead cases.
+
+5.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 10 redundant assignments.
+Promoted 38 assignments to connections.
+
+5.4. Executing PROC_INIT pass (extract init attributes).
+Found init rule in `\chi_bow_props.$proc$chi_bow_props.sv:221$89'.
+  Set init value: \f_in_burst = 1'0
+Found init rule in `\chi_bow_props.$proc$chi_bow_props.sv:137$88'.
+  Set init value: \ph = 3'000
+Found init rule in `\chi_bow_props.$proc$chi_bow_props.sv:128$87'.
+  Set init value: \f_past_valid = 1'0
+
+5.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+Found async reset \rst_n in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+Found async reset \rst_n in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+Found async reset \rst_n in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+Found async reset \rst_n in `\chi_bow_props.$proc$chi_bow_props.sv:222$58'.
+
+5.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~49 debug messages>
+
+5.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:206$488'.
+     1/1: $1$mem2reg_rd$\bow_mem$chi_to_bow_bridge.v:206$105_DATA[127:0]$490
+Creating decoders for process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:144$485'.
+     1/1: $1$mem2reg_rd$\chi_mem$chi_to_bow_bridge.v:144$103_DATA[33:0]$487
+Creating decoders for process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+     1/149: $12$lookahead\rsp_rem_flat$196[2047:0]$453
+     2/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:395$99[31:0]$449
+     3/149: $12$lookahead\pending_clr_mask$197[255:0]$454
+     4/149: $12$lookahead\rsp_need_data$195[255:0]$452
+     5/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:403$101[7:0]$451
+     6/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:402$100[7:0]$450
+     7/149: $11$lookahead\rsp_rem_flat$196[2047:0]$426
+     8/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:392$98[31:0]$421
+     9/149: $11$lookahead\rsp_need_data$195[255:0]$425
+    10/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:391$97[7:0]$420
+    11/149: $11$lookahead\pending_clr_mask$197[255:0]$427
+    12/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:403$101[7:0]$424
+    13/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:402$100[7:0]$423
+    14/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:395$99[31:0]$422
+    15/149: $10$lookahead\pending_clr_mask$197[255:0]$416
+    16/149: $10$lookahead\rsp_rem_flat$196[2047:0]$415
+    17/149: $10$lookahead\rsp_need_data$195[255:0]$414
+    18/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:403$101[7:0]$413
+    19/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:402$100[7:0]$412
+    20/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:395$99[31:0]$411
+    21/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:392$98[31:0]$410
+    22/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:391$97[7:0]$409
+    23/149: $9$lookahead\pending_clr_mask$197[255:0]$406
+    24/149: $9$lookahead\rsp_rem_flat$196[2047:0]$405
+    25/149: $9$lookahead\rsp_need_data$195[255:0]$404
+    26/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:403$101[7:0]$403
+    27/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:402$100[7:0]$402
+    28/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:395$99[31:0]$401
+    29/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:392$98[31:0]$400
+    30/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:391$97[7:0]$399
+    31/149: $8$lookahead\pending_clr_mask$197[255:0]$340
+    32/149: $8$bitselwrite$pos$chi_to_bow_bridge.v:371$92[7:0]$334
+    33/149: $8$lookahead\rsp_rem_flat$196[2047:0]$339
+    34/149: $8$bitselwrite$pos$chi_to_bow_bridge.v:370$91[31:0]$333
+    35/149: $8$lookahead\rsp_need_data$195[255:0]$338
+    36/149: $8$bitselwrite$pos$chi_to_bow_bridge.v:369$90[7:0]$332
+    37/149: $8$lookahead\rsp_opcode_flat$198[511:0]$341
+    38/149: $8$bitselwrite$pos$chi_to_bow_bridge.v:375$95[31:0]$337
+    39/149: $8$bitselwrite$pos$chi_to_bow_bridge.v:374$94[31:0]$336
+    40/149: $8$bitselwrite$pos$chi_to_bow_bridge.v:373$93[7:0]$335
+    41/149: $7$lookahead\rsp_opcode_flat$198[511:0]$330
+    42/149: $7$lookahead\pending_clr_mask$197[255:0]$329
+    43/149: $7$lookahead\rsp_rem_flat$196[2047:0]$328
+    44/149: $7$lookahead\rsp_need_data$195[255:0]$327
+    45/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:375$95[31:0]$325
+    46/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:374$94[31:0]$324
+    47/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:373$93[7:0]$323
+    48/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:371$92[7:0]$322
+    49/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:370$91[31:0]$321
+    50/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:369$90[7:0]$320
+    51/149: $7$bitselwrite$pos$chi_to_bow_bridge.v:382$96[7:0]$326
+    52/149: $6$lookahead\rsp_opcode_flat$198[511:0]$318
+    53/149: $6$lookahead\pending_clr_mask$197[255:0]$317
+    54/149: $6$lookahead\rsp_rem_flat$196[2047:0]$316
+    55/149: $6$lookahead\rsp_need_data$195[255:0]$315
+    56/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:382$96[7:0]$314
+    57/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:375$95[31:0]$313
+    58/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:374$94[31:0]$312
+    59/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:373$93[7:0]$311
+    60/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:371$92[7:0]$310
+    61/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:370$91[31:0]$309
+    62/149: $6$bitselwrite$pos$chi_to_bow_bridge.v:369$90[7:0]$308
+    63/149: $5$lookahead\rsp_opcode_flat$198[511:0]$302
+    64/149: $5$lookahead\pending_clr_mask$197[255:0]$301
+    65/149: $5$lookahead\rsp_rem_flat$196[2047:0]$300
+    66/149: $5$lookahead\rsp_need_data$195[255:0]$299
+    67/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:382$96[7:0]$298
+    68/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:375$95[31:0]$297
+    69/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:374$94[31:0]$296
+    70/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:373$93[7:0]$295
+    71/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:371$92[7:0]$294
+    72/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:370$91[31:0]$293
+    73/149: $5$bitselwrite$pos$chi_to_bow_bridge.v:369$90[7:0]$292
+    74/149: $4$lookahead\rsp_opcode_flat$198[511:0]$285
+    75/149: $4$lookahead\pending_clr_mask$197[255:0]$284
+    76/149: $4$lookahead\rsp_rem_flat$196[2047:0]$283
+    77/149: $4$lookahead\rsp_need_data$195[255:0]$282
+    78/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:382$96[7:0]$281
+    79/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:375$95[31:0]$280
+    80/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:374$94[31:0]$279
+    81/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:373$93[7:0]$278
+    82/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:371$92[7:0]$277
+    83/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:370$91[31:0]$276
+    84/149: $4$bitselwrite$pos$chi_to_bow_bridge.v:369$90[7:0]$275
+    85/149: $3$lookahead\rsp_opcode_flat$198[511:0]$274
+    86/149: $3$lookahead\pending_clr_mask$197[255:0]$273
+    87/149: $3$lookahead\rsp_rem_flat$196[2047:0]$272
+    88/149: $3$lookahead\rsp_need_data$195[255:0]$271
+    89/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:382$96[7:0]$265
+    90/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:375$95[31:0]$264
+    91/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:374$94[31:0]$263
+    92/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:373$93[7:0]$262
+    93/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:371$92[7:0]$261
+    94/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:370$91[31:0]$260
+    95/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:369$90[7:0]$259
+    96/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:403$101[7:0]$270
+    97/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:402$100[7:0]$269
+    98/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:395$99[31:0]$268
+    99/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:392$98[31:0]$267
+   100/149: $3$bitselwrite$pos$chi_to_bow_bridge.v:391$97[7:0]$266
+   101/149: $2$lookahead\rsp_opcode_flat$198[511:0]$257
+   102/149: $2$lookahead\pending_clr_mask$197[255:0]$256
+   103/149: $2$lookahead\rsp_rem_flat$196[2047:0]$255
+   104/149: $2$lookahead\rsp_need_data$195[255:0]$254
+   105/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:403$101[7:0]$253
+   106/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:402$100[7:0]$252
+   107/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:395$99[31:0]$251
+   108/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:392$98[31:0]$250
+   109/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:391$97[7:0]$249
+   110/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:382$96[7:0]$248
+   111/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:375$95[31:0]$247
+   112/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:374$94[31:0]$246
+   113/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:373$93[7:0]$245
+   114/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:371$92[7:0]$244
+   115/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:370$91[31:0]$243
+   116/149: $2$bitselwrite$pos$chi_to_bow_bridge.v:369$90[7:0]$242
+   117/149: $0\pending_txn_hold[255:0]
+   118/149: $0\pending_txn[255:0]
+   119/149: $1$lookahead\rsp_opcode_flat$198[511:0]$232
+   120/149: $1$lookahead\pending_clr_mask$197[255:0]$231
+   121/149: $1$lookahead\rsp_rem_flat$196[2047:0]$230
+   122/149: $1$lookahead\rsp_need_data$195[255:0]$229
+   123/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:403$101[7:0]$228
+   124/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:402$100[7:0]$227
+   125/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:395$99[31:0]$226
+   126/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:392$98[31:0]$225
+   127/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:391$97[7:0]$224
+   128/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:382$96[7:0]$223
+   129/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:375$95[31:0]$222
+   130/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:374$94[31:0]$221
+   131/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:373$93[7:0]$220
+   132/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:371$92[7:0]$219
+   133/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:370$91[31:0]$218
+   134/149: $1$bitselwrite$pos$chi_to_bow_bridge.v:369$90[7:0]$217
+   135/149: $0\err_pulse[0:0]
+   136/149: $0\bow_pop[0:0]
+   137/149: $0\chi_req_seen[0:0]
+   138/149: $0\rx_flit[127:0]
+   139/149: $0\rx_flit_valid[0:0]
+   140/149: $0\err_illegal_rsp_hdr[31:0]
+   141/149: $0\err_illegal_req_hdr[31:0]
+   142/149: $0\err_orphan_rsp_data[31:0]
+   143/149: $0\err_dup_rsp_hdr[31:0]
+   144/149: $0\err_unknown_txn_rsp_data[31:0]
+   145/149: $0\err_unknown_txn_rsp_hdr[31:0]
+   146/149: $0\chi_rsp_txnid[7:0]
+   147/149: $0\chi_rsp_data[7:0]
+   148/149: $0\chi_rsp_opcode[1:0]
+   149/149: $0\chi_rsp_valid[0:0]
+Creating decoders for process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+     1/6: $0\tx_burst_rem[7:0]
+     2/6: $0\tx_data_payload[7:0]
+     3/6: $0\tx_data_txnid[7:0]
+     4/6: $0\tx_need_data[0:0]
+     5/6: $0\bow_tx_data[127:0]
+     6/6: $0\bow_tx_valid[0:0]
+Creating decoders for process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+     1/10: $2$mem2reg_wr$\bow_mem$chi_to_bow_bridge.v:196$104_ADDR[0:0]$156
+     2/10: $2$mem2reg_wr$\bow_mem$chi_to_bow_bridge.v:196$104_DATA[127:0]$157
+     3/10: $1$mem2reg_wr$\bow_mem$chi_to_bow_bridge.v:196$104_DATA[127:0]$152
+     4/10: $1$mem2reg_wr$\bow_mem$chi_to_bow_bridge.v:196$104_ADDR[0:0]$151
+     5/10: $3\i[31:0]
+     6/10: $0\bow_mem[1][127:0]
+     7/10: $0\bow_mem[0][127:0]
+     8/10: $0\bow_count[1:0]
+     9/10: $0\bow_rd_ptr[0:0]
+    10/10: $0\bow_wr_ptr[0:0]
+Creating decoders for process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+     1/10: $2$mem2reg_wr$\chi_mem$chi_to_bow_bridge.v:128$102_ADDR[0:0]$128
+     2/10: $2$mem2reg_wr$\chi_mem$chi_to_bow_bridge.v:128$102_DATA[33:0]$129
+     3/10: $1$mem2reg_wr$\chi_mem$chi_to_bow_bridge.v:128$102_DATA[33:0]$124
+     4/10: $1$mem2reg_wr$\chi_mem$chi_to_bow_bridge.v:128$102_ADDR[0:0]$123
+     5/10: $1\i[31:0]
+     6/10: $0\chi_mem[1][33:0]
+     7/10: $0\chi_mem[0][33:0]
+     8/10: $0\chi_count[1:0]
+     9/10: $0\chi_rd_ptr[0:0]
+    10/10: $0\chi_wr_ptr[0:0]
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:221$89'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:137$88'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:128$87'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:293$83'.
+     1/1: $cover$chi_bow_props.sv:297$84_EN
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:265$70'.
+     1/4: $assert$chi_bow_props.sv:283$79_EN
+     2/4: $assert$chi_bow_props.sv:278$77_EN
+     3/4: $assert$chi_bow_props.sv:275$75_EN
+     4/4: $assert$chi_bow_props.sv:272$72_EN
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:248$67'.
+     1/1: $assume$chi_bow_props.sv:250$68_EN
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:243$64'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:222$58'.
+     1/1: $0\f_in_burst[0:0]
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:199$47'.
+     1/1: $assume$chi_bow_props.sv:201$49_EN
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:193$43'.
+     1/1: $assume$chi_bow_props.sv:195$45_EN
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:187$39'.
+     1/1: $assume$chi_bow_props.sv:189$41_EN
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:177$32'.
+     1/2: $assume$chi_bow_props.sv:182$37_EN
+     2/2: $assume$chi_bow_props.sv:180$35_EN
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:170$26'.
+     1/1: $assume$chi_bow_props.sv:172$28_EN
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:164$21'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:161$18'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:158$15'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:155$12'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:141$7'.
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:138$4'.
+     1/1: $0\ph[2:0]
+Creating decoders for process `\chi_bow_props.$proc$chi_bow_props.sv:129$3'.
+
+5.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$mem2reg_rd$\bow_mem$chi_to_bow_bridge.v:206$105_DATA' from process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:206$488'.
+No latch inferred for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$mem2reg_rd$\chi_mem$chi_to_bow_bridge.v:144$103_DATA' from process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:144$485'.
+
+5.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_rsp_valid' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2244' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_rsp_opcode' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2249' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_rsp_data' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2254' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_rsp_txnid' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2259' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\err_unknown_txn_rsp_hdr' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2264' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\err_unknown_txn_rsp_data' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2269' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\err_dup_rsp_hdr' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2274' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\err_orphan_rsp_data' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2279' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\err_illegal_req_hdr' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2284' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\err_illegal_rsp_hdr' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2289' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\err_pulse' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2294' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\pending_txn' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2299' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\pending_txn_hold' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2304' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\pending_clr_mask' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2309' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\bow_pop' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2314' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\rsp_need_data' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2319' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\rsp_opcode_flat' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2324' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\rsp_rem_flat' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2329' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\rx_flit_valid' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2334' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\rx_flit' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2339' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_req_seen' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+  created $adff cell `$procdff$2344' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\bow_tx_valid' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+  created $adff cell `$procdff$2349' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\bow_tx_data' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+  created $adff cell `$procdff$2354' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\tx_need_data' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+  created $adff cell `$procdff$2359' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\tx_data_txnid' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+  created $adff cell `$procdff$2364' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\tx_data_payload' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+  created $adff cell `$procdff$2369' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\tx_burst_rem' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+  created $adff cell `$procdff$2374' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\i' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+  created $adff cell `$procdff$2379' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\bow_wr_ptr' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+  created $adff cell `$procdff$2384' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\bow_rd_ptr' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+  created $adff cell `$procdff$2389' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\bow_count' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+  created $adff cell `$procdff$2394' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\bow_mem[0]' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+  created $adff cell `$procdff$2399' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\bow_mem[1]' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+  created $adff cell `$procdff$2404' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\i' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+  created $adff cell `$procdff$2409' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_wr_ptr' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+  created $adff cell `$procdff$2414' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_rd_ptr' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+  created $adff cell `$procdff$2419' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_count' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+  created $adff cell `$procdff$2424' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_mem[0]' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+  created $adff cell `$procdff$2429' with positive edge clock and positive level reset.
+Creating register for signal `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.\chi_mem[1]' using process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+  created $adff cell `$procdff$2434' with positive edge clock and positive level reset.
+Creating register for signal `\chi_bow_props.\f_in_burst' using process `\chi_bow_props.$proc$chi_bow_props.sv:222$58'.
+  created $adff cell `$procdff$2439' with positive edge clock and positive level reset.
+Creating register for signal `\chi_bow_props.\ph' using process `\chi_bow_props.$proc$chi_bow_props.sv:138$4'.
+  created $dff cell `$procdff$2440' with positive edge clock.
+Creating register for signal `\chi_bow_props.\f_past_valid' using process `\chi_bow_props.$proc$chi_bow_props.sv:129$3'.
+  created $dff cell `$procdff$2441' with positive edge clock.
+
+5.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+5.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:206$488'.
+Removing empty process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:206$488'.
+Found and cleaned up 1 empty switch in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:144$485'.
+Removing empty process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:144$485'.
+Found and cleaned up 15 empty switches in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+Removing empty process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:305$199'.
+Found and cleaned up 5 empty switches in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+Removing empty process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:225$174'.
+Found and cleaned up 6 empty switches in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+Removing empty process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:178$147'.
+Found and cleaned up 6 empty switches in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+Removing empty process `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.$proc$chi_to_bow_bridge.v:109$119'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:221$89'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:137$88'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:128$87'.
+Found and cleaned up 1 empty switch in `\chi_bow_props.$proc$chi_bow_props.sv:293$83'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:293$83'.
+Found and cleaned up 3 empty switches in `\chi_bow_props.$proc$chi_bow_props.sv:265$70'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:265$70'.
+Found and cleaned up 1 empty switch in `\chi_bow_props.$proc$chi_bow_props.sv:248$67'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:248$67'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:243$64'.
+Found and cleaned up 3 empty switches in `\chi_bow_props.$proc$chi_bow_props.sv:222$58'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:222$58'.
+Found and cleaned up 1 empty switch in `\chi_bow_props.$proc$chi_bow_props.sv:199$47'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:199$47'.
+Found and cleaned up 1 empty switch in `\chi_bow_props.$proc$chi_bow_props.sv:193$43'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:193$43'.
+Found and cleaned up 1 empty switch in `\chi_bow_props.$proc$chi_bow_props.sv:187$39'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:187$39'.
+Found and cleaned up 2 empty switches in `\chi_bow_props.$proc$chi_bow_props.sv:177$32'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:177$32'.
+Found and cleaned up 1 empty switch in `\chi_bow_props.$proc$chi_bow_props.sv:170$26'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:170$26'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:164$21'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:161$18'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:158$15'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:155$12'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:141$7'.
+Found and cleaned up 1 empty switch in `\chi_bow_props.$proc$chi_bow_props.sv:138$4'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:138$4'.
+Removing empty process `chi_bow_props.$proc$chi_bow_props.sv:129$3'.
+Cleaned up 49 empty switches.
+
+5.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+<suppressed ~208 debug messages>
+Optimizing module chi_bow_props.
+<suppressed ~12 debug messages>
+
+6. Executing OPT pass (performing simple optimizations).
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+<suppressed ~24 debug messages>
+Optimizing module chi_bow_props.
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 855 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 783 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 769 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 762 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 758 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 755 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+<suppressed ~300 debug messages>
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 91 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Computing hashes of 83 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+<suppressed ~24 debug messages>
+Removed a total of 108 cells.
+
+6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+      Replacing known input bits on port A of cell $procmux$1889: \rx_flit_valid -> 1'0
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$1839.
+    dead port 2/2 on $mux $procmux$1839.
+    dead port 1/2 on $mux $procmux$1836.
+    dead port 2/2 on $mux $procmux$1836.
+    dead port 1/2 on $mux $procmux$1833.
+    dead port 2/2 on $mux $procmux$1833.
+    dead port 1/2 on $mux $procmux$1830.
+    dead port 2/2 on $mux $procmux$1830.
+    dead port 1/2 on $mux $procmux$1827.
+    dead port 2/2 on $mux $procmux$1827.
+    dead port 1/2 on $mux $procmux$1824.
+    dead port 2/2 on $mux $procmux$1824.
+    dead port 1/2 on $mux $procmux$1821.
+    dead port 2/2 on $mux $procmux$1821.
+    dead port 1/2 on $mux $procmux$1818.
+    dead port 2/2 on $mux $procmux$1818.
+    dead port 1/2 on $mux $procmux$1815.
+    dead port 2/2 on $mux $procmux$1815.
+    dead port 1/2 on $mux $procmux$1812.
+    dead port 2/2 on $mux $procmux$1812.
+    dead port 1/2 on $mux $procmux$1809.
+    dead port 2/2 on $mux $procmux$1809.
+    dead port 1/2 on $mux $procmux$1806.
+    dead port 2/2 on $mux $procmux$1806.
+    dead port 1/2 on $mux $procmux$1791.
+    dead port 2/2 on $mux $procmux$1791.
+    dead port 1/2 on $mux $procmux$1789.
+    dead port 2/2 on $mux $procmux$1789.
+    dead port 1/2 on $mux $procmux$1785.
+    dead port 2/2 on $mux $procmux$1785.
+    dead port 1/2 on $mux $procmux$1783.
+    dead port 2/2 on $mux $procmux$1783.
+    dead port 1/2 on $mux $procmux$1779.
+    dead port 2/2 on $mux $procmux$1779.
+    dead port 1/2 on $mux $procmux$1777.
+    dead port 2/2 on $mux $procmux$1777.
+    dead port 1/2 on $mux $procmux$1773.
+    dead port 2/2 on $mux $procmux$1773.
+    dead port 1/2 on $mux $procmux$1771.
+    dead port 2/2 on $mux $procmux$1771.
+    dead port 1/2 on $mux $procmux$1767.
+    dead port 2/2 on $mux $procmux$1767.
+    dead port 1/2 on $mux $procmux$1765.
+    dead port 2/2 on $mux $procmux$1765.
+    dead port 1/2 on $mux $procmux$1761.
+    dead port 2/2 on $mux $procmux$1761.
+    dead port 1/2 on $mux $procmux$1759.
+    dead port 2/2 on $mux $procmux$1759.
+    dead port 1/2 on $mux $procmux$1755.
+    dead port 2/2 on $mux $procmux$1755.
+    dead port 1/2 on $mux $procmux$1753.
+    dead port 2/2 on $mux $procmux$1753.
+    dead port 1/2 on $mux $procmux$1749.
+    dead port 2/2 on $mux $procmux$1749.
+    dead port 1/2 on $mux $procmux$1747.
+    dead port 2/2 on $mux $procmux$1747.
+    dead port 1/2 on $mux $procmux$1743.
+    dead port 2/2 on $mux $procmux$1743.
+    dead port 1/2 on $mux $procmux$1741.
+    dead port 2/2 on $mux $procmux$1741.
+    dead port 1/2 on $mux $procmux$1737.
+    dead port 2/2 on $mux $procmux$1737.
+    dead port 1/2 on $mux $procmux$1735.
+    dead port 2/2 on $mux $procmux$1735.
+    dead port 1/2 on $mux $procmux$1731.
+    dead port 2/2 on $mux $procmux$1731.
+    dead port 1/2 on $mux $procmux$1729.
+    dead port 2/2 on $mux $procmux$1729.
+    dead port 1/2 on $mux $procmux$1725.
+    dead port 2/2 on $mux $procmux$1725.
+    dead port 1/2 on $mux $procmux$1723.
+    dead port 2/2 on $mux $procmux$1723.
+    dead port 2/2 on $mux $procmux$1719.
+    dead port 2/2 on $mux $procmux$1713.
+    dead port 2/2 on $mux $procmux$1707.
+    dead port 2/2 on $mux $procmux$1701.
+    dead port 1/2 on $mux $procmux$1695.
+    dead port 2/2 on $mux $procmux$1695.
+    dead port 1/2 on $mux $procmux$1693.
+    dead port 2/2 on $mux $procmux$1693.
+    dead port 1/2 on $mux $procmux$1691.
+    dead port 2/2 on $mux $procmux$1691.
+    dead port 1/2 on $mux $procmux$1686.
+    dead port 2/2 on $mux $procmux$1686.
+    dead port 1/2 on $mux $procmux$1684.
+    dead port 2/2 on $mux $procmux$1684.
+    dead port 1/2 on $mux $procmux$1682.
+    dead port 2/2 on $mux $procmux$1682.
+    dead port 1/2 on $mux $procmux$1677.
+    dead port 2/2 on $mux $procmux$1677.
+    dead port 1/2 on $mux $procmux$1675.
+    dead port 2/2 on $mux $procmux$1675.
+    dead port 1/2 on $mux $procmux$1673.
+    dead port 2/2 on $mux $procmux$1673.
+    dead port 1/2 on $mux $procmux$1668.
+    dead port 2/2 on $mux $procmux$1668.
+    dead port 1/2 on $mux $procmux$1666.
+    dead port 2/2 on $mux $procmux$1666.
+    dead port 1/2 on $mux $procmux$1664.
+    dead port 2/2 on $mux $procmux$1664.
+    dead port 1/2 on $mux $procmux$1659.
+    dead port 2/2 on $mux $procmux$1659.
+    dead port 1/2 on $mux $procmux$1657.
+    dead port 2/2 on $mux $procmux$1657.
+    dead port 1/2 on $mux $procmux$1655.
+    dead port 2/2 on $mux $procmux$1655.
+    dead port 1/2 on $mux $procmux$1650.
+    dead port 2/2 on $mux $procmux$1650.
+    dead port 1/2 on $mux $procmux$1648.
+    dead port 2/2 on $mux $procmux$1648.
+    dead port 1/2 on $mux $procmux$1646.
+    dead port 2/2 on $mux $procmux$1646.
+    dead port 1/2 on $mux $procmux$1641.
+    dead port 2/2 on $mux $procmux$1641.
+    dead port 1/2 on $mux $procmux$1639.
+    dead port 2/2 on $mux $procmux$1639.
+    dead port 1/2 on $mux $procmux$1637.
+    dead port 2/2 on $mux $procmux$1637.
+    dead port 2/2 on $mux $procmux$1632.
+    dead port 2/2 on $mux $procmux$1630.
+    dead port 2/2 on $mux $procmux$1623.
+    dead port 2/2 on $mux $procmux$1621.
+    dead port 2/2 on $mux $procmux$1614.
+    dead port 2/2 on $mux $procmux$1612.
+    dead port 2/2 on $mux $procmux$1605.
+    dead port 2/2 on $mux $procmux$1603.
+    dead port 1/2 on $mux $procmux$1596.
+    dead port 2/2 on $mux $procmux$1596.
+    dead port 1/2 on $mux $procmux$1594.
+    dead port 2/2 on $mux $procmux$1594.
+    dead port 1/2 on $mux $procmux$1592.
+    dead port 2/2 on $mux $procmux$1592.
+    dead port 1/2 on $mux $procmux$1589.
+    dead port 2/2 on $mux $procmux$1589.
+    dead port 1/2 on $mux $procmux$1584.
+    dead port 2/2 on $mux $procmux$1584.
+    dead port 1/2 on $mux $procmux$1582.
+    dead port 2/2 on $mux $procmux$1582.
+    dead port 1/2 on $mux $procmux$1580.
+    dead port 2/2 on $mux $procmux$1580.
+    dead port 1/2 on $mux $procmux$1577.
+    dead port 2/2 on $mux $procmux$1577.
+    dead port 1/2 on $mux $procmux$1572.
+    dead port 2/2 on $mux $procmux$1572.
+    dead port 1/2 on $mux $procmux$1570.
+    dead port 2/2 on $mux $procmux$1570.
+    dead port 1/2 on $mux $procmux$1568.
+    dead port 2/2 on $mux $procmux$1568.
+    dead port 1/2 on $mux $procmux$1565.
+    dead port 2/2 on $mux $procmux$1565.
+    dead port 1/2 on $mux $procmux$1560.
+    dead port 2/2 on $mux $procmux$1560.
+    dead port 1/2 on $mux $procmux$1558.
+    dead port 2/2 on $mux $procmux$1558.
+    dead port 1/2 on $mux $procmux$1556.
+    dead port 2/2 on $mux $procmux$1556.
+    dead port 1/2 on $mux $procmux$1553.
+    dead port 2/2 on $mux $procmux$1553.
+    dead port 1/2 on $mux $procmux$1548.
+    dead port 2/2 on $mux $procmux$1548.
+    dead port 1/2 on $mux $procmux$1546.
+    dead port 2/2 on $mux $procmux$1546.
+    dead port 1/2 on $mux $procmux$1544.
+    dead port 2/2 on $mux $procmux$1544.
+    dead port 1/2 on $mux $procmux$1541.
+    dead port 2/2 on $mux $procmux$1541.
+    dead port 1/2 on $mux $procmux$1536.
+    dead port 2/2 on $mux $procmux$1536.
+    dead port 1/2 on $mux $procmux$1534.
+    dead port 2/2 on $mux $procmux$1534.
+    dead port 1/2 on $mux $procmux$1532.
+    dead port 2/2 on $mux $procmux$1532.
+    dead port 1/2 on $mux $procmux$1529.
+    dead port 2/2 on $mux $procmux$1529.
+    dead port 1/2 on $mux $procmux$1524.
+    dead port 2/2 on $mux $procmux$1524.
+    dead port 1/2 on $mux $procmux$1522.
+    dead port 2/2 on $mux $procmux$1522.
+    dead port 1/2 on $mux $procmux$1520.
+    dead port 2/2 on $mux $procmux$1520.
+    dead port 1/2 on $mux $procmux$1517.
+    dead port 2/2 on $mux $procmux$1517.
+    dead port 2/2 on $mux $procmux$1512.
+    dead port 2/2 on $mux $procmux$1510.
+    dead port 2/2 on $mux $procmux$1508.
+    dead port 2/2 on $mux $procmux$1500.
+    dead port 2/2 on $mux $procmux$1498.
+    dead port 2/2 on $mux $procmux$1496.
+    dead port 2/2 on $mux $procmux$1488.
+    dead port 2/2 on $mux $procmux$1486.
+    dead port 2/2 on $mux $procmux$1484.
+    dead port 2/2 on $mux $procmux$1476.
+    dead port 2/2 on $mux $procmux$1474.
+    dead port 2/2 on $mux $procmux$1472.
+    dead port 1/2 on $mux $procmux$1464.
+    dead port 2/2 on $mux $procmux$1464.
+    dead port 1/2 on $mux $procmux$1462.
+    dead port 2/2 on $mux $procmux$1462.
+    dead port 1/2 on $mux $procmux$1460.
+    dead port 2/2 on $mux $procmux$1460.
+    dead port 1/2 on $mux $procmux$1457.
+    dead port 2/2 on $mux $procmux$1457.
+    dead port 1/2 on $mux $procmux$1454.
+    dead port 2/2 on $mux $procmux$1454.
+    dead port 1/2 on $mux $procmux$1449.
+    dead port 2/2 on $mux $procmux$1449.
+    dead port 1/2 on $mux $procmux$1447.
+    dead port 2/2 on $mux $procmux$1447.
+    dead port 1/2 on $mux $procmux$1445.
+    dead port 2/2 on $mux $procmux$1445.
+    dead port 1/2 on $mux $procmux$1442.
+    dead port 2/2 on $mux $procmux$1442.
+    dead port 1/2 on $mux $procmux$1439.
+    dead port 2/2 on $mux $procmux$1439.
+    dead port 1/2 on $mux $procmux$1434.
+    dead port 2/2 on $mux $procmux$1434.
+    dead port 1/2 on $mux $procmux$1432.
+    dead port 2/2 on $mux $procmux$1432.
+    dead port 1/2 on $mux $procmux$1430.
+    dead port 2/2 on $mux $procmux$1430.
+    dead port 1/2 on $mux $procmux$1427.
+    dead port 2/2 on $mux $procmux$1427.
+    dead port 1/2 on $mux $procmux$1424.
+    dead port 2/2 on $mux $procmux$1424.
+    dead port 1/2 on $mux $procmux$1419.
+    dead port 2/2 on $mux $procmux$1419.
+    dead port 1/2 on $mux $procmux$1417.
+    dead port 2/2 on $mux $procmux$1417.
+    dead port 1/2 on $mux $procmux$1415.
+    dead port 2/2 on $mux $procmux$1415.
+    dead port 1/2 on $mux $procmux$1412.
+    dead port 2/2 on $mux $procmux$1412.
+    dead port 1/2 on $mux $procmux$1409.
+    dead port 2/2 on $mux $procmux$1409.
+    dead port 1/2 on $mux $procmux$1404.
+    dead port 2/2 on $mux $procmux$1404.
+    dead port 1/2 on $mux $procmux$1402.
+    dead port 2/2 on $mux $procmux$1402.
+    dead port 1/2 on $mux $procmux$1400.
+    dead port 2/2 on $mux $procmux$1400.
+    dead port 1/2 on $mux $procmux$1397.
+    dead port 2/2 on $mux $procmux$1397.
+    dead port 1/2 on $mux $procmux$1394.
+    dead port 2/2 on $mux $procmux$1394.
+    dead port 1/2 on $mux $procmux$1389.
+    dead port 2/2 on $mux $procmux$1389.
+    dead port 1/2 on $mux $procmux$1387.
+    dead port 2/2 on $mux $procmux$1387.
+    dead port 1/2 on $mux $procmux$1385.
+    dead port 2/2 on $mux $procmux$1385.
+    dead port 1/2 on $mux $procmux$1382.
+    dead port 2/2 on $mux $procmux$1382.
+    dead port 1/2 on $mux $procmux$1379.
+    dead port 2/2 on $mux $procmux$1379.
+    dead port 1/2 on $mux $procmux$1374.
+    dead port 2/2 on $mux $procmux$1374.
+    dead port 1/2 on $mux $procmux$1372.
+    dead port 2/2 on $mux $procmux$1372.
+    dead port 1/2 on $mux $procmux$1370.
+    dead port 2/2 on $mux $procmux$1370.
+    dead port 1/2 on $mux $procmux$1367.
+    dead port 2/2 on $mux $procmux$1367.
+    dead port 1/2 on $mux $procmux$1364.
+    dead port 2/2 on $mux $procmux$1364.
+    dead port 2/2 on $mux $procmux$1359.
+    dead port 2/2 on $mux $procmux$1357.
+    dead port 2/2 on $mux $procmux$1355.
+    dead port 1/2 on $mux $procmux$1352.
+    dead port 2/2 on $mux $procmux$1344.
+    dead port 2/2 on $mux $procmux$1342.
+    dead port 2/2 on $mux $procmux$1340.
+    dead port 1/2 on $mux $procmux$1337.
+    dead port 2/2 on $mux $procmux$1329.
+    dead port 2/2 on $mux $procmux$1327.
+    dead port 2/2 on $mux $procmux$1325.
+    dead port 1/2 on $mux $procmux$1322.
+    dead port 2/2 on $mux $procmux$1314.
+    dead port 2/2 on $mux $procmux$1312.
+    dead port 2/2 on $mux $procmux$1310.
+    dead port 1/2 on $mux $procmux$1307.
+    dead port 1/2 on $mux $procmux$1299.
+    dead port 2/2 on $mux $procmux$1299.
+    dead port 1/2 on $mux $procmux$1297.
+    dead port 2/2 on $mux $procmux$1297.
+    dead port 1/2 on $mux $procmux$1295.
+    dead port 2/2 on $mux $procmux$1295.
+    dead port 1/2 on $mux $procmux$1292.
+    dead port 2/2 on $mux $procmux$1292.
+    dead port 1/2 on $mux $procmux$1289.
+    dead port 2/2 on $mux $procmux$1289.
+    dead port 1/2 on $mux $procmux$1286.
+    dead port 2/2 on $mux $procmux$1286.
+    dead port 1/2 on $mux $procmux$1281.
+    dead port 2/2 on $mux $procmux$1281.
+    dead port 1/2 on $mux $procmux$1279.
+    dead port 2/2 on $mux $procmux$1279.
+    dead port 1/2 on $mux $procmux$1277.
+    dead port 2/2 on $mux $procmux$1277.
+    dead port 1/2 on $mux $procmux$1274.
+    dead port 2/2 on $mux $procmux$1274.
+    dead port 1/2 on $mux $procmux$1271.
+    dead port 2/2 on $mux $procmux$1271.
+    dead port 1/2 on $mux $procmux$1268.
+    dead port 2/2 on $mux $procmux$1268.
+    dead port 1/2 on $mux $procmux$1263.
+    dead port 2/2 on $mux $procmux$1263.
+    dead port 1/2 on $mux $procmux$1261.
+    dead port 2/2 on $mux $procmux$1261.
+    dead port 1/2 on $mux $procmux$1259.
+    dead port 2/2 on $mux $procmux$1259.
+    dead port 1/2 on $mux $procmux$1256.
+    dead port 2/2 on $mux $procmux$1256.
+    dead port 1/2 on $mux $procmux$1253.
+    dead port 2/2 on $mux $procmux$1253.
+    dead port 1/2 on $mux $procmux$1250.
+    dead port 2/2 on $mux $procmux$1250.
+    dead port 1/2 on $mux $procmux$1245.
+    dead port 2/2 on $mux $procmux$1245.
+    dead port 1/2 on $mux $procmux$1243.
+    dead port 2/2 on $mux $procmux$1243.
+    dead port 1/2 on $mux $procmux$1241.
+    dead port 2/2 on $mux $procmux$1241.
+    dead port 1/2 on $mux $procmux$1238.
+    dead port 2/2 on $mux $procmux$1238.
+    dead port 1/2 on $mux $procmux$1235.
+    dead port 2/2 on $mux $procmux$1235.
+    dead port 1/2 on $mux $procmux$1232.
+    dead port 2/2 on $mux $procmux$1232.
+    dead port 1/2 on $mux $procmux$1227.
+    dead port 2/2 on $mux $procmux$1227.
+    dead port 1/2 on $mux $procmux$1225.
+    dead port 2/2 on $mux $procmux$1225.
+    dead port 1/2 on $mux $procmux$1223.
+    dead port 2/2 on $mux $procmux$1223.
+    dead port 1/2 on $mux $procmux$1220.
+    dead port 2/2 on $mux $procmux$1220.
+    dead port 1/2 on $mux $procmux$1217.
+    dead port 2/2 on $mux $procmux$1217.
+    dead port 1/2 on $mux $procmux$1214.
+    dead port 2/2 on $mux $procmux$1214.
+    dead port 1/2 on $mux $procmux$1209.
+    dead port 2/2 on $mux $procmux$1209.
+    dead port 1/2 on $mux $procmux$1207.
+    dead port 2/2 on $mux $procmux$1207.
+    dead port 1/2 on $mux $procmux$1205.
+    dead port 2/2 on $mux $procmux$1205.
+    dead port 1/2 on $mux $procmux$1202.
+    dead port 2/2 on $mux $procmux$1202.
+    dead port 1/2 on $mux $procmux$1199.
+    dead port 2/2 on $mux $procmux$1199.
+    dead port 1/2 on $mux $procmux$1196.
+    dead port 2/2 on $mux $procmux$1196.
+    dead port 1/2 on $mux $procmux$1191.
+    dead port 2/2 on $mux $procmux$1191.
+    dead port 1/2 on $mux $procmux$1189.
+    dead port 2/2 on $mux $procmux$1189.
+    dead port 1/2 on $mux $procmux$1187.
+    dead port 2/2 on $mux $procmux$1187.
+    dead port 1/2 on $mux $procmux$1184.
+    dead port 2/2 on $mux $procmux$1184.
+    dead port 1/2 on $mux $procmux$1181.
+    dead port 2/2 on $mux $procmux$1181.
+    dead port 1/2 on $mux $procmux$1178.
+    dead port 2/2 on $mux $procmux$1178.
+    dead port 2/2 on $mux $procmux$1173.
+    dead port 2/2 on $mux $procmux$1171.
+    dead port 2/2 on $mux $procmux$1169.
+    dead port 1/2 on $mux $procmux$1166.
+    dead port 1/2 on $mux $procmux$1163.
+    dead port 2/2 on $mux $procmux$1155.
+    dead port 2/2 on $mux $procmux$1153.
+    dead port 2/2 on $mux $procmux$1151.
+    dead port 1/2 on $mux $procmux$1148.
+    dead port 1/2 on $mux $procmux$1145.
+    dead port 2/2 on $mux $procmux$1137.
+    dead port 2/2 on $mux $procmux$1135.
+    dead port 2/2 on $mux $procmux$1133.
+    dead port 1/2 on $mux $procmux$1130.
+    dead port 1/2 on $mux $procmux$1127.
+    dead port 2/2 on $mux $procmux$1119.
+    dead port 2/2 on $mux $procmux$1117.
+    dead port 2/2 on $mux $procmux$1115.
+    dead port 1/2 on $mux $procmux$1112.
+    dead port 1/2 on $mux $procmux$1109.
+    dead port 1/2 on $mux $procmux$1101.
+    dead port 2/2 on $mux $procmux$1101.
+    dead port 1/2 on $mux $procmux$1099.
+    dead port 2/2 on $mux $procmux$1099.
+    dead port 1/2 on $mux $procmux$1097.
+    dead port 2/2 on $mux $procmux$1097.
+    dead port 1/2 on $mux $procmux$1094.
+    dead port 2/2 on $mux $procmux$1094.
+    dead port 1/2 on $mux $procmux$1091.
+    dead port 2/2 on $mux $procmux$1091.
+    dead port 1/2 on $mux $procmux$1088.
+    dead port 2/2 on $mux $procmux$1088.
+    dead port 1/2 on $mux $procmux$1086.
+    dead port 2/2 on $mux $procmux$1086.
+    dead port 1/2 on $mux $procmux$1080.
+    dead port 2/2 on $mux $procmux$1080.
+    dead port 1/2 on $mux $procmux$1078.
+    dead port 2/2 on $mux $procmux$1078.
+    dead port 1/2 on $mux $procmux$1076.
+    dead port 2/2 on $mux $procmux$1076.
+    dead port 1/2 on $mux $procmux$1073.
+    dead port 2/2 on $mux $procmux$1073.
+    dead port 1/2 on $mux $procmux$1070.
+    dead port 2/2 on $mux $procmux$1070.
+    dead port 1/2 on $mux $procmux$1067.
+    dead port 2/2 on $mux $procmux$1067.
+    dead port 1/2 on $mux $procmux$1065.
+    dead port 2/2 on $mux $procmux$1065.
+    dead port 1/2 on $mux $procmux$1059.
+    dead port 2/2 on $mux $procmux$1059.
+    dead port 1/2 on $mux $procmux$1057.
+    dead port 2/2 on $mux $procmux$1057.
+    dead port 1/2 on $mux $procmux$1055.
+    dead port 2/2 on $mux $procmux$1055.
+    dead port 1/2 on $mux $procmux$1052.
+    dead port 2/2 on $mux $procmux$1052.
+    dead port 1/2 on $mux $procmux$1049.
+    dead port 2/2 on $mux $procmux$1049.
+    dead port 1/2 on $mux $procmux$1046.
+    dead port 2/2 on $mux $procmux$1046.
+    dead port 1/2 on $mux $procmux$1044.
+    dead port 2/2 on $mux $procmux$1044.
+    dead port 2/2 on $mux $procmux$1038.
+    dead port 2/2 on $mux $procmux$1036.
+    dead port 2/2 on $mux $procmux$1034.
+    dead port 1/2 on $mux $procmux$1031.
+    dead port 1/2 on $mux $procmux$1028.
+    dead port 2/2 on $mux $procmux$1025.
+    dead port 1/2 on $mux $procmux$1017.
+    dead port 2/2 on $mux $procmux$1017.
+    dead port 1/2 on $mux $procmux$1015.
+    dead port 2/2 on $mux $procmux$1015.
+    dead port 1/2 on $mux $procmux$1013.
+    dead port 2/2 on $mux $procmux$1013.
+    dead port 1/2 on $mux $procmux$1010.
+    dead port 2/2 on $mux $procmux$1010.
+    dead port 1/2 on $mux $procmux$1007.
+    dead port 2/2 on $mux $procmux$1007.
+    dead port 1/2 on $mux $procmux$1004.
+    dead port 2/2 on $mux $procmux$1004.
+    dead port 1/2 on $mux $procmux$1002.
+    dead port 2/2 on $mux $procmux$1002.
+    dead port 2/2 on $mux $procmux$996.
+    dead port 2/2 on $mux $procmux$994.
+    dead port 2/2 on $mux $procmux$992.
+    dead port 1/2 on $mux $procmux$989.
+    dead port 1/2 on $mux $procmux$986.
+    dead port 2/2 on $mux $procmux$983.
+    dead port 1/2 on $mux $procmux$975.
+    dead port 2/2 on $mux $procmux$975.
+    dead port 1/2 on $mux $procmux$973.
+    dead port 2/2 on $mux $procmux$973.
+    dead port 1/2 on $mux $procmux$971.
+    dead port 2/2 on $mux $procmux$971.
+    dead port 1/2 on $mux $procmux$968.
+    dead port 2/2 on $mux $procmux$968.
+    dead port 1/2 on $mux $procmux$965.
+    dead port 2/2 on $mux $procmux$965.
+    dead port 1/2 on $mux $procmux$962.
+    dead port 2/2 on $mux $procmux$962.
+    dead port 1/2 on $mux $procmux$960.
+    dead port 2/2 on $mux $procmux$960.
+    dead port 2/2 on $mux $procmux$954.
+    dead port 2/2 on $mux $procmux$952.
+    dead port 2/2 on $mux $procmux$950.
+    dead port 1/2 on $mux $procmux$947.
+    dead port 1/2 on $mux $procmux$944.
+    dead port 2/2 on $mux $procmux$941.
+    dead port 1/2 on $mux $procmux$933.
+    dead port 2/2 on $mux $procmux$933.
+    dead port 1/2 on $mux $procmux$931.
+    dead port 2/2 on $mux $procmux$931.
+    dead port 1/2 on $mux $procmux$929.
+    dead port 2/2 on $mux $procmux$929.
+    dead port 1/2 on $mux $procmux$926.
+    dead port 2/2 on $mux $procmux$926.
+    dead port 1/2 on $mux $procmux$923.
+    dead port 2/2 on $mux $procmux$923.
+    dead port 1/2 on $mux $procmux$920.
+    dead port 2/2 on $mux $procmux$920.
+    dead port 1/2 on $mux $procmux$918.
+    dead port 2/2 on $mux $procmux$918.
+    dead port 2/2 on $mux $procmux$912.
+    dead port 2/2 on $mux $procmux$910.
+    dead port 2/2 on $mux $procmux$908.
+    dead port 1/2 on $mux $procmux$905.
+    dead port 1/2 on $mux $procmux$902.
+    dead port 2/2 on $mux $procmux$899.
+    dead port 1/2 on $mux $procmux$891.
+    dead port 2/2 on $mux $procmux$891.
+    dead port 1/2 on $mux $procmux$889.
+    dead port 2/2 on $mux $procmux$889.
+    dead port 1/2 on $mux $procmux$886.
+    dead port 2/2 on $mux $procmux$886.
+    dead port 1/2 on $mux $procmux$882.
+    dead port 2/2 on $mux $procmux$882.
+    dead port 1/2 on $mux $procmux$880.
+    dead port 2/2 on $mux $procmux$880.
+    dead port 1/2 on $mux $procmux$877.
+    dead port 2/2 on $mux $procmux$877.
+    dead port 1/2 on $mux $procmux$873.
+    dead port 2/2 on $mux $procmux$873.
+    dead port 1/2 on $mux $procmux$871.
+    dead port 2/2 on $mux $procmux$871.
+    dead port 1/2 on $mux $procmux$868.
+    dead port 2/2 on $mux $procmux$868.
+    dead port 1/2 on $mux $procmux$864.
+    dead port 2/2 on $mux $procmux$864.
+    dead port 1/2 on $mux $procmux$862.
+    dead port 2/2 on $mux $procmux$862.
+    dead port 1/2 on $mux $procmux$859.
+    dead port 2/2 on $mux $procmux$859.
+    dead port 1/2 on $mux $procmux$855.
+    dead port 2/2 on $mux $procmux$855.
+    dead port 1/2 on $mux $procmux$853.
+    dead port 2/2 on $mux $procmux$853.
+    dead port 1/2 on $mux $procmux$850.
+    dead port 2/2 on $mux $procmux$850.
+    dead port 2/2 on $mux $procmux$846.
+    dead port 1/2 on $mux $procmux$844.
+    dead port 2/2 on $mux $procmux$837.
+    dead port 1/2 on $mux $procmux$835.
+    dead port 2/2 on $mux $procmux$828.
+    dead port 1/2 on $mux $procmux$826.
+    dead port 1/2 on $mux $procmux$819.
+    dead port 2/2 on $mux $procmux$819.
+    dead port 1/2 on $mux $procmux$817.
+    dead port 2/2 on $mux $procmux$817.
+    dead port 1/2 on $mux $procmux$814.
+    dead port 2/2 on $mux $procmux$814.
+    dead port 1/2 on $mux $procmux$812.
+    dead port 2/2 on $mux $procmux$812.
+    dead port 1/2 on $mux $procmux$807.
+    dead port 2/2 on $mux $procmux$807.
+    dead port 1/2 on $mux $procmux$805.
+    dead port 2/2 on $mux $procmux$805.
+    dead port 1/2 on $mux $procmux$802.
+    dead port 2/2 on $mux $procmux$802.
+    dead port 1/2 on $mux $procmux$800.
+    dead port 2/2 on $mux $procmux$800.
+    dead port 1/2 on $mux $procmux$795.
+    dead port 2/2 on $mux $procmux$795.
+    dead port 1/2 on $mux $procmux$793.
+    dead port 2/2 on $mux $procmux$793.
+    dead port 1/2 on $mux $procmux$790.
+    dead port 2/2 on $mux $procmux$790.
+    dead port 1/2 on $mux $procmux$788.
+    dead port 2/2 on $mux $procmux$788.
+    dead port 1/2 on $mux $procmux$783.
+    dead port 2/2 on $mux $procmux$783.
+    dead port 1/2 on $mux $procmux$781.
+    dead port 2/2 on $mux $procmux$781.
+    dead port 1/2 on $mux $procmux$778.
+    dead port 2/2 on $mux $procmux$778.
+    dead port 1/2 on $mux $procmux$776.
+    dead port 2/2 on $mux $procmux$776.
+    dead port 1/2 on $mux $procmux$771.
+    dead port 2/2 on $mux $procmux$771.
+    dead port 1/2 on $mux $procmux$769.
+    dead port 2/2 on $mux $procmux$769.
+    dead port 1/2 on $mux $procmux$766.
+    dead port 2/2 on $mux $procmux$766.
+    dead port 1/2 on $mux $procmux$764.
+    dead port 2/2 on $mux $procmux$764.
+    dead port 2/2 on $mux $procmux$759.
+    dead port 1/2 on $mux $procmux$757.
+    dead port 2/2 on $mux $procmux$754.
+    dead port 2/2 on $mux $procmux$747.
+    dead port 1/2 on $mux $procmux$745.
+    dead port 2/2 on $mux $procmux$742.
+    dead port 2/2 on $mux $procmux$735.
+    dead port 1/2 on $mux $procmux$733.
+    dead port 2/2 on $mux $procmux$730.
+    dead port 1/2 on $mux $procmux$723.
+    dead port 2/2 on $mux $procmux$723.
+    dead port 1/2 on $mux $procmux$721.
+    dead port 2/2 on $mux $procmux$721.
+    dead port 1/2 on $mux $procmux$718.
+    dead port 2/2 on $mux $procmux$718.
+    dead port 1/2 on $mux $procmux$716.
+    dead port 2/2 on $mux $procmux$716.
+    dead port 1/2 on $mux $procmux$713.
+    dead port 2/2 on $mux $procmux$713.
+    dead port 1/2 on $mux $procmux$708.
+    dead port 2/2 on $mux $procmux$708.
+    dead port 1/2 on $mux $procmux$706.
+    dead port 2/2 on $mux $procmux$706.
+    dead port 1/2 on $mux $procmux$703.
+    dead port 2/2 on $mux $procmux$703.
+    dead port 1/2 on $mux $procmux$701.
+    dead port 2/2 on $mux $procmux$701.
+    dead port 1/2 on $mux $procmux$698.
+    dead port 2/2 on $mux $procmux$698.
+    dead port 1/2 on $mux $procmux$693.
+    dead port 2/2 on $mux $procmux$693.
+    dead port 1/2 on $mux $procmux$691.
+    dead port 2/2 on $mux $procmux$691.
+    dead port 1/2 on $mux $procmux$688.
+    dead port 2/2 on $mux $procmux$688.
+    dead port 1/2 on $mux $procmux$686.
+    dead port 2/2 on $mux $procmux$686.
+    dead port 1/2 on $mux $procmux$683.
+    dead port 2/2 on $mux $procmux$683.
+    dead port 2/2 on $mux $procmux$678.
+    dead port 1/2 on $mux $procmux$676.
+    dead port 2/2 on $mux $procmux$673.
+    dead port 2/2 on $mux $procmux$671.
+    dead port 1/2 on $mux $procmux$663.
+    dead port 2/2 on $mux $procmux$663.
+    dead port 1/2 on $mux $procmux$661.
+    dead port 2/2 on $mux $procmux$661.
+    dead port 1/2 on $mux $procmux$658.
+    dead port 2/2 on $mux $procmux$658.
+    dead port 1/2 on $mux $procmux$656.
+    dead port 2/2 on $mux $procmux$656.
+    dead port 1/2 on $mux $procmux$653.
+    dead port 2/2 on $mux $procmux$653.
+    dead port 2/2 on $mux $procmux$648.
+    dead port 1/2 on $mux $procmux$646.
+    dead port 2/2 on $mux $procmux$643.
+    dead port 2/2 on $mux $procmux$641.
+    dead port 1/2 on $mux $procmux$633.
+    dead port 2/2 on $mux $procmux$633.
+    dead port 1/2 on $mux $procmux$631.
+    dead port 2/2 on $mux $procmux$631.
+    dead port 1/2 on $mux $procmux$628.
+    dead port 2/2 on $mux $procmux$628.
+    dead port 1/2 on $mux $procmux$626.
+    dead port 2/2 on $mux $procmux$626.
+    dead port 1/2 on $mux $procmux$623.
+    dead port 2/2 on $mux $procmux$623.
+    dead port 2/2 on $mux $procmux$618.
+    dead port 1/2 on $mux $procmux$616.
+    dead port 2/2 on $mux $procmux$613.
+    dead port 2/2 on $mux $procmux$611.
+    dead port 1/2 on $mux $procmux$603.
+    dead port 2/2 on $mux $procmux$603.
+    dead port 1/2 on $mux $procmux$601.
+    dead port 2/2 on $mux $procmux$601.
+    dead port 1/2 on $mux $procmux$598.
+    dead port 2/2 on $mux $procmux$598.
+    dead port 1/2 on $mux $procmux$596.
+    dead port 2/2 on $mux $procmux$596.
+    dead port 1/2 on $mux $procmux$593.
+    dead port 2/2 on $mux $procmux$593.
+    dead port 1/2 on $mux $procmux$590.
+    dead port 2/2 on $mux $procmux$590.
+    dead port 1/2 on $mux $procmux$585.
+    dead port 2/2 on $mux $procmux$585.
+    dead port 1/2 on $mux $procmux$583.
+    dead port 2/2 on $mux $procmux$583.
+    dead port 1/2 on $mux $procmux$580.
+    dead port 2/2 on $mux $procmux$580.
+    dead port 1/2 on $mux $procmux$578.
+    dead port 2/2 on $mux $procmux$578.
+    dead port 1/2 on $mux $procmux$575.
+    dead port 2/2 on $mux $procmux$575.
+    dead port 1/2 on $mux $procmux$572.
+    dead port 2/2 on $mux $procmux$572.
+    dead port 2/2 on $mux $procmux$567.
+    dead port 1/2 on $mux $procmux$565.
+    dead port 2/2 on $mux $procmux$562.
+    dead port 2/2 on $mux $procmux$560.
+    dead port 2/2 on $mux $procmux$557.
+    dead port 2/2 on $mux $procmux$549.
+    dead port 1/2 on $mux $procmux$547.
+    dead port 2/2 on $mux $procmux$544.
+    dead port 2/2 on $mux $procmux$542.
+    dead port 2/2 on $mux $procmux$539.
+    dead port 1/2 on $mux $procmux$531.
+    dead port 2/2 on $mux $procmux$531.
+    dead port 1/2 on $mux $procmux$529.
+    dead port 2/2 on $mux $procmux$529.
+    dead port 1/2 on $mux $procmux$526.
+    dead port 2/2 on $mux $procmux$526.
+    dead port 1/2 on $mux $procmux$524.
+    dead port 2/2 on $mux $procmux$524.
+    dead port 1/2 on $mux $procmux$521.
+    dead port 2/2 on $mux $procmux$521.
+    dead port 1/2 on $mux $procmux$518.
+    dead port 2/2 on $mux $procmux$518.
+    dead port 2/2 on $mux $procmux$513.
+    dead port 1/2 on $mux $procmux$511.
+    dead port 2/2 on $mux $procmux$508.
+    dead port 2/2 on $mux $procmux$506.
+    dead port 2/2 on $mux $procmux$503.
+    dead port 1/2 on $mux $procmux$2141.
+    dead port 2/2 on $mux $procmux$2141.
+    dead port 1/2 on $mux $procmux$2171.
+    dead port 2/2 on $mux $procmux$2171.
+    dead port 1/2 on $mux $procmux$2168.
+    dead port 2/2 on $mux $procmux$2168.
+    dead port 1/2 on $mux $procmux$2138.
+    dead port 2/2 on $mux $procmux$2138.
+Running muxtree optimizer on module \chi_bow_props..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 698 multiplexer ports.
+<suppressed ~380 debug messages>
+
+6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+  Optimizing cells in module \chi_bow_props.
+Performed a total of 0 changes.
+
+6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 343 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 342 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 341 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 340 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+<suppressed ~9 debug messages>
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 83 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Computing hashes of 80 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+<suppressed ~9 debug messages>
+Removed a total of 6 cells.
+
+6.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$2344 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$1882_Y, Q = \chi_req_seen).
+Adding EN signal on $procdff$2389 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:201$159_Y, Q = \bow_rd_ptr).
+Adding EN signal on $procdff$2414 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:135$130_Y, Q = \chi_wr_ptr).
+Adding EN signal on $procdff$2359 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$2123_Y, Q = \tx_need_data).
+Adding EN signal on $procdff$2249 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$2055_Y, Q = \chi_rsp_opcode).
+Adding EN signal on $procdff$2424 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$2187_Y, Q = \chi_count).
+Adding EN signal on $procdff$2374 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$2099_Y, Q = \tx_burst_rem).
+Adding EN signal on $procdff$2369 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $mem2reg_rd$\chi_mem$chi_to_bow_bridge.v:144$103_DATA [23:16], Q = \tx_data_payload).
+Adding EN signal on $procdff$2254 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$2025_Y, Q = \chi_rsp_data).
+Adding EN signal on $procdff$2434 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = { \chi_req_opcode \chi_req_addr \chi_req_data \chi_req_beats \chi_req_txnid }, Q = \chi_mem[1]).
+Adding EN signal on $procdff$2324 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $3$lookahead\rsp_opcode_flat$198[511:0]$274, Q = \rsp_opcode_flat).
+Adding EN signal on $procdff$2339 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $mem2reg_rd$\bow_mem$chi_to_bow_bridge.v:206$105_DATA, Q = \rx_flit).
+Adding EN signal on $procdff$2259 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$1995_Y, Q = \chi_rsp_txnid).
+Adding EN signal on $procdff$2399 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = \bow_rx_data, Q = \bow_mem[0]).
+Adding EN signal on $procdff$2264 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$1960_Y, Q = \err_unknown_txn_rsp_hdr).
+Adding EN signal on $procdff$2329 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $3$lookahead\rsp_rem_flat$196[2047:0]$272, Q = \rsp_rem_flat).
+Handling D = Q on $procdff$2379 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (removing D path).
+Adding EN signal on $procdff$2364 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $mem2reg_rd$\chi_mem$chi_to_bow_bridge.v:144$103_DATA [7:0], Q = \tx_data_txnid).
+Adding EN signal on $procdff$2269 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:389$428_Y, Q = \err_unknown_txn_rsp_data).
+Adding EN signal on $procdff$2354 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$2128_Y, Q = \bow_tx_data).
+Adding EN signal on $procdff$2274 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:367$342_Y, Q = \err_dup_rsp_hdr).
+Adding EN signal on $procdff$2394 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$2157_Y, Q = \bow_count).
+Adding EN signal on $procdff$2429 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = { \chi_req_opcode \chi_req_addr \chi_req_data \chi_req_beats \chi_req_txnid }, Q = \chi_mem[0]).
+Adding EN signal on $procdff$2279 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:386$417_Y, Q = \err_orphan_rsp_data).
+Adding EN signal on $procdff$2384 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:197$158_Y, Q = \bow_wr_ptr).
+Adding EN signal on $procdff$2349 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $procmux$2135_Y, Q = \bow_tx_valid).
+Adding EN signal on $procdff$2284 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:346$240_Y, Q = \err_illegal_req_hdr).
+Adding EN signal on $procdff$2404 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = \bow_rx_data, Q = \bow_mem[1]).
+Adding EN signal on $procdff$2289 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:357$286_Y, Q = \err_illegal_rsp_hdr).
+Adding EN signal on $procdff$2319 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $3$lookahead\rsp_need_data$195[255:0]$271, Q = \rsp_need_data).
+Adding EN signal on $procdff$2419 ($adff) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $add$chi_to_bow_bridge.v:139$131_Y, Q = \chi_rd_ptr).
+Setting constant 0-bit at position 0 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 1-bit at position 1 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 2 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 3 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 4 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 5 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 6 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 7 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 8 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 9 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 10 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 11 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 12 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 13 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 14 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 15 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 16 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 17 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 18 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 19 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 20 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 21 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 22 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 23 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 24 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 25 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 26 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 27 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 28 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 29 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 30 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Setting constant 0-bit at position 31 on $procdff$2379 ($dlatch) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Adding EN signal on $procdff$2440 ($dff) from module chi_bow_props (D = $add$chi_bow_props.sv:139$6_Y, Q = \ph).
+Adding EN signal on $procdff$2439 ($adff) from module chi_bow_props (D = $procmux$2216_Y, Q = \f_in_burst).
+
+6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge..
+Finding unused cells or wires in module \chi_bow_props..
+Removed 62 unused cells and 1514 unused wires.
+<suppressed ~69 debug messages>
+
+6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+<suppressed ~18 debug messages>
+Optimizing module chi_bow_props.
+<suppressed ~1 debug messages>
+
+6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \chi_bow_props..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~176 debug messages>
+
+6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+  Optimizing cells in module \chi_bow_props.
+Performed a total of 0 changes.
+
+6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 343 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 322 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 318 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+<suppressed ~75 debug messages>
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 79 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Removed a total of 25 cells.
+
+6.13. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $auto$ff.cc:337:slice$2514 ($adffe) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $or$chi_to_bow_bridge.v:374$381_Y, Q = \rsp_opcode_flat).
+Adding EN signal on $auto$ff.cc:337:slice$2549 ($adffe) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $3$lookahead\rsp_rem_flat$196[2047:0]$272, Q = \rsp_rem_flat).
+Adding EN signal on $auto$ff.cc:337:slice$2604 ($adffe) from module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge (D = $3$lookahead\rsp_need_data$195[255:0]$271, Q = \rsp_need_data).
+
+6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge..
+Finding unused cells or wires in module \chi_bow_props..
+Removed 6 unused cells and 31 unused wires.
+<suppressed ~7 debug messages>
+
+6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+<suppressed ~4 debug messages>
+Optimizing module chi_bow_props.
+
+6.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+6.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \chi_bow_props..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~169 debug messages>
+
+6.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+  Optimizing cells in module \chi_bow_props.
+Performed a total of 0 changes.
+
+6.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 332 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 319 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+<suppressed ~39 debug messages>
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 79 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Removed a total of 13 cells.
+
+6.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+6.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge..
+Finding unused cells or wires in module \chi_bow_props..
+Removed 0 unused cells and 13 unused wires.
+<suppressed ~1 debug messages>
+
+6.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Optimizing module chi_bow_props.
+
+6.23. Rerunning OPT passes. (Maybe there is more to do..)
+
+6.24. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \chi_bow_props..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~169 debug messages>
+
+6.25. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+  Optimizing cells in module \chi_bow_props.
+Performed a total of 0 changes.
+
+6.26. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Computing hashes of 319 cells of `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding duplicate cells in `$paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge'.
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 79 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Removed a total of 0 cells.
+
+6.27. Executing OPT_DFF pass (perform DFF optimizations).
+
+6.28. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge..
+Finding unused cells or wires in module \chi_bow_props..
+
+6.29. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+Optimizing module chi_bow_props.
+
+6.30. Finished fast OPT passes. (There is nothing left to do.)
+
+7. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+8. Executing FLATTEN pass (flatten design).
+Deleting now unused module $paramod$e174b6a86093c5aa458dae76e0631cf865a4cbab\chi_to_bow_bridge.
+<suppressed ~1 debug messages>
+
+9. Executing OPT pass (performing simple optimizations).
+
+9.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module chi_bow_props.
+
+9.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 398 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Computing hashes of 392 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Computing hashes of 391 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+<suppressed ~21 debug messages>
+Removed a total of 7 cells.
+
+9.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \chi_bow_props..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~169 debug messages>
+
+9.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \chi_bow_props.
+Performed a total of 0 changes.
+
+9.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 391 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Removed a total of 0 cells.
+
+9.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+9.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \chi_bow_props..
+Removed 66 unused cells and 82 unused wires.
+<suppressed ~86 debug messages>
+
+9.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module chi_bow_props.
+
+9.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+9.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \chi_bow_props..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~125 debug messages>
+
+9.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \chi_bow_props.
+Performed a total of 0 changes.
+
+9.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\chi_bow_props'.
+Computing hashes of 325 cells of `\chi_bow_props'.
+Finding duplicate cells in `\chi_bow_props'.
+Removed a total of 0 cells.
+
+9.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+9.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \chi_bow_props..
+
+9.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module chi_bow_props.
+
+9.16. Finished fast OPT passes. (There is nothing left to do.)
+
+10. Executing HIERARCHY pass (managing design hierarchy).
+Attribute `top' found on module `chi_bow_props'. Setting top module to chi_bow_props.
+
+10.1. Analyzing design hierarchy..
+Top module:  \chi_bow_props
+
+10.2. Analyzing design hierarchy..
+Top module:  \chi_bow_props
+Removed 0 unused modules.
+Module chi_bow_props directly or indirectly contains formal properties -> setting "keep" attribute.
+
+11. Executing jny backend.
+
+12. Executing RTLIL backend.
+Output filename: ../model/design.il
+
+Warnings: 3 unique messages, 3 total
+End of script. Logfile hash: 7a925747af, time: 6.61s, user: 6.52s, system: 0.10s, MEM: 135.27 MB peak
+Yosys 0.64+40 (git sha1 90b906c4f, clang++ 18.1.8 -fPIC -O3)
+Time spent: 65% 6x opt_dff (4 sec), 9% 6x opt_clean (0 sec), ...

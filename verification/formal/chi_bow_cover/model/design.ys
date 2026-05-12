@@ -1,0 +1,13 @@
+# running in chi_bow_cover/src/
+read -sv chi_bow_props.sv chi_to_bow_bridge.v
+hierarchy -top chi_bow_props
+proc
+opt
+memory_map
+flatten
+opt
+
+hierarchy -smtcheck
+rename -witness
+write_jny -no-connections ../model/design.json
+write_rtlil ../model/design.il
