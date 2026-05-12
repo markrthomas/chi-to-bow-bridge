@@ -55,11 +55,18 @@ regress: lint test integration-test
 # coverage: Verilator structural coverage via vlate_bench (OSS).
 coverage: oss-regress-coverage
 
-# formal: no SymbiYosys .sby property files yet (OSS path).
-#         See docs/PLAN.md (Medium-term directions).
+# formal: SymbiYosys BMC + cover proofs in verification/formal/.
+#         Checks no-double-alloc on pending txn table, FIFO count bounds,
+#         BoW flit ordering (no REQ_HDR during write-data burst), and
+#         cover goals for end-to-end WRITE_ACK and READ_RESP transactions.
 formal:
-	@echo "[FORMAL] No SymbiYosys .sby property files in OSS path yet."
-	@echo "         See docs/PLAN.md and DV_STANDARDS.md in the workspace root."
+	@if command -v sby >/dev/null 2>&1; then \
+		$(MAKE) -C $(CURDIR)/verification/formal; \
+	else \
+		echo "[FORMAL] sby not found; install SymbiYosys (OSS CAD Suite) to run formal"; \
+		echo "         Properties are in verification/formal/chi_bow_props.sv"; \
+		exit 0; \
+	fi
 
 # ci: comprehensive local run — regress + coverage.
 ci: regress coverage

@@ -37,6 +37,8 @@ module chi_to_bow_integration_top #(
     output wire [7:0]              dbg_bow_rx_fifo_used,
     output wire [255:0]            dbg_pending_txn,
     output wire [255:0]            dbg_rsp_need_data,
+    output wire [7:0]              dbg_rsp_rem_byte0,
+    output wire [1:0]              dbg_rsp_opcode0,
     // TB injection on the bridge BoW RX path (stalls partner BFM s_rx_* when asserted).
     // When bow_inj_en=0, companion bow_inj_* pins are ignored; tie bow_inj_valid=0 in normal sims.
     input  wire                   bow_inj_en,
@@ -98,8 +100,10 @@ module chi_to_bow_integration_top #(
         .err_pulse            (err_pulse),
         .dbg_chi_req_fifo_used (dbg_chi_req_fifo_used),
         .dbg_bow_rx_fifo_used  (dbg_bow_rx_fifo_used),
-        .dbg_pending_txn   (dbg_pending_txn),
-        .dbg_rsp_need_data  (dbg_rsp_need_data)
+        .dbg_pending_txn      (dbg_pending_txn),
+        .dbg_rsp_need_data    (dbg_rsp_need_data),
+        .dbg_rsp_rem_byte0    (dbg_rsp_rem_byte0),
+        .dbg_rsp_opcode0      (dbg_rsp_opcode0)
     );
 
     bow_link_partner_bfm u_link (

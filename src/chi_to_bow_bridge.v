@@ -50,7 +50,9 @@ module chi_to_bow_bridge #(
     output wire [7:0]               dbg_chi_req_fifo_used,
     output wire [7:0]               dbg_bow_rx_fifo_used,
     output wire [255:0]             dbg_pending_txn,
-    output wire [255:0]             dbg_rsp_need_data
+    output wire [255:0]             dbg_rsp_need_data,
+    output wire [7:0]               dbg_rsp_rem_byte0,
+    output wire [1:0]               dbg_rsp_opcode0
 );
 
     localparam CHI_OP_READ       = 2'b00;
@@ -178,7 +180,6 @@ module chi_to_bow_bridge #(
             bow_wr_ptr <= {PTR_W{1'b0}};
             bow_rd_ptr <= {PTR_W{1'b0}};
             bow_count  <= {CNT_W{1'b0}};
-            bow_pop <= 1'b0;
             for (i = 0; i < FIFO_DEPTH; i = i + 1) begin
                 bow_mem[i] <= 128'd0;
             end
@@ -284,7 +285,9 @@ module chi_to_bow_bridge #(
 
     reg chi_req_seen;
 
-    assign dbg_rsp_need_data = rsp_need_data;
+    assign dbg_rsp_need_data  = rsp_need_data;
+    assign dbg_rsp_rem_byte0  = rsp_rem_flat[7:0];
+    assign dbg_rsp_opcode0    = rsp_opcode_flat[1:0];
 
     wire [3:0] rx_pkt_type = rx_flit[127:124];
     wire [1:0] rx_hdr_opcode = rx_flit[123:122];
@@ -303,6 +306,7 @@ module chi_to_bow_bridge #(
         if (!rst_n) begin
             rx_flit_valid <= 1'b0;
             rx_flit <= 128'd0;
+            bow_pop <= 1'b0;
 
             pending_txn <= {256{1'b0}};
             pending_txn_hold <= {256{1'b0}};
