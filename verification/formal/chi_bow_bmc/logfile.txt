@@ -1,2 +1,0 @@
-SBY 19:01:55 [chi_bow_bmc] Removing directory '/home/markt/proj/chi-to-bow-bridge/verification/formal/chi_bow_bmc'.
-SBY 19:01:55 [chi_bow_bmc] ERROR: sby file syntax error: '[script]' section does not accept any arguments. got bmc

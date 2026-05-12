@@ -1,8 +1,0 @@
-Elapsed clock time [H:MM:SS (secs)]: 0:06:16 (376)
-Elapsed process time [H:MM:SS (secs)]: 0:06:21 (381)
-engine_0 (smtbmc) returned FAIL
-cover trace: engine_0/trace0.vcd
-cover trace: engine_0/trace0.yw
-  reached cover statement chi_bow_props._witness_.check_cover_chi_bow_props_sv_257_78 at chi_bow_props.sv:257.13-257.72 step 8
-unreached cover statements:
-  chi_bow_props._witness_.check_cover_chi_bow_props_sv_259_81 at chi_bow_props.sv:259.13-259.72

@@ -1,0 +1,6 @@
+# SymbiYosys build output directories (named after the .sby file, no extension)
+chi_bow/
+chi_bow_bmc/
+chi_bow_cover/
+chi_bow_cover_read/
+chi_bow_cover_write/

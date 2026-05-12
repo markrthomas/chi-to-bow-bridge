@@ -1,6 +1,0 @@
-Elapsed clock time [H:MM:SS (secs)]: 0:00:22 (22)
-Elapsed process time [H:MM:SS (secs)]: 0:00:23 (23)
-engine_0 (smtbmc) returned pass
-cover trace: engine_0/trace0.vcd
-cover trace: engine_0/trace0.yw
-  reached cover statement chi_bow_props._witness_.check_cover_chi_bow_props_sv_297_84 at chi_bow_props.sv:297.13-297.72 step 8
