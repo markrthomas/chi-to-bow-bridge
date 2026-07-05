@@ -20,6 +20,11 @@
 
 namespace {
 
+template <std::size_t N>
+inline bool bit_is_set(const VlWide<N>& signal, int bit_idx) {
+  return (signal[bit_idx / 32] & (1U << (bit_idx % 32))) != 0;
+}
+
 inline void clk_set(Vtb_top& t, unsigned level) {
   t.clk = level ? 1U : 0U;
   t.eval();
@@ -239,6 +244,515 @@ bool inject_unknown_txn_rsp_hdr(Vtb_top& t, chi_tb::scoreboard& sb, std::ostream
   }
   return true;
 }
+
+bool inject_duplicate_rsp_hdr(Vtb_top& t, chi_tb::scoreboard& sb, std::ostream& lg) {
+  apply_idle_chi_inputs(t, /*rst_low=*/false);
+  auto const base_dup = static_cast<std::uint32_t>(t.err_dup_rsp_hdr);
+  std::uint8_t const txnid = 0x55;
+
+  t.chi_rsp_ready = 1;
+  t.bow_inj_en    = 1;
+
+  // Drive CHI read request manually (no scoreboard expectation added, since it gets aborted)
+  t.chi_req_opcode = static_cast<unsigned>(chi_tb::chi_op_ty::RD) & 3U;
+  t.chi_req_addr   = 0x5000;
+  t.chi_req_data   = 0;
+  t.chi_req_beats  = 1;
+  t.chi_req_txnid  = txnid;
+  t.chi_req_valid  = 1;
+
+  bool accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.chi_req_valid && t.chi_req_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  clk_set(t, 0);
+  t.chi_req_valid = 0;
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+
+  // Wait for the transaction to be pending
+  bool is_pending = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    if (bit_is_set(t.dbg_pending_txn, txnid)) {
+      is_pending = true;
+      break;
+    }
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    clk_set(t, 0);
+  }
+  if (!is_pending) {
+    lg << "[CHK] ERROR: txn 0x55 never became pending\n";
+    return false;
+  }
+
+  // Inject first RSP_HDR: PKT_TYPE_RSP_HDR (3), CHI_OP_READ_RESP (2), has_data = 1
+  std::uint64_t const inj_hdr_hi = (3ULL << 60) | (2ULL << 58) | (static_cast<std::uint64_t>(txnid) << 50) | (1ULL << 49);
+  
+  t.bow_inj_data_hi = inj_hdr_hi;
+  t.bow_inj_data_lo = 0;
+  t.bow_inj_valid   = 1;
+
+  accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.bow_inj_valid && t.bow_inj_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  // Clear valid to make it discrete
+  t.bow_inj_valid = 0;
+  clk_set(t, 0);
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+
+  // Inject duplicate RSP_HDR
+  t.bow_inj_valid = 1;
+  accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.bow_inj_valid && t.bow_inj_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  t.bow_inj_valid = 0;
+  clk_set(t, 0);
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+  t.bow_inj_en = 0;
+
+  // Wait for duplicate counter to increment
+  bool bumped = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    if (static_cast<std::uint32_t>(t.err_dup_rsp_hdr) == base_dup + 1U) {
+      bumped = true;
+      break;
+    }
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    clk_set(t, 0);
+  }
+
+  if (!bumped) {
+    lg << "[CHK] ERROR: err_dup_rsp_hdr failed to bump after duplicate inject\n";
+    return false;
+  }
+
+  lg << "[CHK] duplicate read-response header via bow_inj err_dup_rsp_hdr="
+     << (base_dup + 1U) << '\n';
+
+  return true;
+}
+
+bool inject_orphan_rsp_data(Vtb_top& t, chi_tb::scoreboard& sb, std::ostream& lg) {
+  apply_idle_chi_inputs(t, /*rst_low=*/false);
+  auto const base_orphan = static_cast<std::uint32_t>(t.err_orphan_rsp_data);
+  std::uint8_t const txnid = 0x33;
+
+  t.chi_rsp_ready = 1;
+  t.bow_inj_en    = 1;
+  // RSP_DATA packet for txnid 0x33: PKT_TYPE_RSP_DATA (4) at [127:124], txnid at [123:116] (hi [59:52])
+  t.bow_inj_data_hi = (4ULL << 60) | (static_cast<std::uint64_t>(txnid) << 52);
+  t.bow_inj_data_lo = UINT64_C(0x1234);
+  t.bow_inj_valid   = 1;
+
+  bool accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.bow_inj_valid && t.bow_inj_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  t.bow_inj_valid = 0;
+  clk_set(t, 0);
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+  t.bow_inj_en = 0;
+
+  bool bumped = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    if (static_cast<std::uint32_t>(t.err_orphan_rsp_data) == base_orphan + 1U) {
+      bumped = true;
+      break;
+    }
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    clk_set(t, 0);
+  }
+
+  if (!bumped) {
+    lg << "[CHK] ERROR: err_orphan_rsp_data failed to bump after orphan inject\n";
+    return false;
+  }
+
+  lg << "[CHK] orphan response data via bow_inj err_orphan_rsp_data="
+     << (base_orphan + 1U) << '\n';
+
+  return true;
+}
+
+bool inject_illegal_rsp_hdr(Vtb_top& t, chi_tb::scoreboard& sb, std::ostream& lg) {
+  apply_idle_chi_inputs(t, /*rst_low=*/false);
+  auto const base_illegal = static_cast<std::uint32_t>(t.err_illegal_rsp_hdr);
+  std::uint8_t const w_txn = 0x61;
+  std::uint8_t const r_txn = 0x62;
+
+  t.chi_rsp_ready = 0;
+  t.bow_inj_en    = 1;
+
+  // 1) WRITE_ACK with has_data=1
+  // Add expectation to scoreboard since we will complete this cleanly later
+  chi_tb::chi_exp_item ex_wr{};
+  ex_wr.op = chi_tb::chi_op_ty::WR;
+  ex_wr.txnid = w_txn;
+  sb.write_exp(ex_wr);
+
+  // Drive CHI write request manually
+  t.chi_req_opcode = static_cast<unsigned>(chi_tb::chi_op_ty::WR) & 3U;
+  t.chi_req_addr   = 0x6100;
+  t.chi_req_data   = 0xFEEDFACE;
+  t.chi_req_beats  = 1;
+  t.chi_req_txnid  = w_txn;
+  t.chi_req_valid  = 1;
+
+  bool accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.chi_req_valid && t.chi_req_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  clk_set(t, 0);
+  t.chi_req_valid = 0;
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+
+  // Wait for txn to be pending
+  bool is_pending = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    if (bit_is_set(t.dbg_pending_txn, w_txn)) {
+      is_pending = true;
+      break;
+    }
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    clk_set(t, 0);
+  }
+  if (!is_pending) {
+    lg << "[CHK] ERROR: WRITE txn 0x61 never pending\n";
+    return false;
+  }
+
+  // Inject illegal WRITE_ACK (has_data=1)
+  t.bow_inj_data_hi = (3ULL << 60) | (3ULL << 58) | (static_cast<std::uint64_t>(w_txn) << 50) | (1ULL << 49);
+  t.bow_inj_data_lo = 0;
+  t.bow_inj_valid   = 1;
+
+  accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.bow_inj_valid && t.bow_inj_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  t.bow_inj_valid = 0;
+  clk_set(t, 0);
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+
+  // Verify err_illegal_rsp_hdr bumped
+  bool bumped = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    if (static_cast<std::uint32_t>(t.err_illegal_rsp_hdr) == base_illegal + 1U) {
+      bumped = true;
+      break;
+    }
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    clk_set(t, 0);
+  }
+  if (!bumped) {
+    lg << "[CHK] ERROR: err_illegal_rsp_hdr failed to bump for illegal WRITE_ACK\n";
+    return false;
+  }
+
+  // Quarantine checks
+  if (!bit_is_set(t.dbg_pending_txn, w_txn)) {
+    lg << "[CHK] ERROR: txn 0x61 cleared after illegal WRITE_ACK\n";
+    return false;
+  }
+  if (bit_is_set(t.dbg_rsp_need_data, w_txn)) {
+    lg << "[CHK] ERROR: rsp_need_data set for txn 0x61 after illegal WRITE_ACK\n";
+    return false;
+  }
+  if (t.chi_rsp_valid != 0) {
+    lg << "[CHK] ERROR: chi_rsp_valid asserted after illegal WRITE_ACK\n";
+    return false;
+  }
+
+  // Complete with valid WRITE_ACK
+  t.chi_rsp_ready = 1;
+  t.bow_inj_data_hi = (3ULL << 60) | (3ULL << 58) | (static_cast<std::uint64_t>(w_txn) << 50) | (0ULL << 49);
+  t.bow_inj_data_lo = 0;
+  t.bow_inj_valid   = 1;
+
+  accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.bow_inj_valid && t.bow_inj_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  t.bow_inj_valid = 0;
+  clk_set(t, 0);
+  t.bow_inj_en    = 0;
+
+  // Let valid WRITE_ACK retire (monitor/scoreboard checks it)
+  bool response_seen = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.chi_rsp_valid && (t.chi_rsp_txnid == w_txn)) {
+      response_seen = true;
+    }
+    clk_set(t, 0);
+  }
+  if (!response_seen) {
+    lg << "[CHK] ERROR: valid WRITE_ACK failed to complete txn 0x61\n";
+    return false;
+  }
+
+  // 2) READ_RESP with has_data=0
+  t.chi_rsp_ready = 0;
+  t.bow_inj_en    = 1;
+
+  // Add expectation to scoreboard since we will complete this cleanly later
+  chi_tb::chi_exp_item ex_rd{};
+  ex_rd.op = chi_tb::chi_op_ty::RD;
+  ex_rd.txnid = r_txn;
+  sb.write_exp(ex_rd);
+
+  // Drive CHI read request manually
+  t.chi_req_opcode = static_cast<unsigned>(chi_tb::chi_op_ty::RD) & 3U;
+  t.chi_req_addr   = 0x6200;
+  t.chi_req_data   = 0;
+  t.chi_req_beats  = 1;
+  t.chi_req_txnid  = r_txn;
+  t.chi_req_valid  = 1;
+
+  accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.chi_req_valid && t.chi_req_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  clk_set(t, 0);
+  t.chi_req_valid = 0;
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+
+  // Wait for txn to be pending
+  is_pending = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    if (bit_is_set(t.dbg_pending_txn, r_txn)) {
+      is_pending = true;
+      break;
+    }
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    clk_set(t, 0);
+  }
+  if (!is_pending) {
+    lg << "[CHK] ERROR: READ txn 0x62 never pending\n";
+    return false;
+  }
+
+  // Inject illegal READ_RESP (has_data=0)
+  t.bow_inj_data_hi = (3ULL << 60) | (2ULL << 58) | (static_cast<std::uint64_t>(r_txn) << 50) | (0ULL << 49);
+  t.bow_inj_data_lo = 0;
+  t.bow_inj_valid   = 1;
+
+  accepted = false;
+  while (!accepted) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.bow_inj_valid && t.bow_inj_ready) {
+      accepted = true;
+    }
+    if (!accepted) {
+      clk_set(t, 0);
+    }
+  }
+
+  t.bow_inj_valid = 0;
+  clk_set(t, 0);
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+
+  // Verify err_illegal_rsp_hdr bumped to base_illegal + 2
+  bumped = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    if (static_cast<std::uint32_t>(t.err_illegal_rsp_hdr) == base_illegal + 2U) {
+      bumped = true;
+      break;
+    }
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    clk_set(t, 0);
+  }
+  if (!bumped) {
+    lg << "[CHK] ERROR: err_illegal_rsp_hdr failed to bump to 2 for illegal READ_RESP\n";
+    return false;
+  }
+
+  // Quarantine checks
+  if (!bit_is_set(t.dbg_pending_txn, r_txn)) {
+    lg << "[CHK] ERROR: txn 0x62 cleared after illegal READ_RESP\n";
+    return false;
+  }
+  if (bit_is_set(t.dbg_rsp_need_data, r_txn)) {
+    lg << "[CHK] ERROR: rsp_need_data set for txn 0x62 after illegal READ_RESP\n";
+    return false;
+  }
+  if (t.chi_rsp_valid != 0) {
+    lg << "[CHK] ERROR: chi_rsp_valid asserted after illegal READ_RESP\n";
+    return false;
+  }
+
+  // Complete via BFM by disabling bow_inj_en and setting chi_rsp_ready = 1
+  t.chi_rsp_ready = 1;
+  clk_set(t, 1);
+  if (!sampling_posedge_rsp(t, sb, lg)) {
+    return false;
+  }
+  clk_set(t, 0);
+  t.bow_inj_en = 0;
+
+  // Let valid response from BFM retire and be checked by scoreboard
+  response_seen = false;
+  for (int cy = 0; cy < 64; ++cy) {
+    clk_set(t, 1);
+    if (!sampling_posedge_rsp(t, sb, lg)) {
+      return false;
+    }
+    if (t.chi_rsp_valid && (t.chi_rsp_txnid == r_txn)) {
+      response_seen = true;
+    }
+    clk_set(t, 0);
+  }
+  if (!response_seen) {
+    lg << "[CHK] ERROR: BFM failed to complete txn 0x62\n";
+    return false;
+  }
+
+  lg << "[CHK] illegal BoW response headers via bow_inj err_illegal_rsp_hdr="
+     << (base_illegal + 2U) << '\n';
+
+  return true;
+}
+
 // integration/test_integration.py + uvm chi_illegal_req_test / drive_illegal_req_phase
 bool drive_illegal_req_phase(Vtb_top& t, std::uint8_t opc2, std::uint8_t txnid,
     std::uint32_t ctr_exp, chi_tb::scoreboard& sb, std::ostream& lg) {
@@ -394,6 +908,21 @@ int main(int argc, char** argv) {
   // integration/test_integration :: test_integration_unknown_txnid_bow_rsp_hdr_via_inj
   // (runs before illegal-REQ bumps so isolation checks stay valid).
   if (!inject_unknown_txn_rsp_hdr(*top, sb, lg)) {
+    rc = 1;
+    goto done;
+  }
+
+  if (!inject_duplicate_rsp_hdr(*top, sb, lg)) {
+    rc = 1;
+    goto done;
+  }
+
+  if (!inject_orphan_rsp_data(*top, sb, lg)) {
+    rc = 1;
+    goto done;
+  }
+
+  if (!inject_illegal_rsp_hdr(*top, sb, lg)) {
     rc = 1;
     goto done;
   }

@@ -12,6 +12,7 @@ from verification.golden_payloads import (
     CHI_OP_READ_RESP,
     CHI_OP_WRITE_ACK,
     PKT_TYPE_RSP_HDR,
+    PKT_TYPE_RSP_DATA,
     bfm_read_data_u64 as bfm_read_data64,
 )
 
@@ -126,6 +127,22 @@ async def send_bow_inj_flit(dut, flit128: int, max_cycles=64):
             return
     dut.bow_inj_valid.value = 0
     dut.bow_inj_en.value = 0
+    raise AssertionError("Timed out waiting for BoW RX inject handshake")
+
+
+async def send_bow_inj_flit_no_deassert(dut, flit128: int, max_cycles=64):
+    hi = (flit128 >> 64) & ((1 << 64) - 1)
+    lo = flit128 & ((1 << 64) - 1)
+    dut.bow_inj_en.value = 1
+    dut.bow_inj_data_hi.value = hi
+    dut.bow_inj_data_lo.value = lo
+    dut.bow_inj_valid.value = 1
+    for _ in range(max_cycles):
+        await RisingEdge(dut.clk)
+        if int(dut.bow_inj_valid.value) == 1 and int(dut.bow_inj_ready.value) == 1:
+            dut.bow_inj_valid.value = 0
+            return
+    dut.bow_inj_valid.value = 0
     raise AssertionError("Timed out waiting for BoW RX inject handshake")
 
 
@@ -264,3 +281,183 @@ async def test_integration_unknown_txnid_bow_rsp_hdr_via_inj(dut):
     await send_bow_inj_flit(dut, bad_hdr)
     await wait_until_counter_eq(dut, "err_unknown_txn_rsp_hdr", base_unknown_hdr + 1)
     assert_fault_isolated_unknown_rsp_hdr_only(dut, base_unknown_hdr + 1)
+
+
+def assert_fault_isolated_dup_rsp_hdr_only(dut, exp_dup, msg=""):
+    expect = [
+        ("err_unknown_txn_rsp_hdr", 0),
+        ("err_unknown_txn_rsp_data", 0),
+        ("err_dup_rsp_hdr", exp_dup),
+        ("err_orphan_rsp_data", 0),
+        ("err_illegal_req_hdr", 0),
+        ("err_illegal_rsp_hdr", 0),
+    ]
+    for n, v in expect:
+        ov = int(getattr(dut, n).value)
+        assert ov == v, f"{n}={ov} wanted {v} {msg}"
+
+
+@cocotb.test()
+async def test_integration_duplicate_rsp_hdr_via_inj(dut):
+    """Duplicate read-response headers for the same txnid increment err_dup_rsp_hdr."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+    dut.chi_rsp_ready.value = 1
+
+    def rd32(sig):
+        return int(getattr(dut, sig).value)
+
+    base_dup = rd32("err_dup_rsp_hdr")
+    txnid = 0x55
+
+    # 1) Issue CHI read request for txnid 0x55 with injection active to stall BFM
+    dut.bow_inj_en.value = 1
+    await drive_req_accepted(dut, CHI_OP_READ, 0x5000, 0, txnid, beats=1)
+
+    # Wait until pending
+    for _ in range(64):
+        await RisingEdge(dut.clk)
+        if rd32("dbg_pending_txn") & (1 << txnid):
+            break
+    else:
+        raise AssertionError("txn never became pending")
+
+    hdr = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_READ_RESP << 122)
+        | (txnid << 114)
+        | (1 << 113)
+    )
+
+    # First injection
+    await send_bow_inj_flit_no_deassert(dut, hdr)
+    # Second (duplicate) injection
+    await send_bow_inj_flit_no_deassert(dut, hdr)
+
+    # Settle down and turn off injection
+    await RisingEdge(dut.clk)
+    dut.bow_inj_en.value = 0
+
+    await wait_until_counter_eq(dut, "err_dup_rsp_hdr", base_dup + 1)
+    assert_fault_isolated_dup_rsp_hdr_only(dut, base_dup + 1)
+
+
+@cocotb.test()
+async def test_integration_orphan_rsp_data_via_inj(dut):
+    """Orphan response data flits on bow_inj_* increment err_orphan_rsp_data."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+    dut.chi_rsp_ready.value = 1
+
+    def rd32(sig):
+        return int(getattr(dut, sig).value)
+
+    base_orphan = rd32("err_orphan_rsp_data")
+    txnid = 0x33
+
+    orphan_flit = (PKT_TYPE_RSP_DATA << 124) | (txnid << 116) | 0x1234
+    await send_bow_inj_flit(dut, orphan_flit)
+
+    await wait_until_counter_eq(dut, "err_orphan_rsp_data", base_orphan + 1)
+    
+    expect = [
+        ("err_unknown_txn_rsp_hdr", 0),
+        ("err_unknown_txn_rsp_data", 0),
+        ("err_dup_rsp_hdr", 0),
+        ("err_orphan_rsp_data", base_orphan + 1),
+        ("err_illegal_req_hdr", 0),
+        ("err_illegal_rsp_hdr", 0),
+    ]
+    for n, v in expect:
+        ov = int(getattr(dut, n).value)
+        assert ov == v, f"{n}={ov} wanted {v}"
+
+
+@cocotb.test()
+async def test_integration_illegal_rsp_hdr_via_inj(dut):
+    """Malformed BoW RSP_HDR flits are dropped, counted, but don't complete transactions."""
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset_dut(dut)
+
+    def rd32(sig):
+        return int(getattr(dut, sig).value)
+
+    def bit_is_set(sig, idx):
+        return (int(sig.value) & (1 << idx)) != 0
+
+    base_illegal = rd32("err_illegal_rsp_hdr")
+    dut.chi_rsp_ready.value = 0
+
+    # WRITE_ACK with has_data=1
+    w_txn = 0x61
+    dut.bow_inj_en.value = 1
+    await drive_req_accepted(dut, CHI_OP_WRITE, 0x6100, 0xFEEDFACE, w_txn, beats=1)
+
+    for _ in range(64):
+        await RisingEdge(dut.clk)
+        if rd32("dbg_pending_txn") & (1 << w_txn):
+            break
+    else:
+        raise AssertionError("txn never became pending")
+
+    illegal_wack = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_WRITE_ACK << 122)
+        | (w_txn << 114)
+        | (1 << 113)
+    )
+    await send_bow_inj_flit_no_deassert(dut, illegal_wack)
+    await wait_until_counter_eq(dut, "err_illegal_rsp_hdr", base_illegal + 1)
+    
+    assert bit_is_set(dut.dbg_pending_txn, w_txn)
+    assert not bit_is_set(dut.dbg_rsp_need_data, w_txn)
+    assert int(dut.chi_rsp_valid.value) == 0
+
+    # Complete with valid WRITE_ACK (has_data=0)
+    dut.chi_rsp_ready.value = 1
+    valid_wack = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_WRITE_ACK << 122)
+        | (w_txn << 114)
+        | (0 << 113)
+    )
+    await send_bow_inj_flit_no_deassert(dut, valid_wack)
+    
+    await RisingEdge(dut.clk)
+    dut.bow_inj_en.value = 0
+    
+    op, tid, dat = await recv_chi(dut)
+    assert (op, tid, dat) == (WRITE_ACK, w_txn, 0)
+
+    # READ_RESP with has_data=0
+    dut.chi_rsp_ready.value = 0
+    r_txn = 0x62
+    dut.bow_inj_en.value = 1
+    await drive_req_accepted(dut, CHI_OP_READ, 0x6200, 0, r_txn, beats=1)
+
+    for _ in range(64):
+        await RisingEdge(dut.clk)
+        if rd32("dbg_pending_txn") & (1 << r_txn):
+            break
+    else:
+        raise AssertionError("txn never became pending")
+
+    illegal_read_hdr = (
+        (PKT_TYPE_RSP_HDR << 124)
+        | (CHI_OP_READ_RESP << 122)
+        | (r_txn << 114)
+        | (0 << 113)
+    )
+    await send_bow_inj_flit_no_deassert(dut, illegal_read_hdr)
+    await wait_until_counter_eq(dut, "err_illegal_rsp_hdr", base_illegal + 2)
+    assert bit_is_set(dut.dbg_pending_txn, r_txn)
+    assert not bit_is_set(dut.dbg_rsp_need_data, r_txn)
+    assert int(dut.chi_rsp_valid.value) == 0
+
+    # Complete via BFM by disabling bow_inj_en and setting chi_rsp_ready = 1
+    dut.chi_rsp_ready.value = 1
+    await RisingEdge(dut.clk)
+    dut.bow_inj_en.value = 0
+
+    op, tid, dat = await recv_chi(dut)
+    assert (op, tid, dat) == (READ_RESP, r_txn, bfm_read_data64(r_txn))
