@@ -51,6 +51,8 @@ module tb_top;
   assign chi_if.err_dup_rsp_hdr          = err_dup_rsp_hdr;
   assign chi_if.err_orphan_rsp_data      = err_orphan_rsp_data;
   assign chi_if.err_illegal_rsp_hdr      = err_illegal_rsp_hdr;
+  assign chi_if.dbg_pending_txn          = dbg_pending_txn;
+  assign chi_if.dbg_rsp_need_data        = dbg_rsp_need_data;
 
   assign bow_inj_en       = chi_if.bow_inj_en;
   assign bow_inj_valid    = chi_if.bow_inj_valid;

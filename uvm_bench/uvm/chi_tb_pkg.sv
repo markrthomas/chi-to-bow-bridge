@@ -31,6 +31,24 @@ package chi_tb_pkg;
   localparam logic [63:0] BOW_INJ_UNKNOWN_HDR_HI = 64'h3FF8_0000_0000_0000;
   localparam logic [63:0] BOW_INJ_UNKNOWN_HDR_LO = 64'h0;
 
+  // Dup / orphan / illegal BoW inject flits — same layouts as
+  // integration/test_integration.py and vlate_bench/tb_main.cpp inject_* helpers.
+  // PKT_TYPE_RSP_HDR=3, PKT_TYPE_RSP_DATA=4; opcodes in CHI_RSP_*.
+  localparam logic [7:0]  BOW_INJ_DUP_TXN          = 8'h55;
+  localparam logic [63:0] BOW_INJ_DUP_HDR_HI       = 64'h3956_0000_0000_0000; // RD_RESP txn 0x55 has_data=1
+  localparam logic [63:0] BOW_INJ_DUP_HDR_LO       = 64'h0;
+
+  localparam logic [7:0]  BOW_INJ_ORPHAN_TXN       = 8'h33;
+  localparam logic [63:0] BOW_INJ_ORPHAN_DATA_HI   = 64'h4330_0000_0000_0000; // RSP_DATA txn 0x33
+  localparam logic [63:0] BOW_INJ_ORPHAN_DATA_LO   = 64'h0000_0000_0000_1234;
+
+  localparam logic [7:0]  BOW_INJ_ILL_WR_TXN       = 8'h61;
+  localparam logic [63:0] BOW_INJ_ILL_WACK_HD1_HI  = 64'h3D86_0000_0000_0000; // WACK has_data=1
+  localparam logic [63:0] BOW_INJ_VALID_WACK_HI    = 64'h3D84_0000_0000_0000; // WACK has_data=0
+  localparam logic [7:0]  BOW_INJ_ILL_RD_TXN       = 8'h62;
+  localparam logic [63:0] BOW_INJ_ILL_RRESP_HD0_HI = 64'h3988_0000_0000_0000; // RD_RESP has_data=0
+  localparam logic [63:0] BOW_INJ_ILL_HDR_LO       = 64'h0;
+
   // Mirror bow_link_partner_bfm read_payload — keep numeric layout aligned with verification/golden_payloads.py (bfm_read_data_u64).
   function automatic logic [63:0] exp_read_data(input logic [7:0] txnid);
     return {32'hA5A5_A5A5, 8'd0, txnid[7:0], 8'd0, txnid[7:0]};
@@ -57,7 +75,7 @@ package chi_tb_pkg;
     int unsigned burst_drain_ns     = 8000;
     int unsigned illegal_tail_ns    = 500;
     int unsigned illegal_settle_clks = 10;
-    // Post-illegal idle for stitched smoke+burst+inject+illegal flow (vlate_bench tail scale).
+    // Post-illegal idle for stitched smoke+burst+injects+illegal-REQ flow (vlate_bench tail scale).
     int unsigned stitched_final_ns  = 25000;
     function new(string name = "chi_tb_cfg");
       super.new(name);
@@ -283,6 +301,258 @@ package chi_tb_pkg;
       `uvm_info("CHK",
         $sformatf("unknown txn BoW RSP_HDR via bow_inj err_unknown_txn_rsp_hdr=%0d",
                   vif.err_unknown_txn_rsp_hdr),
+        UVM_MEDIUM)
+    endtask
+
+    // One bow_inj beat; leaves bow_inj_en unchanged. Callers hold en around multi-beat sequences.
+    task automatic send_bow_inj_beat(logic [63:0] hi, logic [63:0] lo);
+      vif.bow_inj_data_hi <= hi;
+      vif.bow_inj_data_lo <= lo;
+      vif.bow_inj_valid <= 1'b1;
+      forever @(posedge vif.clk) begin
+        if (vif.bow_inj_valid && vif.bow_inj_ready) begin
+          break;
+        end
+      end
+      @(negedge vif.clk);
+      vif.bow_inj_valid <= 1'b0;
+      @(posedge vif.clk);
+    endtask
+
+    task automatic wait_txn_pending(logic [7:0] txnid);
+      int cy;
+      for (cy = 0; cy < 64; cy++) begin
+        if (vif.dbg_pending_txn[txnid]) begin
+          return;
+        end
+        @(posedge vif.clk);
+      end
+      `uvm_error("CHK", $sformatf("txn %02h never became pending", txnid))
+    endtask
+
+    task automatic drive_req_no_exp(chi_op_ty op, logic [63:0] addr, logic [63:0] data,
+                                    logic [7:0] txnid, logic [7:0] beats = 8'd1);
+      chi_seq_item tr;
+      tr = chi_seq_item::type_id::create("inj_req");
+      tr.op = op;
+      tr.addr = addr;
+      tr.data = data;
+      tr.txnid = txnid;
+      tr.beats = beats;
+      drive_until_accept(tr);
+    endtask
+
+    task automatic wait_err_eq(string name, logic [31:0] exp);
+      int cy;
+      for (cy = 0; cy < 64; cy++) begin
+        if ((name == "err_dup_rsp_hdr" && vif.err_dup_rsp_hdr === exp) ||
+            (name == "err_orphan_rsp_data" && vif.err_orphan_rsp_data === exp) ||
+            (name == "err_illegal_rsp_hdr" && vif.err_illegal_rsp_hdr === exp)) begin
+          return;
+        end
+        @(posedge vif.clk);
+      end
+      `uvm_error("CHK", $sformatf("%s failed to reach %0d", name, exp))
+    endtask
+
+    // Duplicate read-response headers — parity:
+    // integration `test_integration_duplicate_rsp_hdr_via_inj`, vlate `inject_duplicate_rsp_hdr`.
+    // No scoreboard expectation (txn aborted by duplicate).
+    task automatic inject_duplicate_rsp_hdr();
+      logic [31:0] base_dup, base_orphan, base_illegal, base_unk_hdr, base_unk_dat, base_ill_req;
+      wait(vif.rst_n === 1'b1);
+
+      base_dup     = vif.err_dup_rsp_hdr;
+      base_orphan  = vif.err_orphan_rsp_data;
+      base_illegal = vif.err_illegal_rsp_hdr;
+      base_unk_hdr = vif.err_unknown_txn_rsp_hdr;
+      base_unk_dat = vif.err_unknown_txn_rsp_data;
+      base_ill_req = vif.err_illegal_req_hdr;
+
+      vif.chi_req_valid <= 1'b0;
+      vif.chi_rsp_ready <= 1'b1;
+      vif.bow_inj_en <= 1'b1;
+
+      drive_req_no_exp(CHI_RD, 64'h5000, 64'h0, BOW_INJ_DUP_TXN, 8'd1);
+      wait_txn_pending(BOW_INJ_DUP_TXN);
+
+      send_bow_inj_beat(BOW_INJ_DUP_HDR_HI, BOW_INJ_DUP_HDR_LO);
+      send_bow_inj_beat(BOW_INJ_DUP_HDR_HI, BOW_INJ_DUP_HDR_LO);
+
+      @(posedge vif.clk);
+      @(negedge vif.clk);
+      vif.bow_inj_en <= 1'b0;
+
+      wait_err_eq("err_dup_rsp_hdr", base_dup + 32'd1);
+
+      if (vif.err_orphan_rsp_data !== base_orphan) begin
+        `uvm_error("CHK", "err_orphan_rsp_data changed during duplicate inject")
+      end
+      if (vif.err_illegal_rsp_hdr !== base_illegal) begin
+        `uvm_error("CHK", "err_illegal_rsp_hdr changed during duplicate inject")
+      end
+      if (vif.err_unknown_txn_rsp_hdr !== base_unk_hdr) begin
+        `uvm_error("CHK", "err_unknown_txn_rsp_hdr changed during duplicate inject")
+      end
+      if (vif.err_unknown_txn_rsp_data !== base_unk_dat) begin
+        `uvm_error("CHK", "err_unknown_txn_rsp_data changed during duplicate inject")
+      end
+      if (vif.err_illegal_req_hdr !== base_ill_req) begin
+        `uvm_error("CHK", "err_illegal_req_hdr changed during duplicate inject")
+      end
+
+      `uvm_info("CHK",
+        $sformatf("duplicate read-response header via bow_inj err_dup_rsp_hdr=%0d",
+                  vif.err_dup_rsp_hdr),
+        UVM_MEDIUM)
+    endtask
+
+    // Orphan RSP_DATA — parity: integration `test_integration_orphan_rsp_data_via_inj`,
+    // vlate `inject_orphan_rsp_data`.
+    task automatic inject_orphan_rsp_data();
+      logic [31:0] base_orphan, base_dup, base_illegal, base_unk_hdr, base_unk_dat, base_ill_req;
+      wait(vif.rst_n === 1'b1);
+
+      base_orphan  = vif.err_orphan_rsp_data;
+      base_dup     = vif.err_dup_rsp_hdr;
+      base_illegal = vif.err_illegal_rsp_hdr;
+      base_unk_hdr = vif.err_unknown_txn_rsp_hdr;
+      base_unk_dat = vif.err_unknown_txn_rsp_data;
+      base_ill_req = vif.err_illegal_req_hdr;
+
+      vif.chi_req_valid <= 1'b0;
+      vif.chi_rsp_ready <= 1'b1;
+      vif.bow_inj_en <= 1'b1;
+
+      send_bow_inj_beat(BOW_INJ_ORPHAN_DATA_HI, BOW_INJ_ORPHAN_DATA_LO);
+
+      @(negedge vif.clk);
+      vif.bow_inj_en <= 1'b0;
+
+      wait_err_eq("err_orphan_rsp_data", base_orphan + 32'd1);
+
+      if (vif.err_dup_rsp_hdr !== base_dup) begin
+        `uvm_error("CHK", "err_dup_rsp_hdr changed during orphan inject")
+      end
+      if (vif.err_illegal_rsp_hdr !== base_illegal) begin
+        `uvm_error("CHK", "err_illegal_rsp_hdr changed during orphan inject")
+      end
+      if (vif.err_unknown_txn_rsp_hdr !== base_unk_hdr) begin
+        `uvm_error("CHK", "err_unknown_txn_rsp_hdr changed during orphan inject")
+      end
+      if (vif.err_unknown_txn_rsp_data !== base_unk_dat) begin
+        `uvm_error("CHK", "err_unknown_txn_rsp_data changed during orphan inject")
+      end
+      if (vif.err_illegal_req_hdr !== base_ill_req) begin
+        `uvm_error("CHK", "err_illegal_req_hdr changed during orphan inject")
+      end
+
+      `uvm_info("CHK",
+        $sformatf("orphan response data via bow_inj err_orphan_rsp_data=%0d",
+                  vif.err_orphan_rsp_data),
+        UVM_MEDIUM)
+    endtask
+
+    // Illegal BoW RSP_HDR framing + quarantine — parity:
+    // integration `test_integration_illegal_rsp_hdr_via_inj`, vlate `inject_illegal_rsp_hdr`.
+    // Posts scoreboard expectations for the legal completions that follow each fault.
+    task automatic inject_illegal_rsp_hdr();
+      logic [31:0] base_illegal;
+      chi_exp_item ex;
+      int cy;
+      bit seen;
+      wait(vif.rst_n === 1'b1);
+
+      base_illegal = vif.err_illegal_rsp_hdr;
+
+      // --- WRITE_ACK has_data=1 then legal WRITE_ACK ---
+      vif.chi_req_valid <= 1'b0;
+      vif.chi_rsp_ready <= 1'b0;
+      vif.bow_inj_en <= 1'b1;
+
+      ex = chi_exp_item::type_id::create("ex_ill_wr");
+      ex.op = CHI_WR;
+      ex.txnid = BOW_INJ_ILL_WR_TXN;
+      ap_exp.write(ex);
+
+      drive_req_no_exp(CHI_WR, 64'h6100, 64'hFEED_FACE, BOW_INJ_ILL_WR_TXN, 8'd1);
+      wait_txn_pending(BOW_INJ_ILL_WR_TXN);
+
+      send_bow_inj_beat(BOW_INJ_ILL_WACK_HD1_HI, BOW_INJ_ILL_HDR_LO);
+      wait_err_eq("err_illegal_rsp_hdr", base_illegal + 32'd1);
+
+      if (!vif.dbg_pending_txn[BOW_INJ_ILL_WR_TXN]) begin
+        `uvm_error("CHK", "txn 0x61 cleared after illegal WRITE_ACK")
+      end
+      if (vif.dbg_rsp_need_data[BOW_INJ_ILL_WR_TXN]) begin
+        `uvm_error("CHK", "rsp_need_data set for txn 0x61 after illegal WRITE_ACK")
+      end
+      if (vif.chi_rsp_valid !== 1'b0) begin
+        `uvm_error("CHK", "chi_rsp_valid asserted after illegal WRITE_ACK")
+      end
+
+      vif.chi_rsp_ready <= 1'b1;
+      send_bow_inj_beat(BOW_INJ_VALID_WACK_HI, BOW_INJ_ILL_HDR_LO);
+      @(negedge vif.clk);
+      vif.bow_inj_en <= 1'b0;
+
+      seen = 1'b0;
+      for (cy = 0; cy < 64; cy++) begin
+        @(posedge vif.clk);
+        if (!vif.dbg_pending_txn[BOW_INJ_ILL_WR_TXN]) begin
+          seen = 1'b1;
+          break;
+        end
+      end
+      if (!seen) begin
+        `uvm_error("CHK", "valid WRITE_ACK failed to complete txn 0x61")
+      end
+
+      // --- READ_RESP has_data=0 then BFM completion ---
+      vif.chi_rsp_ready <= 1'b0;
+      vif.bow_inj_en <= 1'b1;
+
+      ex = chi_exp_item::type_id::create("ex_ill_rd");
+      ex.op = CHI_RD;
+      ex.txnid = BOW_INJ_ILL_RD_TXN;
+      ap_exp.write(ex);
+
+      drive_req_no_exp(CHI_RD, 64'h6200, 64'h0, BOW_INJ_ILL_RD_TXN, 8'd1);
+      wait_txn_pending(BOW_INJ_ILL_RD_TXN);
+
+      send_bow_inj_beat(BOW_INJ_ILL_RRESP_HD0_HI, BOW_INJ_ILL_HDR_LO);
+      wait_err_eq("err_illegal_rsp_hdr", base_illegal + 32'd2);
+
+      if (!vif.dbg_pending_txn[BOW_INJ_ILL_RD_TXN]) begin
+        `uvm_error("CHK", "txn 0x62 cleared after illegal READ_RESP")
+      end
+      if (vif.dbg_rsp_need_data[BOW_INJ_ILL_RD_TXN]) begin
+        `uvm_error("CHK", "rsp_need_data set for txn 0x62 after illegal READ_RESP")
+      end
+      if (vif.chi_rsp_valid !== 1'b0) begin
+        `uvm_error("CHK", "chi_rsp_valid asserted after illegal READ_RESP")
+      end
+
+      vif.chi_rsp_ready <= 1'b1;
+      @(posedge vif.clk);
+      @(negedge vif.clk);
+      vif.bow_inj_en <= 1'b0;
+
+      seen = 1'b0;
+      for (cy = 0; cy < 64; cy++) begin
+        @(posedge vif.clk);
+        if (!vif.dbg_pending_txn[BOW_INJ_ILL_RD_TXN]) begin
+          seen = 1'b1;
+          break;
+        end
+      end
+      if (!seen) begin
+        `uvm_error("CHK", "BFM failed to complete txn 0x62 after illegal READ_RESP")
+      end
+
+      `uvm_info("CHK",
+        $sformatf("illegal BoW response headers via bow_inj err_illegal_rsp_hdr=%0d",
+                  vif.err_illegal_rsp_hdr),
         UVM_MEDIUM)
     endtask
   endclass
@@ -650,7 +920,62 @@ package chi_tb_pkg;
   endclass
 
   //----------------------------------------------------------------------
-  // Stitched ordering mirrors vlate_bench/tb_main.cpp `main()`: smoke → burst → inject → illegal REQ.
+  // integration/test_integration.py `test_integration_duplicate_rsp_hdr_via_inj`
+  class chi_dup_rsp_hdr_inj_test extends chi_base_test;
+    `uvm_component_utils(chi_dup_rsp_hdr_inj_test)
+
+    function new(string name = "chi_dup_rsp_hdr_inj_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction : new
+
+    virtual task run_phase(uvm_phase phase);
+      phase.raise_objection(this);
+      repeat (4) @(posedge vif.clk);
+      env.agent.drv.inject_duplicate_rsp_hdr();
+      #(cfg.illegal_tail_ns * 1ns);
+      phase.drop_objection(this);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  // integration/test_integration.py `test_integration_orphan_rsp_data_via_inj`
+  class chi_orphan_rsp_data_inj_test extends chi_base_test;
+    `uvm_component_utils(chi_orphan_rsp_data_inj_test)
+
+    function new(string name = "chi_orphan_rsp_data_inj_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction : new
+
+    virtual task run_phase(uvm_phase phase);
+      phase.raise_objection(this);
+      repeat (4) @(posedge vif.clk);
+      env.agent.drv.inject_orphan_rsp_data();
+      #(cfg.illegal_tail_ns * 1ns);
+      phase.drop_objection(this);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  // integration/test_integration.py `test_integration_illegal_rsp_hdr_via_inj`
+  class chi_illegal_rsp_hdr_inj_test extends chi_base_test;
+    `uvm_component_utils(chi_illegal_rsp_hdr_inj_test)
+
+    function new(string name = "chi_illegal_rsp_hdr_inj_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction : new
+
+    virtual task run_phase(uvm_phase phase);
+      phase.raise_objection(this);
+      repeat (4) @(posedge vif.clk);
+      env.agent.drv.inject_illegal_rsp_hdr();
+      #(cfg.illegal_tail_ns * 1ns);
+      phase.drop_objection(this);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  // Stitched ordering mirrors vlate_bench/tb_main.cpp `main()`:
+  // smoke → burst → unknown → dup → orphan → illegal RSP → illegal REQ.
   class chi_full_integration_test extends chi_base_test;
     `uvm_component_utils(chi_full_integration_test)
 
@@ -672,6 +997,9 @@ package chi_tb_pkg;
       #(cfg.burst_mid_ns * 1ns);
 
       env.agent.drv.inject_unknown_txn_rsp_hdr();
+      env.agent.drv.inject_duplicate_rsp_hdr();
+      env.agent.drv.inject_orphan_rsp_data();
+      env.agent.drv.inject_illegal_rsp_hdr();
 
       repeat (cfg.illegal_settle_clks) @(posedge vif.clk);
 

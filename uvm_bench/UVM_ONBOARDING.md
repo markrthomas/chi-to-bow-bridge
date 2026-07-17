@@ -85,7 +85,7 @@ tb_top (SV module)
 
 | Component | Typical responsibility |
 |-----------|------------------------|
-| `chi_driver` | Drive `chi_req_*` until accepted; tasks `inject_unknown_txn_rsp_hdr`, `drive_illegal_req_phase`. |
+| `chi_driver` | Drive `chi_req_*` until accepted; tasks `inject_unknown_txn_rsp_hdr`, `inject_duplicate_rsp_hdr`, `inject_orphan_rsp_data`, `inject_illegal_rsp_hdr`, `drive_illegal_req_phase`. |
 | `chi_rsp_monitor` | Detect completed responses (`chi_rsp_valid && chi_rsp_ready`). |
 | `chi_scoreboard` | Match reads/writes to expected opcode / txnid / data (`exp_read_data()`). |
 | `chi_integration_cov` | Samples `vif` each clock: REQ/RSP accepted beats, completed `bow_inj_*` beats, and `err_pulse` snapshots of `err_illegal_req_hdr` / `err_unknown_txn_rsp_hdr`. |
@@ -94,7 +94,7 @@ tb_top (SV module)
 
 - **`cg_req_handshake`** — Smoke + burst + illegal REQ (`chi_smoke_test`, `chi_burst_test`, `chi_illegal_req_test`, stitched).
 - **`cg_rsp_handshake`** — Same set (responses for legal traffic).
-- **`cg_bow_inj_handshake`** — Unknown `RSP_HDR` inject (`chi_unknown_txn_inj_test` or stitched `chi_full_integration_test`).
+- **`cg_bow_inj_handshake`** — BoW inject paths (`chi_unknown_txn_inj_test`, dup/orphan/illegal RSP inject tests, or stitched `chi_full_integration_test`).
 - **`cg_err_on_pulse`** — Illegal REQ and inject paths that pulse `err_pulse` with distinct counter snapshots.
 
 Full bin/cross documentation lives in **`README.md`** (*Coverage / Functional*); implementation in **`uvm/chi_tb_cov.svh`**.

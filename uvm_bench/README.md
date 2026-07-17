@@ -38,17 +38,23 @@ Pipe tables here were too wide for PDF; each scenario is a short block so column
 - **Verilator:** `inject_unknown_txn_rsp_hdr`.
 - **UVM:** `chi_unknown_txn_inj_test`; stitched smoke → burst → inject → illegal: `chi_full_integration_test`.
 
+### Duplicate / orphan / illegal BoW response inject
+
+- **Cocotb:** `test_integration_duplicate_rsp_hdr_via_inj`, `test_integration_orphan_rsp_data_via_inj`, `test_integration_illegal_rsp_hdr_via_inj`.
+- **Verilator:** `inject_duplicate_rsp_hdr`, `inject_orphan_rsp_data`, `inject_illegal_rsp_hdr`.
+- **UVM:** `chi_dup_rsp_hdr_inj_test`, `chi_orphan_rsp_data_inj_test`, `chi_illegal_rsp_hdr_inj_test`; all three also run inside `chi_full_integration_test` (same order as `vlate_bench/tb_main.cpp`).
+
 Constants / read payload layouts: `verification/golden_payloads.py` ↔ `chi_tb.hpp` ↔ `exp_read_data()` in `chi_tb_pkg.sv`.
 
 ### PR workflow (when touching integration verification)
 
 1. Change **`integration/test_integration.py`** and/or **`vlate_bench/tb_main.cpp`** as needed **or** intentionally leave them untouched.
-2. If the **integration scenario matrix** ([`docs/PLAN.md`](../docs/PLAN.md)) changes, update **`uvm/chi_tb_pkg.sv`** (sequences, delays, **`drive_illegal_req_phase`**) and **this mapping** above.
-3. Run **`make oss-regress`** (or **`make integration-test`** + **`make -C vlate_bench lint && make -C vlate_bench run`**). Run **`make -C uvm_bench run`** for each **`UVM_TEST`** you touched — at minimum **`chi_smoke_test`**, **`chi_burst_test`**, **`chi_illegal_req_test`**, **`chi_unknown_txn_inj_test`**, **`chi_full_integration_test`** when inject or stitched flow changes ([`Makefile`](Makefile)). After changing **`chi_tb_cov.svh`** bins/crosses or VCS **`VCS_COV_COMPILE`** knobs, run **`make -C uvm_bench coverage`** (if licensed) and inspect **`sim.log`** **`COV`** lines plus optional **`make cov-report`**.
+2. If the **integration scenario matrix** ([`docs/PLAN.md`](../docs/PLAN.md)) changes, update **`uvm/chi_tb_pkg.sv`** (sequences, delays, **`drive_illegal_req_phase`**, inject tasks) and **this mapping** above.
+3. Run **`make oss-regress`** (or **`make integration-test`** + **`make -C vlate_bench lint && make -C vlate_bench run`**). Run **`make -C uvm_bench run`** for each **`UVM_TEST`** you touched — at minimum **`chi_smoke_test`**, **`chi_burst_test`**, **`chi_illegal_req_test`**, **`chi_unknown_txn_inj_test`**, **`chi_dup_rsp_hdr_inj_test`**, **`chi_orphan_rsp_data_inj_test`**, **`chi_illegal_rsp_hdr_inj_test`**, **`chi_full_integration_test`** when inject or stitched flow changes ([`Makefile`](Makefile)). After changing **`chi_tb_cov.svh`** bins/crosses or VCS **`VCS_COV_COMPILE`** knobs, run **`make -C uvm_bench coverage`** (if licensed) and inspect **`sim.log`** **`COV`** lines plus optional **`make cov-report`**.
 
 ## What it verifies
 
-**`chi_smoke_test`** mirrors **`test_integration_bfm_completes_smoke`**; **`chi_burst_test`** mirrors **`test_integration_bfm_burst_through_top`**; **`chi_illegal_req_test`** mirrors **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** (illegal REQ opcodes only — no **`bow_inj`**). **`chi_unknown_txn_inj_test`** mirrors **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`**. **`chi_full_integration_test`** stitches smoke → burst → inject → illegal REQ in the same order as **`vlate_bench/tb_main.cpp`**. Cocotb **`bow_inj_*`** + Verilator **`inject_unknown_txn_rsp_hdr`** use the same 128-bit flit constants as **`chi_tb_pkg`** (**`BOW_INJ_UNKNOWN_HDR_*`**).
+**`chi_smoke_test`** mirrors **`test_integration_bfm_completes_smoke`**; **`chi_burst_test`** mirrors **`test_integration_bfm_burst_through_top`**; **`chi_illegal_req_test`** mirrors **`test_integration_illegal_chi_req_opcodes_increment_err_counter`** (illegal REQ opcodes only — no **`bow_inj`**). **`chi_unknown_txn_inj_test`** mirrors **`test_integration_unknown_txnid_bow_rsp_hdr_via_inj`**. **`chi_dup_rsp_hdr_inj_test`**, **`chi_orphan_rsp_data_inj_test`**, and **`chi_illegal_rsp_hdr_inj_test`** mirror the matching Cocotb **`test_integration_*_via_inj`** / Verilator **`inject_*`** scenarios. **`chi_full_integration_test`** stitches smoke → burst → unknown → dup → orphan → illegal RSP → illegal REQ in the same order as **`vlate_bench/tb_main.cpp`**. Cocotb **`bow_inj_*`** + Verilator inject helpers use the same 128-bit flit constants as **`chi_tb_pkg`** (**`BOW_INJ_*`**).
 
 Common structure:
 
@@ -70,7 +76,7 @@ Beyond the OSS-mapped smoke+burst+illegal-REQ+unknown-txn-inject matrix above, e
 | `sim.f` | Compilation file list (RTL + bind `verification/chi_integration_protocol_chk.sv` + TB); run VCS from `uvm_bench/` or adjust paths. |
 | `tb/chi_integration_if.sv` | Virtual-interface bundle for CHI REQ/RSP, `bow_inj_*`, and mirrored `err_*` counters (driver vs monitor modports). |
 | `tb/tb_top.sv` | Top module: ties `chi_to_bow_integration_top` to the interface, `uvm_config_db` for `vif`, `run_test()`. |
-| `uvm/chi_tb_pkg.sv` | UVM package: driver (`inject_unknown_txn_rsp_hdr`, `drive_illegal_req_phase`), monitor, scoreboard, `chi_tb_cfg` (`stitched_final_ns` for `chi_full_integration_test`), sequences, tests listed above. |
+| `uvm/chi_tb_pkg.sv` | UVM package: driver (`inject_unknown_txn_rsp_hdr`, `inject_duplicate_rsp_hdr`, `inject_orphan_rsp_data`, `inject_illegal_rsp_hdr`, `drive_illegal_req_phase`), monitor, scoreboard, `chi_tb_cfg` (`stitched_final_ns` for `chi_full_integration_test`), sequences, tests listed above. |
 | `uvm/chi_tb_cov.svh` | `chi_integration_cov`: REQ/RSP handshakes, opcodes, txnids, beats, crosses. Included from `chi_tb_pkg.sv`; `chi_env` always builds `cov`. |
 | `Makefile` | `compile`, `run`, `compile-cov`, `run-cov`, `coverage`, `cov-report`, `clean`, `pdf`, `pdf-readme`, `pdf-quickref`, `pdf-onboarding`. |
 
@@ -135,6 +141,14 @@ BoW inject + unknown-txn **`RSP_HDR`** (integration **`bow_inj_*`** path):
 make run UVM_TEST=chi_unknown_txn_inj_test
 ```
 
+Duplicate / orphan / illegal BoW response inject:
+
+```bash
+make run UVM_TEST=chi_dup_rsp_hdr_inj_test
+make run UVM_TEST=chi_orphan_rsp_data_inj_test
+make run UVM_TEST=chi_illegal_rsp_hdr_inj_test
+```
+
 Full stitched flow (matches **`vlate_bench`** **`tb_main.cpp`** ordering):
 
 ```bash
@@ -150,7 +164,9 @@ Rebuild with instrumentation and leave a **`uvm_cov.vdb`** database (gitignored)
 ```bash
 make coverage UVM_TEST=chi_smoke_test
 # repeat for chi_burst_test / chi_illegal_req_test / chi_unknown_txn_inj_test /
-#          chi_full_integration_test as needed, then merge/report with URG:
+#          chi_dup_rsp_hdr_inj_test / chi_orphan_rsp_data_inj_test /
+#          chi_illegal_rsp_hdr_inj_test / chi_full_integration_test as needed,
+# then merge/report with URG:
 make cov-report
 ```
 
@@ -192,7 +208,8 @@ When `vif.err_pulse` is high, snapshots `err_illegal_req_hdr` and `err_unknown_t
 2. `chi_burst_test` — REQ/RSP burst txnids + beats bins/crosses.
 3. `chi_illegal_req_test` — REQ illegal opcodes; `cg_err_on_pulse` illegal-count bins.
 4. `chi_unknown_txn_inj_test` — `cg_bow_inj_handshake` golden tuple; unknown `err_*` snapshot bins.
-5. `chi_full_integration_test` — all of the above (stitched ordering matches `vlate_bench`).
+5. `chi_dup_rsp_hdr_inj_test` / `chi_orphan_rsp_data_inj_test` / `chi_illegal_rsp_hdr_inj_test` — remaining `bow_inj_*` fault paths.
+6. `chi_full_integration_test` — all of the above (stitched ordering matches `vlate_bench`).
 
 ### Manual VCS (equivalent sketch)
 
@@ -202,7 +219,9 @@ Commands must be run **from `uvm_bench/`** so `sim.f` relative paths resolve:
 vcs -full64 -sverilog -timescale=1ns/1ps -ntb_opts uvm-1.2 +acc+r -f sim.f -o ./simv
 ./simv +UVM_TESTNAME=chi_smoke_test +UVM_VERBOSITY=UVM_MEDIUM -l sim.log
 # or: +UVM_TESTNAME=chi_burst_test ; +UVM_TESTNAME=chi_illegal_req_test
-#     +UVM_TESTNAME=chi_unknown_txn_inj_test ; +UVM_TESTNAME=chi_full_integration_test
+#     +UVM_TESTNAME=chi_unknown_txn_inj_test ; +UVM_TESTNAME=chi_dup_rsp_hdr_inj_test
+#     +UVM_TESTNAME=chi_orphan_rsp_data_inj_test ; +UVM_TESTNAME=chi_illegal_rsp_hdr_inj_test
+#     +UVM_TESTNAME=chi_full_integration_test
 ```
 
 Artifacts: `./simv`, `sim.log` (Makefile `clean` removes common VCS clutter).
@@ -211,7 +230,7 @@ Artifacts: `./simv`, `sim.log` (Makefile `clean` removes common VCS clutter).
 
 1. **`tb_top`** builds clock/reset (interface reset wired to RTL `rst_n`), **`bow_inj_*`** and **`err_*`** observability into **`chi_integration_if`**, and publishes `virtual chi_integration_if` via **`uvm_config_db`** with **`set(null, CHI_DB_SCOPE_ALL, CHI_DB_KEY_VIF, …)`** (wildcard scope `"*"`). Components resolve it with the usual **`get(this, "", CHI_DB_KEY_VIF, …)`** walk upward—use **`CHI_DB_KEY_VIF`** so extensions share one field name.
 2. **`chi_agent`** contains the CHI driver, sequencer, and response monitor. **`chi_env`** also instantiates **`chi_integration_cov`**, which samples **`chi_integration_if`** each clock for REQ/RSP handshakes, **`bow_inj_*`** completions, and **`err_pulse`** snapshots (**see § Coverage / Functional** above).
-3. **`chi_driver`** implements **valid/ready** on `chi_req_*` until the request is accepted, then emits an expectation into the scoreboard (**same ordering as acceptance**, not end-to-end protocol completion). Directed **`inject_unknown_txn_rsp_hdr`** asserts **`bow_inj_*`** handshake + **`err_unknown_txn_rsp_hdr`** isolation (parity with Cocotb / **`vlate_bench`**).
+3. **`chi_driver`** implements **valid/ready** on `chi_req_*` until the request is accepted, then emits an expectation into the scoreboard (**same ordering as acceptance**, not end-to-end protocol completion). Directed **`inject_*`** tasks assert **`bow_inj_*`** handshake + **`err_*`** counters (parity with Cocotb / **`vlate_bench`**); illegal RSP quarantine also posts scoreboard expectations for the legal completions that follow.
 4. **`chi_rsp_monitor`** samples completed CHI responses when `chi_rsp_valid && chi_rsp_ready` on clock edges.
 5. **`chi_scoreboard`** matches observed responses to queued expectations (write-ack and read response with predictable data; multi-beat reads complete on the last data beat exposed on CHI, as in RTL).
 6. **`chi_illegal_req_test`** uses **`chi_base_test::expect_illegal_req_inc`** (wrapper around **`drive_illegal_req_phase`**, no scoreboard expectation): **`vif.err_illegal_req_hdr`** / **`vif.err_pulse`** are tied from the DUT pins in **`tb_top`**.

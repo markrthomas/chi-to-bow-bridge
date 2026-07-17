@@ -34,9 +34,13 @@ interface chi_integration_if (input logic clk);
   logic [63:0] bow_inj_data_hi;
   logic [63:0] bow_inj_data_lo;
 
+  // Bridge debug (quarantine checks for illegal/dup BoW inject scenarios).
+  logic [255:0] dbg_pending_txn;
+  logic [255:0] dbg_rsp_need_data;
+
   modport drv_mp (
       input chi_req_ready, chi_rsp_valid, chi_rsp_opcode, chi_rsp_data, chi_rsp_txnid,
-            bow_inj_ready,
+            bow_inj_ready, dbg_pending_txn, dbg_rsp_need_data,
       output chi_req_valid, chi_req_opcode, chi_req_addr, chi_req_data, chi_req_beats,
              chi_req_txnid, chi_rsp_ready,
              bow_inj_en, bow_inj_valid, bow_inj_data_hi, bow_inj_data_lo
@@ -48,7 +52,8 @@ interface chi_integration_if (input logic clk);
             chi_rsp_valid, chi_rsp_ready, chi_rsp_opcode, chi_rsp_data, chi_rsp_txnid,
             bow_inj_en, bow_inj_valid, bow_inj_ready, bow_inj_data_hi, bow_inj_data_lo,
             err_illegal_req_hdr, err_unknown_txn_rsp_hdr, err_unknown_txn_rsp_data,
-            err_dup_rsp_hdr, err_orphan_rsp_data, err_illegal_rsp_hdr, err_pulse
+            err_dup_rsp_hdr, err_orphan_rsp_data, err_illegal_rsp_hdr, err_pulse,
+            dbg_pending_txn, dbg_rsp_need_data
   );
 
   modport mon_rsp_mp (

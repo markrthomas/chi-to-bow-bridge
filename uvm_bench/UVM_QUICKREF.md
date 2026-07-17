@@ -41,7 +41,10 @@ Variables: `UVM_TEST`, `EXTRA_VCSOPTS`, `VCS`, `SIMV`, `COV_DIR`, `PANDOC`, `PAN
 | `chi_burst_test` | Multi-beat write/read — parity integration burst scenario. |
 | `chi_illegal_req_test` | Illegal REQ-channel opcodes → `err_illegal_req_hdr` / `err_pulse`. |
 | `chi_unknown_txn_inj_test` | Unknown-txn `RSP_HDR` on `bow_inj_*`. |
-| `chi_full_integration_test` | Stitched smoke → burst → inject → illegal (matches `vlate_bench/tb_main.cpp` ordering). |
+| `chi_dup_rsp_hdr_inj_test` | Duplicate read-response headers → `err_dup_rsp_hdr`. |
+| `chi_orphan_rsp_data_inj_test` | Orphan `RSP_DATA` → `err_orphan_rsp_data`. |
+| `chi_illegal_rsp_hdr_inj_test` | Illegal BoW `RSP_HDR` framing + quarantine → `err_illegal_rsp_hdr`. |
+| `chi_full_integration_test` | Stitched smoke → burst → unknown/dup/orphan/illegal-RSP inject → illegal REQ (matches `vlate_bench/tb_main.cpp`). |
 
 Example:
 
@@ -57,8 +60,8 @@ make run UVM_TEST=chi_burst_test
 |------|------|
 | `sim.f` | RTL + `verification/chi_integration_protocol_chk.sv` (bind protocol asserts) + TB. |
 | `tb/tb_top.sv` | Top, `uvm_config_db`, `run_test()`. |
-| `tb/chi_integration_if.sv` | CHI REQ/RSP, `bow_inj_*`, `err_*` — driver/monitor modports. |
-| `uvm/chi_tb_pkg.sv` | Agents, sequences, tests, `inject_unknown_txn_rsp_hdr`, `drive_illegal_req_phase`, `chi_tb_cfg`. |
+| `tb/chi_integration_if.sv` | CHI REQ/RSP, `bow_inj_*`, `err_*`, `dbg_pending_txn` / `dbg_rsp_need_data` — driver/monitor modports. |
+| `uvm/chi_tb_pkg.sv` | Agents, sequences, tests, inject helpers (`inject_unknown_txn_rsp_hdr`, dup/orphan/illegal RSP), `drive_illegal_req_phase`, `chi_tb_cfg`. |
 | `uvm/chi_tb_cov.svh` | `chi_integration_cov`: REQ/RSP handshakes, `bow_inj_*` beat completions, `err_pulse` counter snapshots; `report_phase` `[COV]` prints four `get_coverage()` percentages. Details: `README.md` § *Coverage / Functional*. |
 
 ---
