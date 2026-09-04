@@ -49,6 +49,28 @@ package chi_tb_pkg;
   localparam logic [63:0] BOW_INJ_ILL_RRESP_HD0_HI = 64'h3988_0000_0000_0000; // RD_RESP has_data=0
   localparam logic [63:0] BOW_INJ_ILL_HDR_LO       = 64'h0;
 
+  // Directed burst write — verification/golden_payloads.py BURST_WR_* / chi_tb.hpp.
+  localparam logic [7:0]  BURST_WR_TXN  = 8'h71;
+  localparam logic [63:0] BURST_WR_ADDR = 64'h3000_4000_5000_6000;
+  localparam int unsigned BURST_WR_N    = 3;
+  localparam logic [63:0] BURST_WR_DATA0 = 64'hBAD0_C0DE_1111_2222;
+  localparam logic [63:0] BURST_WR_DATA1 = 64'hBAD0_C0DE_3333_4444;
+  localparam logic [63:0] BURST_WR_DATA2 = 64'hBAD0_C0DE_5555_6666;
+
+  function automatic logic [63:0] burst_wr_payload(input logic [7:0] txnid,
+                                                   input int unsigned beat_idx,
+                                                   input logic [63:0] beat0);
+    if (txnid == BURST_WR_TXN) begin
+      case (beat_idx)
+        0: return BURST_WR_DATA0;
+        1: return BURST_WR_DATA1;
+        2: return BURST_WR_DATA2;
+        default: return beat0;
+      endcase
+    end
+    return beat0;
+  endfunction
+
   // Mirror bow_link_partner_bfm read_payload — keep numeric layout aligned with verification/golden_payloads.py (bfm_read_data_u64).
   function automatic logic [63:0] exp_read_data(input logic [7:0] txnid);
     return {32'hA5A5_A5A5, 8'd0, txnid[7:0], 8'd0, txnid[7:0]};
@@ -195,9 +217,10 @@ package chi_tb_pkg;
     endtask
 
     task automatic drive_until_accept(chi_seq_item tr);
+      int unsigned b;
       wait(vif.rst_n === 1'b1);
       @(posedge vif.clk);
-      vif.chi_req_opcode <= logic [1:0]'(tr.op);
+      vif.chi_req_opcode <= 2'(tr.op);
       vif.chi_req_addr   <= tr.addr;
       vif.chi_req_data   <= tr.data;
       vif.chi_req_beats  <= tr.beats;
@@ -207,6 +230,25 @@ package chi_tb_pkg;
         if (vif.chi_req_valid && vif.chi_req_ready) begin
           vif.chi_req_valid <= 1'b0;
           break;
+        end
+      end
+
+      // Burst write continuation: one CHI handshake per remaining REQ_DATA beat.
+      if ((tr.op == CHI_WR) && (tr.beats > 8'd1)) begin
+        for (b = 1; b < int'(tr.beats); b++) begin
+          @(posedge vif.clk);
+          vif.chi_req_opcode <= 2'(CHI_WR);
+          vif.chi_req_addr   <= tr.addr;
+          vif.chi_req_data   <= burst_wr_payload(tr.txnid, b, tr.data);
+          vif.chi_req_beats  <= tr.beats;
+          vif.chi_req_txnid  <= tr.txnid;
+          vif.chi_req_valid  <= 1'b1;
+          forever @(posedge vif.clk) begin
+            if (vif.chi_req_valid && vif.chi_req_ready) begin
+              vif.chi_req_valid <= 1'b0;
+              break;
+            end
+          end
         end
       end
     endtask
@@ -799,7 +841,7 @@ package chi_tb_pkg;
     endtask
 
     virtual task burst_traffic();
-      drive_write(64'h3000_4000_5000_6000, 64'hBAD0_C0DE_1111_2222, 8'h71, 8'd3);
+      drive_write(BURST_WR_ADDR, BURST_WR_DATA0, BURST_WR_TXN, 8'(BURST_WR_N));
       pause_ns(m_cfg.burst_mid_ns);
       drive_read(64'h5000, 8'h72, 8'd4);
     endtask
