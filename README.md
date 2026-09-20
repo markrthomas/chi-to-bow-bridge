@@ -47,8 +47,12 @@ make waves
 
 ## Common Commands
 
-From the repository root:
+From the repository root (see **[`DV_STANDARDS.md`](DV_STANDARDS.md)** for the `make` target
+convention shared across this maintainer's RTL/DV repos, including `make help`, `make check`,
+and the `make cocotb` alias for `make test`):
 
+- Print the grouped target list:
+  - `make help`
 - Run tests:
   - `make test`
 - Run system integration sim (bridge + in-repo BFM, asserts `err_*` clean):

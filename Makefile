@@ -1,11 +1,42 @@
-.PHONY: all test sim integration-test docs uvm-pdf clean doctor waves gtkwave oss-regress oss-regress-coverage \
-        lint regress coverage formal ci
+.PHONY: all help test sim cocotb integration-test docs uvm-pdf clean doctor waves gtkwave oss-regress oss-regress-coverage \
+        lint check regress coverage formal ci
 
 all: test integration-test docs
+
+# help: grouped target list (does not run any gate). `all` remains this
+# repo's no-arg default; run `make help` explicitly for the summary.
+help:
+	@echo "chi-to-bow-bridge -- make targets (see DV_STANDARDS.md)"
+	@echo ""
+	@echo "Tests:"
+	@echo "  test, sim          Cocotb functional testbench (test/)"
+	@echo "  cocotb             Alias for test"
+	@echo "  integration-test   Closed-loop integration sim (integration/)"
+	@echo ""
+	@echo "Gates:"
+	@echo "  check              Light local gate: lint + test"
+	@echo "  lint               Verilator RTL lint (vlate_bench)"
+	@echo "  regress            lint + test + integration-test + vlate_bench run"
+	@echo "  coverage           Verilator structural coverage (OSS regression)"
+	@echo "  formal             SymbiYosys BMC/cover proofs (skips if sby absent)"
+	@echo "  ci                 regress + coverage (comprehensive local run)"
+	@echo ""
+	@echo "Other:"
+	@echo "  docs               Build spec/plan/UVM/Verilator PDFs"
+	@echo "  uvm-pdf            Build only the UVM bench PDFs"
+	@echo "  waves              Generate waveform dump"
+	@echo "  gtkwave            Generate waveforms and open in GTKWave"
+	@echo "  oss-regress        Full OSS regression (Icarus + docs + Verilator)"
+	@echo "  oss-regress-coverage  oss-regress plus structural coverage"
+	@echo "  doctor             Check local toolchain/setup"
+	@echo "  clean              Remove build/sim/coverage artifacts"
 
 test sim:
 	$(MAKE) -C test clean
 	$(MAKE) -C test
+
+# cocotb: cross-repo alias for the cocotb functional tier (this repo calls it `test`/`sim`).
+cocotb: test
 
 integration-test:
 	$(MAKE) -C integration clean
@@ -46,6 +77,10 @@ oss-regress-coverage:
 # lint: Verilator RTL lint via vlate_bench.
 lint:
 	$(MAKE) -C vlate_bench lint
+
+# check: light local gate — lint + the cocotb functional tier. Fast enough to run on every save.
+check: lint test
+	@echo "[CHECK] lint + cocotb PASSED"
 
 # regress: fast CI gate — lint + Cocotb directed + integration + Verilator C++ TB.
 regress: lint test integration-test
