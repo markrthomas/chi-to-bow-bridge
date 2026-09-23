@@ -1,0 +1,73 @@
+[*]
+[*] chi_to_bow_bridge -- curated GTKWave layout (top-level DUT interface)
+[*] Signals grouped by function: clock/reset, CHI request, CHI response,
+[*] BoW TX/RX, and debug/error counters. Open via `make gtkwave` (test/Makefile),
+[*] or manually: gtkwave sim_build/chi_to_bow_bridge.fst -a chi_to_bow_bridge.gtkw
+[*]
+[dumpfile] "sim_build/chi_to_bow_bridge.fst"
+[timestart] 0
+[size] 1600 1000
+[pos] -1 -1
+[sst_width] 300
+[signals_width] 320
+[sst_expanded] 1
+[sst_vpaned_height] 220
+@28
+-Clock & Reset
+@24
+chi_to_bow_bridge.clk
+chi_to_bow_bridge.rst_n
+@28
+-CHI Request (RX from CHI fabric)
+@24
+chi_to_bow_bridge.chi_req_valid
+chi_to_bow_bridge.chi_req_ready
+@22
+chi_to_bow_bridge.chi_req_opcode[1:0]
+chi_to_bow_bridge.chi_req_addr[63:0]
+chi_to_bow_bridge.chi_req_data[63:0]
+chi_to_bow_bridge.chi_req_beats[7:0]
+chi_to_bow_bridge.chi_req_txnid[7:0]
+@28
+-CHI Response (TX to CHI fabric)
+@24
+chi_to_bow_bridge.chi_rsp_valid
+chi_to_bow_bridge.chi_rsp_ready
+@22
+chi_to_bow_bridge.chi_rsp_opcode[1:0]
+chi_to_bow_bridge.chi_rsp_data[63:0]
+chi_to_bow_bridge.chi_rsp_txnid[7:0]
+@28
+-BoW TX (egress to link)
+@24
+chi_to_bow_bridge.bow_tx_valid
+chi_to_bow_bridge.bow_tx_ready
+@22
+chi_to_bow_bridge.bow_tx_data[127:0]
+@28
+-BoW RX (ingress from link)
+@24
+chi_to_bow_bridge.bow_rx_valid
+chi_to_bow_bridge.bow_rx_ready
+@22
+chi_to_bow_bridge.bow_rx_data[127:0]
+@28
+-Error Counters / Guardrails
+@24
+chi_to_bow_bridge.err_pulse
+@22
+chi_to_bow_bridge.err_unknown_txn_rsp_hdr[31:0]
+chi_to_bow_bridge.err_unknown_txn_rsp_data[31:0]
+chi_to_bow_bridge.err_dup_rsp_hdr[31:0]
+chi_to_bow_bridge.err_orphan_rsp_data[31:0]
+chi_to_bow_bridge.err_illegal_req_hdr[31:0]
+chi_to_bow_bridge.err_illegal_rsp_hdr[31:0]
+@28
+-Debug (FIFO occupancy / pending txn bitmaps)
+@22
+chi_to_bow_bridge.dbg_chi_req_fifo_used[7:0]
+chi_to_bow_bridge.dbg_bow_rx_fifo_used[7:0]
+chi_to_bow_bridge.dbg_rsp_opcode0[1:0]
+chi_to_bow_bridge.dbg_rsp_rem_byte0[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

@@ -19,7 +19,7 @@ Parity policy: align with Integration Cocotb and `vlate_bench` per `docs/PLAN.md
 | Target | Purpose |
 |--------|---------|
 | `compile` | `vcs … -f sim.f -o ./simv` |
-| `run` | `compile` then `./simv +UVM_TESTNAME=$(UVM_TEST) …` — default `UVM_TEST=chi_smoke_test` |
+| `run` | `compile` then `./simv +UVM_TESTNAME=$(UVM_TEST) …` — default `UVM_TEST=chi_random_test` |
 | `compile-cov` / `run-cov` / `coverage` | VCS `-cm` structural instrumentation → `uvm_cov.vdb` (gitignored). |
 | `cov-report` | URG textual report from `$(COV_DIR)` — requires `urg` on `PATH`. |
 | `pdf` | All Markdown PDFs (`README.pdf`, `UVM_QUICKREF.pdf`, `UVM_ONBOARDING.pdf`). |
@@ -37,6 +37,7 @@ Variables: `UVM_TEST`, `EXTRA_VCSOPTS`, `VCS`, `SIMV`, `COV_DIR`, `PANDOC`, `PAN
 
 | Test | Role |
 |------|------|
+| `chi_random_test` | **Default.** Constrained-random mixed read/write, 6 single-beat transactions. |
 | `chi_smoke_test` | Single-beat read/write smoke — parity integration Cocotb smoke. |
 | `chi_burst_test` | Multi-beat write/read — parity integration burst scenario. |
 | `chi_illegal_req_test` | Illegal REQ-channel opcodes → `err_illegal_req_hdr` / `err_pulse`. |

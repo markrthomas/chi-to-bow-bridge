@@ -177,7 +177,8 @@ When you change stimulus or expectations, update **both** the mapping in **`READ
 From **`uvm_bench/`** (requires **`vcs`**):
 
 ```bash
-make run                              # default chi_smoke_test
+make run                              # default chi_random_test
+make run UVM_TEST=chi_smoke_test
 make run UVM_TEST=chi_full_integration_test
 ```
 
