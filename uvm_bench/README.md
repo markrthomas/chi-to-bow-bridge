@@ -10,6 +10,8 @@ Policy: **`uvm_bench` is not independent of the OSS thread.** It stays **behavio
 
 **Quick lookup:** commands, tests, paths, and **`config_db`** keys are summarized in **[`UVM_QUICKREF.md`](UVM_QUICKREF.md)** (also built as **`UVM_QUICKREF.pdf`** — see **Markdown → PDF** below).
 
+**Default `UVM_TEST` (no override):** **`chi_random_test`** ← **`chi_random_seq`**, a constrained-random mix of 6 single-beat read/write transactions (DV_STANDARDS.md floor: >= 5). Directed tests below remain available via **`UVM_TEST=<name>`**.
+
 ## Stay synchronized with OSS (mandatory mapping)
 
 Pipe tables here were too wide for PDF; each scenario is a short block so columns stay readable when printed.
@@ -204,6 +206,7 @@ When `vif.err_pulse` is high, snapshots `err_illegal_req_hdr` and `err_unknown_t
 
 **Suggested regression order for functional closure** (quick → full matrix):
 
+0. `chi_random_test` — **default**; constrained-random mixed read/write, 6 transactions.
 1. `chi_smoke_test` — REQ/RSP golden smoke txnids + single beat.
 2. `chi_burst_test` — REQ/RSP burst txnids + beats bins/crosses.
 3. `chi_illegal_req_test` — REQ illegal opcodes; `cg_err_on_pulse` illegal-count bins.

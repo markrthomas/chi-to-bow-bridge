@@ -71,7 +71,9 @@ jobs:
           VERILATOR="$VERILATOR_PREFIX/bin/verilator" \
           UVM_HOME="$VERILATOR_PREFIX/uvm"
 
-    - name: Build and run UVM smoke test (chi_smoke_test)
+    # No UVM_TEST override: uses uvm_bench/vlt/Makefile's default, the
+    # constrained-random mixed read/write sequence (chi_random_test).
+    - name: Build and run UVM default test (chi_random_test)
       run: |
         make -C uvm_bench/vlt smoke \
           VERILATOR="$VERILATOR_PREFIX/bin/verilator" \

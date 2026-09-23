@@ -7,7 +7,10 @@
 #
 # Optional: EXTRA_VCSOPTS=...
 SIMV      ?= ./simv
-UVM_TEST  ?= chi_smoke_test
+# Default (no explicit UVM_TEST override): constrained-random mixed read/write
+# sequence, >= 5 transactions (DV_STANDARDS.md). Override for a directed test,
+# e.g. `make run UVM_TEST=chi_smoke_test`.
+UVM_TEST  ?= chi_random_test
 VCS       ?= vcs
 
 VCS_BASE  ?= -full64 -sverilog -timescale=1ns/1ps -ntb_opts uvm-1.2 +acc+r

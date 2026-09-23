@@ -16,10 +16,12 @@ otherwise targets VCS).
 ```sh
 V=~/verilator/bin/verilator ; U=~/verilator/test_regress/t/uvm
 ( unset VERILATOR_ROOT; make -C uvm_bench/vlt lint  VERILATOR=$V UVM_HOME=$U )  # RAM-safe
-( unset VERILATOR_ROOT; make -C uvm_bench/vlt smoke VERILATOR=$V UVM_HOME=$U )  # build + run chi_smoke_test
+( unset VERILATOR_ROOT; make -C uvm_bench/vlt smoke VERILATOR=$V UVM_HOME=$U )  # build + run default test (chi_random_test)
 ```
-Top `tb_top`; test via `+UVM_TESTNAME` (default `chi_smoke_test`, override
-`UVM_TEST=<name>`). The `--binary` build belongs in CI, not a RAM-constrained host.
+Top `tb_top`; test via `+UVM_TESTNAME` (default `chi_random_test`, a
+constrained-random mixed read/write sequence — override with
+`UVM_TEST=<name>`, e.g. `UVM_TEST=chi_smoke_test`). The `--binary` build
+belongs in CI, not a RAM-constrained host.
 
 ## `uvm_macros.svh`
 Required tracked empty include-shim. Do not delete.

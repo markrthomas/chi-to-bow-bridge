@@ -20,7 +20,10 @@ UVM_HDR := $(UVM_HOME)/uvm_pkg_all_v2020_3_1_dpi.svh
 UVM_DPI := $(UVM_HOME)/v2020_3_1/dpi/uvm_dpi.cc
 
 BUILD_JOBS ?= 1
-UVM_TEST   ?= chi_smoke_test
+# Default (no explicit UVM_TEST override): constrained-random mixed read/write
+# sequence, >= 5 transactions (DV_STANDARDS.md). Override for a directed test,
+# e.g. `make smoke UVM_TEST=chi_smoke_test`.
+UVM_TEST   ?= chi_random_test
 
 VFLAGS ?= --binary --timing --vpi -j $(BUILD_JOBS) --build-jobs $(BUILD_JOBS) \
           -Wno-fatal -Wno-COVERIGN -Wno-TIMESCALEMOD --CFLAGS -O0

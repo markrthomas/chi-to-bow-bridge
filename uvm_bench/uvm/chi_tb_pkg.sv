@@ -57,6 +57,10 @@ package chi_tb_pkg;
   localparam logic [63:0] BURST_WR_DATA1 = 64'hBAD0_C0DE_3333_4444;
   localparam logic [63:0] BURST_WR_DATA2 = 64'hBAD0_C0DE_5555_6666;
 
+  // Default UVM_TEST target — constrained-random mixed read/write sequence.
+  localparam int unsigned RANDOM_SEQ_NUM_TXNS = 6;  // DV_STANDARDS floor: >= 5 transactions.
+  localparam logic [7:0]  RANDOM_SEQ_TXN_BASE = 8'h50;
+
   function automatic logic [63:0] burst_wr_payload(input logic [7:0] txnid,
                                                    input int unsigned beat_idx,
                                                    input logic [63:0] beat0);
@@ -89,6 +93,7 @@ package chi_tb_pkg;
       `uvm_field_int(illegal_tail_ns, UVM_DEFAULT)
       `uvm_field_int(illegal_settle_clks, UVM_DEFAULT)
       `uvm_field_int(stitched_final_ns, UVM_DEFAULT)
+      `uvm_field_int(random_drain_ns, UVM_DEFAULT)
     `uvm_object_utils_end
 
     int unsigned smoke_gap_rd_wr_ns = 500;
@@ -96,6 +101,7 @@ package chi_tb_pkg;
     int unsigned burst_mid_ns       = 1000;
     int unsigned burst_drain_ns     = 8000;
     int unsigned illegal_tail_ns    = 500;
+    int unsigned random_drain_ns    = 8000;
     int unsigned illegal_settle_clks = 10;
     // Post-illegal idle for stitched smoke+burst+injects+illegal-REQ flow (vlate_bench tail scale).
     int unsigned stitched_final_ns  = 25000;
@@ -848,6 +854,34 @@ package chi_tb_pkg;
   endclass
 
   //----------------------------------------------------------------------
+  // Constrained-random mixed read/write sequence — default UVM_TEST target
+  // (uvm_bench/Makefile, uvm_bench/vlt/Makefile). Single-beat, unique txnids,
+  // randomized op/addr/data per item via chi_seq_item's `rand` fields.
+  class chi_random_seq extends chi_sequence_base;
+    `uvm_object_utils(chi_random_seq)
+
+    function new(string name = "chi_random_seq");
+      super.new(name);
+    endfunction
+
+    virtual task body();
+      chi_seq_item tr;
+      for (int unsigned i = 0; i < RANDOM_SEQ_NUM_TXNS; i++) begin
+        tr = chi_seq_item::type_id::create($sformatf("rnd_%0d", i));
+        if (!tr.randomize() with {
+              beats == 8'd1;
+              txnid == RANDOM_SEQ_TXN_BASE + 8'(i);
+            }) begin
+          `uvm_error("CHISEQ", "chi_random_seq: chi_seq_item randomize failed")
+        end
+        if (tr.op == CHI_RD) drive_read(tr.addr, tr.txnid);
+        else                 drive_write(tr.addr, tr.data, tr.txnid);
+        pause_ns(m_cfg.smoke_gap_rd_wr_ns);
+      end
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
   virtual class chi_base_test extends uvm_test;
 
     chi_env env;
@@ -939,6 +973,26 @@ package chi_tb_pkg;
       seq_h = chi_smoke_seq::type_id::create("seq_h");
       seq_h.start(env.agent.seqr);
       #(cfg.smoke_drain_ns * 1ns);
+      phase.drop_objection(this);
+    endtask
+  endclass
+
+  //----------------------------------------------------------------------
+  // Default UVM_TEST target (uvm_bench/Makefile, uvm_bench/vlt/Makefile default
+  // `UVM_TEST`): constrained-random mixed read/write traffic, >= 5 transactions.
+  class chi_random_test extends chi_base_test;
+    `uvm_component_utils(chi_random_test)
+
+    function new(string name = "chi_random_test", uvm_component parent = null);
+      super.new(name, parent);
+    endfunction : new
+
+    virtual task run_phase(uvm_phase phase);
+      chi_random_seq seq_h;
+      phase.raise_objection(this);
+      seq_h = chi_random_seq::type_id::create("seq_h");
+      seq_h.start(env.agent.seqr);
+      #(cfg.random_drain_ns * 1ns);
       phase.drop_objection(this);
     endtask
   endclass
