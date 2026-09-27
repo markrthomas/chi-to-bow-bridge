@@ -61,10 +61,11 @@ and the `make cocotb` alias for `make test`):
   - `make docs`
   - This runs `make -C docs` (three spec/plan PDFs below), then **`make -C uvm_bench pdf`** (**`README.pdf`**, **`UVM_QUICKREF.pdf`**, **`UVM_ONBOARDING.pdf`**) and **`make -C vlate_bench pdf`** (**`README.pdf`**).
   - Shortcut for UVM PDFs only: **`make uvm-pdf`**.
-- Generate waveforms (`.fst` and, when available, `.vcd`):
+- Generate waveforms (`.fst` and, when available, `.vcd`) of the randomized mixed
+  read/write test with a fresh random seed (printed; `SEED=<n>` replays it):
   - `make waves`
-- Open waveforms in GTKWave:
-  - `make gtkwave`
+- Same, then open in GTKWave with the saved layout, zoomed to fit:
+  - `make wave` (alias `make gtkwave`)
 - Check local toolchain/setup:
   - `make doctor`
 - **OSS-only full regression** (doctor + **`make`** + Verilator **`lint`** + **`vlate_bench run`** — needs `verilator` on `PATH`):

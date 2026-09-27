@@ -11,8 +11,13 @@ WAVE_VCD = sim_build/$(TOPLEVEL).vcd
 # read/write test (10 transactions); override with WAVE_TESTCASE=<name>.
 WAVE_TESTCASE ?= test_interleaved_mixed_read_write_responses
 WAVE_GTKW = chi_to_bow_bridge.gtkw
+WAVE_ZOOM = zoom_full.tcl
+# The waveform flow is a random run: a fresh TEST_SEED every time unless SEED=<n>
+# is given (the seed is printed so a run can be replayed). Plain `make` keeps
+# each test's fixed default seed.
+WAVE_SEED := $(or $(SEED),$(shell echo $$(( $$(od -An -N4 -tu4 /dev/urandom) % 2147483646 + 1 ))))
 
-.PHONY: waves gtkwave
+.PHONY: waves gtkwave wave
 
 ICARUS_BIN_DIR ?= /usr/bin
 SIM_CMD_PREFIX := env -u VIRTUAL_ENV -u PYTHONHOME
@@ -24,7 +29,8 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 
 waves:
 	$(MAKE) clean
-	$(MAKE) WAVES=1 TESTCASE=$(WAVE_TESTCASE)
+	@echo "[WAVE] $(WAVE_TESTCASE) with random seed: SEED=$(WAVE_SEED)"
+	TEST_SEED=$(WAVE_SEED) $(MAKE) WAVES=1 TESTCASE=$(WAVE_TESTCASE)
 	@if command -v fst2vcd >/dev/null 2>&1; then \
 		fst2vcd "$(WAVE_FST)" > "$(WAVE_VCD)"; \
 		echo "Generated VCD: $(WAVE_VCD)"; \
@@ -33,16 +39,14 @@ waves:
 		echo "Install gtkwave package to enable FST->VCD conversion."; \
 	fi
 
-# Dumps WAVE_TESTCASE (default: the randomized mixed read/write test) and
-# opens it in GTKWave with the curated signal grouping in WAVE_GTKW.
-gtkwave: waves
+# Dumps WAVE_TESTCASE (default: the randomized mixed read/write test, fresh
+# seed) and opens it in GTKWave with the curated signal grouping in WAVE_GTKW,
+# zoomed to fit (WAVE_ZOOM). No gtkwave on PATH is a clean skip after the dump.
+gtkwave wave: waves
 	@if command -v gtkwave >/dev/null 2>&1; then \
-		if [ -f "$(WAVE_VCD)" ]; then \
-			gtkwave "$(WAVE_VCD)" -a "$(WAVE_GTKW)"; \
-		else \
-			gtkwave "$(WAVE_FST)" -a "$(WAVE_GTKW)"; \
-		fi; \
+		if [ -f "$(WAVE_VCD)" ]; then f="$(WAVE_VCD)"; else f="$(WAVE_FST)"; fi; \
+		echo "[WAVE] opening $$f with $(WAVE_GTKW)"; \
+		gtkwave -S "$(WAVE_ZOOM)" "$$f" -a "$(WAVE_GTKW)"; \
 	else \
-		echo "gtkwave not found. Install GTKWave and run this target again."; \
-		exit 1; \
+		echo "[WAVE] gtkwave not on PATH — dump is at $(WAVE_FST) (layout: $(WAVE_GTKW))"; \
 	fi

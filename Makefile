@@ -1,4 +1,4 @@
-.PHONY: all help test sim cocotb integration-test docs uvm-pdf clean doctor waves gtkwave oss-regress oss-regress-coverage \
+.PHONY: all help test sim cocotb integration-test docs uvm-pdf clean doctor waves gtkwave wave oss-regress oss-regress-coverage \
         lint check regress coverage formal ci
 
 all: test integration-test docs
@@ -24,8 +24,8 @@ help:
 	@echo "Other:"
 	@echo "  docs               Build spec/plan/UVM/Verilator PDFs"
 	@echo "  uvm-pdf            Build only the UVM bench PDFs"
-	@echo "  waves              Generate waveform dump"
-	@echo "  gtkwave            Generate waveforms and open in GTKWave"
+	@echo "  waves              Dump waves of the random test (fresh seed; SEED=<n> to replay)"
+	@echo "  wave, gtkwave      waves, then open in GTKWave with the curated layout"
 	@echo "  oss-regress        Full OSS regression (Icarus + docs + Verilator)"
 	@echo "  oss-regress-coverage  oss-regress plus structural coverage"
 	@echo "  doctor             Check local toolchain/setup"
@@ -54,7 +54,7 @@ uvm-pdf:
 waves:
 	$(MAKE) -C test waves
 
-gtkwave:
+gtkwave wave:
 	$(MAKE) -C test gtkwave
 
 clean:
