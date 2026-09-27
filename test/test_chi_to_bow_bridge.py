@@ -1,4 +1,5 @@
 import cocotb
+import os
 import random
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
@@ -12,6 +13,15 @@ from verification.golden_payloads import (
     PKT_TYPE_RSP_DATA,
     PKT_TYPE_RSP_HDR,
 )
+
+
+def _seeded_rng(dut, default_seed):
+    """Per-test RNG: the fixed default_seed (reproducible regression) unless
+    TEST_SEED is set, which `make wave` does with a fresh random value."""
+    env = os.environ.get("TEST_SEED", "")
+    seed = int(env, 0) if env else default_seed
+    dut._log.info("RNG seed = %d (0x%X)%s", seed, seed, " from TEST_SEED" if env else "")
+    return random.Random(seed)
 
 
 async def wait_for_tx_flit(dut, max_cycles=8):
@@ -374,7 +384,7 @@ async def test_randomized_backpressure_scoreboard(dut):
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
     await reset_dut(dut)
 
-    rng = random.Random(0xC0C07B)
+    rng = _seeded_rng(dut, 0xC0C07B)
     dut.chi_rsp_ready.value = 1
     dut.bow_tx_ready.value = 1
     dut.bow_rx_valid.value = 0
@@ -449,7 +459,7 @@ async def test_interleaved_mixed_read_write_responses(dut):
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
     await reset_dut(dut)
 
-    rng = random.Random(0xB01D5EED)
+    rng = _seeded_rng(dut, 0xB01D5EED)
     dut.chi_rsp_ready.value = 1
     dut.bow_tx_ready.value = 1
     dut.bow_rx_valid.value = 0
@@ -487,6 +497,12 @@ async def test_interleaved_mixed_read_write_responses(dut):
             dut.chi_rsp_ready.value = 1 if rng.randrange(100) < 85 else 0
             dut.bow_tx_ready.value = 1 if rng.randrange(100) < 80 else 0
             await RisingEdge(dut.clk)
+        # End each stall burst ready: a stall left asserted into the next
+        # drive_req_until_accepted() holds BoW TX off indefinitely, the bridge
+        # backs up, and chi_req_ready legitimately never returns (seed-dependent
+        # hang, e.g. TEST_SEED=1).
+        dut.chi_rsp_ready.value = 1
+        dut.bow_tx_ready.value = 1
 
     dut.chi_rsp_ready.value = 1
     dut.bow_tx_ready.value = 1
