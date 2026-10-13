@@ -1,6 +1,8 @@
 .PHONY: all help test sim cocotb integration-test docs uvm-pdf clean doctor waves gtkwave wave oss-regress oss-regress-coverage \
         lint check regress coverage formal ci
 
+.DEFAULT_GOAL := help
+
 all: test integration-test docs
 
 # help: grouped target list (does not run any gate). `all` remains this
@@ -18,6 +20,7 @@ help:
 	@echo "  lint               Verilator RTL lint (vlate_bench)"
 	@echo "  regress            lint + test + integration-test + vlate_bench run"
 	@echo "  coverage           Verilator structural coverage (OSS regression)"
+	@echo "  stress             stress / randomized simulation (n/a stub if none)"
 	@echo "  formal             SymbiYosys BMC/cover proofs (skips if sby absent)"
 	@echo "  ci                 regress + coverage (comprehensive local run)"
 	@echo ""
@@ -128,3 +131,8 @@ doctor:
 	@echo "VIRTUAL_ENV=$${VIRTUAL_ENV:-<unset>}"
 	@echo "PYTHONHOME=$${PYTHONHOME:-<unset>}"
 	@echo "Doctor check passed."
+
+# Standard DV target (DV_STANDARDS.md)
+.PHONY: stress
+stress:
+	@echo "[STRESS] n/a: no stress/randomized tier in this repo yet (see DV_STANDARDS.md)"
