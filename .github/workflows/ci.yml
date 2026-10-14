@@ -24,7 +24,7 @@ jobs:
           python -m pip install cocotb==1.8.1 pytest
 
       - name: Doctor + full build
-        run: make doctor && make
+        run: make doctor && make all
 
   # PLAN near-term #1 parity: OSS Verilator smoke (no Synopsys VCS license).
   vlate-bench:
