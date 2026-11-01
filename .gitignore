@@ -36,3 +36,5 @@ uvm_bench/*.log
 uvm_bench/*.vpd
 uvm_bench/uvm_cov.vdb/
 uvm_bench/urg_report/
+/verification/random/runs/
+/docker/last-run-metrics.json
